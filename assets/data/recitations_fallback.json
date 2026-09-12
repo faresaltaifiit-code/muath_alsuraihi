@@ -11,7 +11,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/001_الفاتحة.mp3",
+      "audio_path": "assets/audio/001_الفاتحة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -22,7 +22,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/002_البقرة.mp3",
+      "audio_path": "assets/audio/002_البقرة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -33,7 +33,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/003_آل عمران.mp3",
+      "audio_path": "assets/audio/003_آل عمران.m4a",
       "available": false,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -44,7 +44,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/004_النساء.mp3",
+      "audio_path": "assets/audio/004_النساء.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -55,7 +55,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/005_المائدة.mp3",
+      "audio_path": "assets/audio/005_المائدة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -66,7 +66,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/006_الأنعام.mp3",
+      "audio_path": "assets/audio/006_الأنعام.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -77,7 +77,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/007_الأعراف.mp3",
+      "audio_path": "assets/audio/007_الأعراف.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -88,7 +88,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/008_الأنفال.mp3",
+      "audio_path": "assets/audio/008_الأنفال.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -99,7 +99,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/009_التوبة.mp3",
+      "audio_path": "assets/audio/009_التوبة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -110,7 +110,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/010_يونس.mp3",
+      "audio_path": "assets/audio/010_يونس.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -121,7 +121,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/011_هود.mp3",
+      "audio_path": "assets/audio/011_هود.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -132,7 +132,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/012_يوسف.mp3",
+      "audio_path": "assets/audio/012_يوسف.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -143,7 +143,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/013_الرعد.mp3",
+      "audio_path": "assets/audio/013_الرعد.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -154,7 +154,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/014_إبراهيم.mp3",
+      "audio_path": "assets/audio/014_إبراهيم.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -165,7 +165,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/015_الحجر.mp3",
+      "audio_path": "assets/audio/015_الحجر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -176,7 +176,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/016_النحل.mp3",
+      "audio_path": "assets/audio/016_النحل.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -187,7 +187,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/017_الإسراء.mp3",
+      "audio_path": "assets/audio/017_الإسراء.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -198,7 +198,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/018_الكهف.mp3",
+      "audio_path": "assets/audio/018_الكهف.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -209,7 +209,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/019_مريم.mp3",
+      "audio_path": "assets/audio/019_مريم.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -220,7 +220,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/020_طه.mp3",
+      "audio_path": "assets/audio/020_طه.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -231,7 +231,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/021_الأنبياء.mp3",
+      "audio_path": "assets/audio/021_الأنبياء.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -242,7 +242,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/022_الحج.mp3",
+      "audio_path": "assets/audio/022_الحج.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -253,7 +253,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/023_المؤمنون.mp3",
+      "audio_path": "assets/audio/023_المؤمنون.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -264,7 +264,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/024_النور.mp3",
+      "audio_path": "assets/audio/024_النور.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -275,7 +275,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/025_الفرقان.mp3",
+      "audio_path": "assets/audio/025_الفرقان.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -286,7 +286,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/026_الشعراء.mp3",
+      "audio_path": "assets/audio/026_الشعراء.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -297,7 +297,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/027_النمل.mp3",
+      "audio_path": "assets/audio/027_النمل.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -308,7 +308,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/028_القصص.mp3",
+      "audio_path": "assets/audio/028_القصص.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -319,7 +319,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/029_العنكبوت.mp3",
+      "audio_path": "assets/audio/029_العنكبوت.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -330,7 +330,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/030_الروم.mp3",
+      "audio_path": "assets/audio/030_الروم.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -341,7 +341,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/031_لقمان.mp3",
+      "audio_path": "assets/audio/031_لقمان.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -352,7 +352,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/032_السجدة.mp3",
+      "audio_path": "assets/audio/032_السجدة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -363,7 +363,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/033_الأحزاب.mp3",
+      "audio_path": "assets/audio/033_الأحزاب.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -374,7 +374,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/034_سبأ.mp3",
+      "audio_path": "assets/audio/034_سبأ.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -385,7 +385,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/035_فاطر.mp3",
+      "audio_path": "assets/audio/035_فاطر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -396,7 +396,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/036_يس.mp3",
+      "audio_path": "assets/audio/036_يس.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -407,7 +407,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/037_الصافات.mp3",
+      "audio_path": "assets/audio/037_الصافات.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -418,7 +418,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/038_ص.mp3",
+      "audio_path": "assets/audio/038_ص.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -429,7 +429,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/039_الزمر.mp3",
+      "audio_path": "assets/audio/039_الزمر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -440,7 +440,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/040_غافر.mp3",
+      "audio_path": "assets/audio/040_غافر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -451,7 +451,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/041_فصلت.mp3",
+      "audio_path": "assets/audio/041_فصلت.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -462,7 +462,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/042_الشورى.mp3",
+      "audio_path": "assets/audio/042_الشورى.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -473,7 +473,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/043_الزخرف.mp3",
+      "audio_path": "assets/audio/043_الزخرف.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -484,7 +484,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/044_الدخان.mp3",
+      "audio_path": "assets/audio/044_الدخان.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -495,7 +495,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/045_الجاثية.mp3",
+      "audio_path": "assets/audio/045_الجاثية.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -506,7 +506,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/046_الأحقاف.mp3",
+      "audio_path": "assets/audio/046_الأحقاف.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -517,7 +517,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/047_محمد.mp3",
+      "audio_path": "assets/audio/047_محمد.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -528,7 +528,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/048_الفتح.mp3",
+      "audio_path": "assets/audio/048_الفتح.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -539,7 +539,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/049_الحجرات.mp3",
+      "audio_path": "assets/audio/049_الحجرات.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -550,7 +550,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/050_ق.mp3",
+      "audio_path": "assets/audio/050_ق.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -561,7 +561,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/051_الذاريات.mp3",
+      "audio_path": "assets/audio/051_الذاريات.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -572,7 +572,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/052_الطور.mp3",
+      "audio_path": "assets/audio/052_الطور.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -583,7 +583,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/053_النجم.mp3",
+      "audio_path": "assets/audio/053_النجم.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -594,7 +594,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/054_القمر.mp3",
+      "audio_path": "assets/audio/054_القمر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -605,7 +605,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/055_الرحمن.mp3",
+      "audio_path": "assets/audio/055_الرحمن.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -616,7 +616,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/056_الواقعة.mp3",
+      "audio_path": "assets/audio/056_الواقعة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -627,7 +627,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/057_الحديد.mp3",
+      "audio_path": "assets/audio/057_الحديد.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -638,7 +638,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/058_المجادلة.mp3",
+      "audio_path": "assets/audio/058_المجادلة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -649,7 +649,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/059_الحشر.mp3",
+      "audio_path": "assets/audio/059_الحشر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -660,7 +660,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/060_الممتحنة.mp3",
+      "audio_path": "assets/audio/060_الممتحنة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -671,7 +671,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/061_الصف.mp3",
+      "audio_path": "assets/audio/061_الصف.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -682,7 +682,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/062_الجمعة.mp3",
+      "audio_path": "assets/audio/062_الجمعة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -693,7 +693,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/063_المنافقون.mp3",
+      "audio_path": "assets/audio/063_المنافقون.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -704,7 +704,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/064_التغابن.mp3",
+      "audio_path": "assets/audio/064_التغابن.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -715,7 +715,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/065_الطلاق.mp3",
+      "audio_path": "assets/audio/065_الطلاق.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -726,7 +726,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/066_التحريم.mp3",
+      "audio_path": "assets/audio/066_التحريم.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -737,7 +737,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/067_الملك.mp3",
+      "audio_path": "assets/audio/067_الملك.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -748,7 +748,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/068_القلم.mp3",
+      "audio_path": "assets/audio/068_القلم.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -759,7 +759,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/069_الحاقة.mp3",
+      "audio_path": "assets/audio/069_الحاقة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -770,7 +770,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/070_المعارج.mp3",
+      "audio_path": "assets/audio/070_المعارج.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -781,7 +781,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/071_نوح.mp3",
+      "audio_path": "assets/audio/071_نوح.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -792,7 +792,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/072_الجن.mp3",
+      "audio_path": "assets/audio/072_الجن.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -803,7 +803,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/073_المزمل.mp3",
+      "audio_path": "assets/audio/073_المزمل.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -814,7 +814,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/074_المدثر.mp3",
+      "audio_path": "assets/audio/074_المدثر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -825,7 +825,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/075_القيامة.mp3",
+      "audio_path": "assets/audio/075_القيامة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -836,7 +836,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/076_الإنسان.mp3",
+      "audio_path": "assets/audio/076_الإنسان.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -847,7 +847,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/077_المرسلات.mp3",
+      "audio_path": "assets/audio/077_المرسلات.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -858,7 +858,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/078_النبأ.mp3",
+      "audio_path": "assets/audio/078_النبأ.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -869,7 +869,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/079_النازعات.mp3",
+      "audio_path": "assets/audio/079_النازعات.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -880,7 +880,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/080_عبس.mp3",
+      "audio_path": "assets/audio/080_عبس.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -891,7 +891,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/081_التكوير.mp3",
+      "audio_path": "assets/audio/081_التكوير.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -902,7 +902,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/082_الانفطار.mp3",
+      "audio_path": "assets/audio/082_الانفطار.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -913,7 +913,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/083_المطففين.mp3",
+      "audio_path": "assets/audio/083_المطففين.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -924,7 +924,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/084_الانشقاق.mp3",
+      "audio_path": "assets/audio/084_الانشقاق.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -935,7 +935,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/085_البروج.mp3",
+      "audio_path": "assets/audio/085_البروج.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -946,7 +946,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/086_الطارق.mp3",
+      "audio_path": "assets/audio/086_الطارق.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -957,7 +957,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/087_الأعلى.mp3",
+      "audio_path": "assets/audio/087_الأعلى.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -968,7 +968,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/088_الغاشية.mp3",
+      "audio_path": "assets/audio/088_الغاشية.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -979,7 +979,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/089_الفجر.mp3",
+      "audio_path": "assets/audio/089_الفجر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -990,7 +990,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/090_البلد.mp3",
+      "audio_path": "assets/audio/090_البلد.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1001,7 +1001,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/091_الشمس.mp3",
+      "audio_path": "assets/audio/091_الشمس.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1012,7 +1012,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/092_الليل.mp3",
+      "audio_path": "assets/audio/092_الليل.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1023,7 +1023,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/093_الضحى.mp3",
+      "audio_path": "assets/audio/093_الضحى.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1034,7 +1034,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/094_الشرح.mp3",
+      "audio_path": "assets/audio/094_الشرح.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1045,7 +1045,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/095_التين.mp3",
+      "audio_path": "assets/audio/095_التين.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1056,7 +1056,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/096_العلق.mp3",
+      "audio_path": "assets/audio/096_العلق.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1067,7 +1067,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/097_القدر.mp3",
+      "audio_path": "assets/audio/097_القدر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1078,7 +1078,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/098_البينة.mp3",
+      "audio_path": "assets/audio/098_البينة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1089,7 +1089,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/099_الزلزلة.mp3",
+      "audio_path": "assets/audio/099_الزلزلة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1100,7 +1100,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/100_العاديات.mp3",
+      "audio_path": "assets/audio/100_العاديات.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1111,7 +1111,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/101_القارعة.mp3",
+      "audio_path": "assets/audio/101_القارعة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1122,7 +1122,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/102_التكاثر.mp3",
+      "audio_path": "assets/audio/102_التكاثر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1133,7 +1133,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/103_العصر.mp3",
+      "audio_path": "assets/audio/103_العصر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1144,7 +1144,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/104_الهمزة.mp3",
+      "audio_path": "assets/audio/104_الهمزة.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1155,7 +1155,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/105_الفيل.mp3",
+      "audio_path": "assets/audio/105_الفيل.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1166,7 +1166,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/106_قريش.mp3",
+      "audio_path": "assets/audio/106_قريش.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1177,7 +1177,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/107_الماعون.mp3",
+      "audio_path": "assets/audio/107_الماعون.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1188,7 +1188,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/108_الكوثر.mp3",
+      "audio_path": "assets/audio/108_الكوثر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1199,7 +1199,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/109_الكافرون.mp3",
+      "audio_path": "assets/audio/109_الكافرون.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1210,7 +1210,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/110_النصر.mp3",
+      "audio_path": "assets/audio/110_النصر.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1221,7 +1221,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/111_المسد.mp3",
+      "audio_path": "assets/audio/111_المسد.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1232,7 +1232,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/112_الإخلاص.mp3",
+      "audio_path": "assets/audio/112_الإخلاص.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1243,7 +1243,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/113_الفلق.mp3",
+      "audio_path": "assets/audio/113_الفلق.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1254,7 +1254,7 @@
       "reciter_name": "معاذ بن ماجد السريحي",
       "duration_seconds": 0,
       "duration_text": "",
-      "audio_path": "assets/audio/114_الناس.mp3",
+      "audio_path": "assets/audio/114_الناس.m4a",
       "available": true,
       "file_size_bytes": 0,
       "file_size_text": ""
@@ -1264,13 +1264,13 @@
     {
       "id": "douaa_khatm",
       "title": "دعاء ختم القرآن الكريم",
-      "audio_path": "assets/audio/special_دعاء_ختم_القرآن.mp3",
+      "audio_path": "assets/audio/special_دعاء_ختم_القرآن.m4a",
       "duration_text": ""
     },
     {
       "id": "khusuf",
       "title": "تلاوة خاشعة من صلاة الخسوف 1447هـ",
-      "audio_path": "assets/audio/special_تلاوة_الخسوف.mp3",
+      "audio_path": "assets/audio/special_تلاوة_الخسوف.m4a",
       "duration_text": ""
     }
   ]
