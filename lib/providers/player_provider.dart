@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,6 +37,8 @@ class PlayerProvider extends ChangeNotifier {
 
   Future<void> initialize() async {
     if (_handler != null) return;
+    final audioSession = await AudioSession.instance;
+    await audioSession.configure(AudioSessionConfiguration.music());
     _handler = await AudioService.init(
       builder: MuathAudioHandler.new,
       config: const AudioServiceConfig(
@@ -69,6 +72,8 @@ class PlayerProvider extends ChangeNotifier {
       return;
     }
     _currentSurah = surah;
+    _position = Duration.zero;
+    _duration = Duration.zero;
     _duration = surah.durationSeconds > 0
         ? Duration(seconds: surah.durationSeconds)
         : Duration.zero;

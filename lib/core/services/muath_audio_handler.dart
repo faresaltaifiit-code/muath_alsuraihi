@@ -14,15 +14,20 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     if (!surah.available || surah.audioPath.isEmpty) {
       throw ArgumentError('هذه التلاوة غير متوفرة حاليًا.');
     }
-    mediaItem.add(MediaItem(
+    final item = MediaItem(
       id: surah.audioPath,
       title: 'سورة ${surah.name}',
       artist: surah.reciterName,
       duration: surah.durationSeconds > 0
           ? Duration(seconds: surah.durationSeconds)
           : null,
-    ));
-    await _player.setAudioSource(AudioSource.asset(surah.audioPath));
+    );
+    mediaItem.add(item);
+    final detectedDuration =
+        await _player.setAudioSource(AudioSource.asset(surah.audioPath));
+    if (detectedDuration != null) {
+      mediaItem.add(item.copyWith(duration: detectedDuration));
+    }
     if (autoplay) await play();
   }
 

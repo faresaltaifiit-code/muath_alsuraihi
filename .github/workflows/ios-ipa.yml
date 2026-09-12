@@ -26,6 +26,12 @@ jobs:
       - name: Check Flutter code
         run: flutter analyze lib
 
+      - name: Validate bundled recitations catalog
+        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('assets/data/recitations_fallback.json','utf8'));if(!Array.isArray(c.surahs)||c.surahs.length!==114)throw new Error('Expected 114 surahs');const n=c.surahs.map(x=>x.number).sort((a,b)=>a-b);if(n.some((x,i)=>x!==i+1))throw new Error('Invalid surah numbering');console.log('Validated '+c.surahs.length+' surahs');"
+
+      - name: Validate local audio files
+        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('assets/data/recitations_fallback.json','utf8'));for(const s of c.surahs.filter(x=>x.available)){if(!fs.existsSync(s.audio_path))throw new Error('Missing audio: '+s.audio_path)}console.log('Validated local audio files');"
+
       - name: Create iOS project and set local-audio mode
         run: |
           rm -rf ios

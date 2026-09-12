@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/surah_model.dart';
 import '../../../providers/player_provider.dart';
+import '../../../providers/favorites_provider.dart';
 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key, required this.surah});
@@ -22,7 +23,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final player = context.read<PlayerProvider>();
       if (player.currentSurah?.audioPath != widget.surah.audioPath) {
-        player.prepareSurah(widget.surah);
+        player.prepareSurah(widget.surah, autoplay: true);
       }
     });
   }
@@ -130,8 +131,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   IconButton(
                     tooltip: 'المفضلة',
                     iconSize: 27,
-                    onPressed: () {},
-                    icon: const Icon(Icons.favorite_border_rounded),
+                    onPressed: () =>
+                        context.read<FavoritesProvider>().toggle(surah),
+                    icon: Icon(context.watch<FavoritesProvider>().contains(surah)
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded),
                   ),
                 ],
               ),
