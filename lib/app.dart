@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import 'core/constants/app_strings.dart';
 import 'core/theme/app_theme.dart';
-import 'features/home/presentation/home_screen.dart';
 import 'features/navigation/presentation/root_navigation_screen.dart';
 import 'providers/recitations_provider.dart';
 import 'providers/player_provider.dart';

@@ -85,7 +85,7 @@ class _SurahsScreenState extends State<SurahsScreen> {
       return _StateMessage(
         icon: Icons.library_music_outlined,
         title: 'لا توجد تلاوات بعد',
-        message: 'أضف رابط ملف JSON في app_urls.dart ثم أعد تشغيل التطبيق.',
+        message: 'تأكد من وجود ملف قائمة التلاوات داخل التطبيق ثم أعد التشغيل.',
         actionLabel: 'تحديث القائمة',
         onAction: state.loadSurahs,
       );
@@ -101,7 +101,7 @@ class _SurahsScreenState extends State<SurahsScreen> {
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         itemCount: results.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        separatorBuilder: (_, separatorIndex) => const SizedBox(height: 10),
         itemBuilder: (context, index) => _SurahCard(surah: results[index]),
       ),
     );

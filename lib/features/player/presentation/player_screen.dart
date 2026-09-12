@@ -181,7 +181,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
       builder: (context) => _OptionsSheet(
         title: 'سرعة القراءة',
         options: const [0.75, 1.0, 1.25, 1.5],
-        label: (value) => '${value}×',
+        label: (value) => '$value×',
       ),
     );
     if (result != null) await player.changeSpeed(result);
