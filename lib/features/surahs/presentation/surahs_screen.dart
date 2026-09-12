@@ -219,6 +219,7 @@ class _StateMessage extends StatelessWidget {
       );
 }
 
+// ignore: unused_element
 void _comingSoon(BuildContext context, String feature) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text('$feature سيكون جاهزًا في الخطوات القادمة.')),
