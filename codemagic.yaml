@@ -12,7 +12,8 @@ workflows:
           rm -rf ios
           # معرّف iOS لا يقبل الشرطة السفلية، لذا نستخدم اسمًا بلا (_) هنا.
           flutter create --platforms=ios --org com.faresaltaifi --project-name muathalsuraihi .
-          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName معاذ السريحي" ios/Runner/Info.plist
+          # AltStore لا يقبل أحرفًا غير لاتينية عند تسجيل App ID للحساب المجاني.
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Muath Alsuraihi" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes: string audio" ios/Runner/Info.plist
       - name: جلب الحزم وفحص الكود
