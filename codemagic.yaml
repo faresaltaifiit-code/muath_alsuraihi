@@ -10,7 +10,8 @@ workflows:
       - name: إنشاء مشروع iOS الرسمي
         script: |
           rm -rf ios
-          flutter create --platforms=ios --org com.faresaltaifi --project-name muath_alsuraihi .
+          # معرّف iOS لا يقبل الشرطة السفلية، لذا نستخدم اسمًا بلا (_) هنا.
+          flutter create --platforms=ios --org com.faresaltaifi --project-name muathalsuraihi .
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName معاذ السريحي" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes: string audio" ios/Runner/Info.plist
