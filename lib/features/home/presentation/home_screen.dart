@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../surahs/presentation/surahs_screen.dart';
 import '../../library/presentation/library_screens.dart';
+import '../../library/presentation/special_recitations_screen.dart';
+import '../../../providers/player_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -97,8 +100,16 @@ class _ContinueListeningCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    return DecoratedBox(
+    return Consumer<PlayerProvider>(
+      builder: (context, player, _) {
+        final last = player.lastSurah;
+        final title = last == null
+            ? 'اختر سورة لبدء التلاوة'
+            : 'سورة ${last.name}';
+        final description = last == null
+            ? 'سيُحفظ آخر موضع استماعك تلقائيًا.'
+            : 'استكمل من ${_formatDuration(player.lastPosition)}';
+        return DecoratedBox(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.forestGreen, AppColors.emerald],
@@ -134,11 +145,11 @@ class _ContinueListeningCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            Text('اختر سورة لبدء التلاوة',
+            Text(title,
                 style: theme.textTheme.titleLarge?.copyWith(color: Colors.white)),
             const SizedBox(height: 6),
             Text(
-              'سيظهر آخر موضع استماعك هنا تلقائيًا.',
+              description,
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: Colors.white.withValues(alpha: 0.78)),
             ),
@@ -146,24 +157,31 @@ class _ContinueListeningCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const SurahsScreen()),
-                ),
+                onPressed: last == null
+                    ? () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(builder: (_) => const SurahsScreen()),
+                        )
+                    : player.resumeLast,
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(52),
                   backgroundColor: AppColors.softGold,
                   foregroundColor: AppColors.forestGreen,
                 ),
                 icon: const Icon(Icons.play_arrow_rounded, size: 28),
-                label: const Text('ابدأ الاستماع'),
+                label: Text(last == null ? 'ابدأ الاستماع' : 'استكمل الاستماع'),
               ),
             ),
           ],
         ),
       ),
+        );
+      },
     );
   }
 }
+
+String _formatDuration(Duration value) =>
+    '${value.inMinutes.remainder(60).toString().padLeft(2, '0')}:${value.inSeconds.remainder(60).toString().padLeft(2, '0')}';
 
 class _HomeSectionCard extends StatelessWidget {
   const _HomeSectionCard({required this.item});
@@ -191,6 +209,12 @@ class _HomeSectionCard extends StatelessWidget {
             if (item.title == 'المفضلة') {
               Navigator.of(context).push(MaterialPageRoute<void>(
                 builder: (_) => const FavoritesScreen(),
+              ));
+              return;
+            }
+            if (item.title == 'تلاوات مختارة') {
+              Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => const SpecialRecitationsScreen(),
               ));
               return;
             }

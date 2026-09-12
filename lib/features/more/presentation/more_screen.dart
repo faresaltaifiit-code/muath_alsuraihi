@@ -58,7 +58,7 @@ class MoreScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'يمكنك الاستماع عبر الإنترنت، حفظ تلاواتك المفضلة، وتحميل السور للاستماع دون اتصال.',
+                    'التلاوات محفوظة داخل التطبيق وتعمل دون اتصال بالإنترنت. يمكنك حفظ المفضلة والاستماع في الخلفية وشاشة القفل.',
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
@@ -67,7 +67,7 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 22),
-          Center(child: Text('${AppStrings.appName} · الإصدار 1.0.0', style: Theme.of(context).textTheme.bodyMedium)),
+          Center(child: Text('${AppStrings.appName} · الإصدار 1.1.0', style: Theme.of(context).textTheme.bodyMedium)),
         ],
       ),
     );

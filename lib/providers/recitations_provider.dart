@@ -9,10 +9,12 @@ class RecitationsProvider extends ChangeNotifier {
 
   final RecitationsRepository _repository;
   List<SurahModel> _surahs = [];
+  List<SurahModel> _specialRecitations = [];
   bool _isLoading = false;
   String? _errorMessage;
 
   List<SurahModel> get surahs => List.unmodifiable(_surahs);
+  List<SurahModel> get specialRecitations => List.unmodifiable(_specialRecitations);
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -21,7 +23,9 @@ class RecitationsProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      _surahs = await _repository.getSurahs();
+      final catalog = await _repository.getCatalog();
+      _surahs = catalog.surahs;
+      _specialRecitations = catalog.specialRecitations;
     } catch (_) {
       _errorMessage = 'تعذر قراءة قائمة التلاوات. حاول مرة أخرى لاحقًا.';
     } finally {

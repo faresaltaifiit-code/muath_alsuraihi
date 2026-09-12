@@ -142,7 +142,9 @@ class _SurahCard extends StatelessWidget {
                 children: [
                   Text('سورة ${surah.name}', style: theme.textTheme.titleMedium),
                   const SizedBox(height: 2),
-                  Text(surah.durationText.isEmpty ? 'المدة غير متوفرة' : surah.durationText,
+                  Text(!surah.available
+                      ? 'قريبًا'
+                      : (surah.durationText.isEmpty ? 'تظهر المدة تلقائيًا عند التشغيل' : surah.durationText),
                       style: theme.textTheme.bodyMedium),
                 ],
               ),
@@ -152,7 +154,7 @@ class _SurahCard extends StatelessWidget {
               onPressed: () {
                 if (!surah.available) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('هذه التلاوة غير متوفرة حاليًا.')),
+                    const SnackBar(content: Text('سورة آل عمران قريبًا بإذن الله.')),
                   );
                   return;
                 }

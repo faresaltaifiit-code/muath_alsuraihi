@@ -3,32 +3,58 @@ import 'package:just_audio/just_audio.dart';
 
 import '../../data/models/surah_model.dart';
 
+/// طبقة الصوت الأصلية: قائمة تشغيل محلية تعمل مع شاشة القفل والخلفية.
 class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   MuathAudioHandler() {
     _player.playbackEventStream.listen(_broadcastState);
+    _player.currentIndexStream.listen(_publishCurrentItem);
   }
 
   final AudioPlayer _player = AudioPlayer();
+  List<SurahModel> _playlist = const [];
 
-  Future<void> loadSurah(SurahModel surah, {bool autoplay = false}) async {
+  Future<void> loadSurah(
+    SurahModel surah, {
+    required List<SurahModel> playlist,
+    bool autoplay = false,
+    Duration? initialPosition,
+  }) async {
     if (!surah.available || surah.audioPath.isEmpty) {
       throw ArgumentError('هذه التلاوة غير متوفرة حاليًا.');
     }
-    final item = MediaItem(
-      id: surah.audioPath,
-      title: 'سورة ${surah.name}',
-      artist: surah.reciterName,
-      duration: surah.durationSeconds > 0
-          ? Duration(seconds: surah.durationSeconds)
-          : null,
+
+    _playlist = playlist.where((item) => item.available).toList();
+    if (!_playlist.any((item) => item.audioPath == surah.audioPath)) {
+      _playlist = [surah];
+    }
+    final startIndex = _playlist.indexWhere((item) => item.audioPath == surah.audioPath);
+    final sources = _playlist
+        .map((item) => AudioSource.asset(item.audioPath, tag: _mediaItem(item)))
+        .toList();
+    final duration = await _player.setAudioSource(
+      ConcatenatingAudioSource(children: sources),
+      initialIndex: startIndex < 0 ? 0 : startIndex,
+      initialPosition: initialPosition,
     );
-    mediaItem.add(item);
-    final detectedDuration =
-        await _player.setAudioSource(AudioSource.asset(surah.audioPath));
-    if (detectedDuration != null) {
-      mediaItem.add(item.copyWith(duration: detectedDuration));
+    _publishCurrentItem(_player.currentIndex);
+    if (duration != null && mediaItem.value != null) {
+      mediaItem.add(mediaItem.value!.copyWith(duration: duration));
     }
     if (autoplay) await play();
+  }
+
+  MediaItem _mediaItem(SurahModel item) => MediaItem(
+        id: item.audioPath,
+        title: item.number > 0 ? 'سورة ${item.name}' : item.name,
+        artist: item.reciterName,
+        duration: item.durationSeconds > 0
+            ? Duration(seconds: item.durationSeconds)
+            : null,
+      );
+
+  void _publishCurrentItem(int? index) {
+    if (index == null || index < 0 || index >= _playlist.length) return;
+    mediaItem.add(_mediaItem(_playlist[index]));
   }
 
   @override
@@ -43,6 +69,8 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   @override
   Future<void> setSpeed(double speed) => _player.setSpeed(speed);
 
+  Future<void> setVolume(double value) => _player.setVolume(value);
+
   @override
   Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
     await _player.setLoopMode(switch (repeatMode) {
@@ -53,22 +81,41 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   @override
-  Future<void> skipToNext() => _player.seekToNext();
+  Future<void> skipToNext() async {
+    if (_player.hasNext) await _player.seekToNext();
+  }
 
   @override
-  Future<void> skipToPrevious() => _player.seekToPrevious();
+  Future<void> skipToPrevious() async {
+    if (_player.hasPrevious) await _player.seekToPrevious();
+  }
+
+  @override
+  Future<void> rewind(bool begin) => seek(_safeOffset(const Duration(seconds: -15)));
+
+  @override
+  Future<void> fastForward(bool begin) => seek(_safeOffset(const Duration(seconds: 15)));
+
+  Duration _safeOffset(Duration amount) {
+    final value = _player.position + amount;
+    if (value < Duration.zero) return Duration.zero;
+    final duration = _player.duration;
+    return duration != null && value > duration ? duration : value;
+  }
 
   void _broadcastState(PlaybackEvent event) {
     final playing = _player.playing;
     playbackState.add(PlaybackState(
       controls: [
+        MediaControl.skipToPrevious,
         MediaControl.rewind,
         if (playing) MediaControl.pause else MediaControl.play,
         MediaControl.fastForward,
+        MediaControl.skipToNext,
         MediaControl.stop,
       ],
       systemActions: const {MediaAction.seek, MediaAction.setSpeed},
-      androidCompactActionIndices: const [0, 1, 2],
+      androidCompactActionIndices: const [1, 2, 3],
       processingState: switch (_player.processingState) {
         ProcessingState.idle => AudioProcessingState.idle,
         ProcessingState.loading => AudioProcessingState.loading,
@@ -95,4 +142,3 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     return super.stop();
   }
 }
-

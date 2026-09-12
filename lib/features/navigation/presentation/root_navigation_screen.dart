@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../home/presentation/home_screen.dart';
 import '../../library/presentation/library_screens.dart';
 import '../../more/presentation/more_screen.dart';
 import '../../surahs/presentation/surahs_screen.dart';
+import '../../../providers/player_provider.dart';
+import '../../../providers/recitations_provider.dart';
+import '../../../widgets/mini_player.dart';
 
 class RootNavigationScreen extends StatefulWidget {
   const RootNavigationScreen({super.key});
@@ -16,8 +20,16 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
   static const _screens = [HomeScreen(), SurahsScreen(), FavoritesScreen(), MoreScreen()];
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: IndexedStack(index: _index, children: _screens),
+  Widget build(BuildContext context) {
+    final recitations = context.watch<RecitationsProvider>();
+    context.read<PlayerProvider>().setPlaylist(recitations.surahs);
+    return Scaffold(
+        body: Column(
+          children: [
+            Expanded(child: IndexedStack(index: _index, children: _screens)),
+            const MiniPlayer(),
+          ],
+        ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (value) => setState(() => _index = value),
@@ -29,5 +41,6 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
           ],
         ),
       );
+  }
 }
 

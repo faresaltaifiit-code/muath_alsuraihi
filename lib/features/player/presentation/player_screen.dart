@@ -17,6 +17,8 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
+  Duration? _dragPosition;
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +37,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final duration = player.duration > Duration.zero
         ? player.duration
         : Duration(seconds: surah.durationSeconds);
-    final position = player.position > duration ? duration : player.position;
+    final livePosition = player.position > duration ? duration : player.position;
+    final position = _dragPosition ?? livePosition;
 
     return Scaffold(
       appBar: AppBar(title: const Text('قيد التشغيل')),
@@ -80,8 +83,22 @@ class _PlayerScreenState extends State<PlayerScreen> {
               Slider(
                 value: position.inMilliseconds.toDouble(),
                 max: duration.inMilliseconds > 0 ? duration.inMilliseconds.toDouble() : 1,
+                onChangeStart: duration > Duration.zero
+                    ? (value) => setState(
+                        () => _dragPosition = Duration(milliseconds: value.round()),
+                      )
+                    : null,
                 onChanged: duration > Duration.zero
-                    ? (value) => player.seek(Duration(milliseconds: value.round()))
+                    ? (value) => setState(
+                        () => _dragPosition = Duration(milliseconds: value.round()),
+                      )
+                    : null,
+                onChangeEnd: duration > Duration.zero
+                    ? (value) async {
+                        final target = Duration(milliseconds: value.round());
+                        setState(() => _dragPosition = null);
+                        await player.seek(target);
+                      }
                     : null,
               ),
               Row(
@@ -123,10 +140,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     ),
                   ),
                   IconButton(
-                    tooltip: 'تقديم 15 ثانية',
+                    tooltip: 'السورة التالية',
                     iconSize: 32,
-                    onPressed: () => player.skipBy(const Duration(seconds: 15)),
-                    icon: const Icon(Icons.forward_10_rounded),
+                    onPressed: player.next,
+                    icon: const Icon(Icons.skip_next_rounded),
                   ),
                   IconButton(
                     tooltip: 'المفضلة',
@@ -140,6 +157,34 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 ],
               ),
               const SizedBox(height: 22),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _setRepeatPoint(context, player),
+                      icon: Icon(player.hasRepeatRange
+                          ? Icons.repeat_one_rounded
+                          : Icons.repeat_rounded),
+                      label: Text(player.hasRepeatRange
+                          ? 'إلغاء تكرار المقطع'
+                          : 'تكرار مقطع A-B'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => player.setAutoPlayNext(!player.autoPlayNext),
+                      icon: Icon(player.autoPlayNext
+                          ? Icons.playlist_play_rounded
+                          : Icons.stop_circle_outlined),
+                      label: Text(player.autoPlayNext
+                          ? 'تشغيل التالي'
+                          : 'إيقاف التالي'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Expanded(
@@ -203,6 +248,27 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
     if (result != null) player.setSleepTimer(Duration(minutes: result));
   }
+
+  void _setRepeatPoint(BuildContext context, PlayerProvider player) {
+    if (player.hasRepeatRange) {
+      player.clearRepeatRange();
+      return;
+    }
+    if (player.repeatStart == null) {
+      player.setRepeatStart();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم تحديد بداية المقطع A. حرّك الشريط ثم اضغط الزر مرة أخرى لتحديد B.')),
+      );
+    } else {
+      player.setRepeatEnd();
+      if (!player.hasRepeatRange) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('يجب أن تكون نهاية المقطع بعد بدايته.')),
+        );
+      }
+    }
+  }
+
 }
 
 class _OptionsSheet<T> extends StatelessWidget {
