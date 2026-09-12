@@ -1,0 +1,32 @@
+workflows:
+  ios-sideloadly:
+    name: معاذ السريحي - IPA لـ Sideloadly
+    max_build_duration: 120
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: إنشاء مشروع iOS الرسمي
+        script: |
+          rm -rf ios
+          flutter create --platforms=ios --org com.faresaltaifi --project-name muath_alsuraihi .
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName معاذ السريحي" ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes: string audio" ios/Runner/Info.plist
+      - name: جلب الحزم وفحص الكود
+        script: |
+          flutter pub get
+          flutter analyze
+      - name: بناء تطبيق iOS بدون توقيع
+        script: |
+          flutter build ios --release --no-codesign
+      - name: إنشاء ملف IPA لـ Sideloadly
+        script: |
+          mkdir -p build/ios/ipa/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa
+          zip -r MuathAlsuraihi-unsigned.ipa Payload
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
