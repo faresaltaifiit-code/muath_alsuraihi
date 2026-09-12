@@ -1,0 +1,52 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-ios-ipa:
+    runs-on: macos-14
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Check Flutter code
+        run: flutter analyze lib
+
+      - name: Create iOS project and set local-audio mode
+        run: |
+          rm -rf ios
+          flutter create --platforms=ios --org com.faresaltaifi --project-name muathalsuraihi .
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Muath Alsuraihi" ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes: string audio" ios/Runner/Info.plist || true
+
+      - name: Build unsigned iOS app
+        run: flutter build ios --release --no-codesign
+
+      - name: Package IPA for AltStore or Sideloadly
+        run: |
+          mkdir -p build/ios/ipa/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa
+          zip -r MuathAlsuraihi-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MuathAlsuraihi-unsigned-ipa
+          path: build/ios/ipa/MuathAlsuraihi-unsigned.ipa
+          if-no-files-found: error
