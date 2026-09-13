@@ -91,10 +91,10 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   @override
-  Future<void> rewind(bool begin) => seek(_safeOffset(const Duration(seconds: -15)));
+  Future<void> rewind() => seek(_safeOffset(const Duration(seconds: -15)));
 
   @override
-  Future<void> fastForward(bool begin) => seek(_safeOffset(const Duration(seconds: 15)));
+  Future<void> fastForward() => seek(_safeOffset(const Duration(seconds: 15)));
 
   Duration _safeOffset(Duration amount) {
     final value = _player.position + amount;
