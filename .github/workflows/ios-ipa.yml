@@ -64,7 +64,7 @@ jobs:
         run: |
           test -s build/ios/iphoneos/Runner.app/Runner
           plutil -lint build/ios/iphoneos/Runner.app/Info.plist
-          xcrun lipo -verify_arch arm64 build/ios/iphoneos/Runner.app/Runner
+          xcrun lipo build/ios/iphoneos/Runner.app/Runner -verify_arch arm64
           unzip -tq build/ios/ipa/MuathAlsuraihi-unsigned.ipa
           shasum -a 256 build/ios/ipa/MuathAlsuraihi-unsigned.ipa
 
