@@ -24,7 +24,10 @@ jobs:
         run: flutter pub get
 
       - name: Check Flutter code
-        run: flutter analyze lib
+        run: flutter analyze lib test integration_test
+
+      - name: Run unit and widget tests
+        run: flutter test test --reporter expanded
 
       - name: Validate bundled recitations catalog
         run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('assets/data/recitations_fallback.json','utf8'));if(!Array.isArray(c.surahs)||c.surahs.length!==114)throw new Error('Expected 114 surahs');const n=c.surahs.map(x=>x.number).sort((a,b)=>a-b);if(n.some((x,i)=>x!==i+1))throw new Error('Invalid surah numbering');console.log('Validated '+c.surahs.length+' surahs');"
@@ -40,6 +43,13 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes: string audio" ios/Runner/Info.plist || true
 
+      - name: Run iOS integration test
+        run: |
+          SIMULATOR_ID="$(xcrun simctl list devices available -j | python3 -c "import json,sys; devices=json.load(sys.stdin)['devices']; print(next(device['udid'] for runtime in devices.values() for device in runtime if device['isAvailable'] and device['name'].startswith('iPhone')))" )"
+          xcrun simctl boot "$SIMULATOR_ID" || true
+          open -a Simulator
+          flutter test integration_test -d "$SIMULATOR_ID" --reporter expanded
+
       - name: Build unsigned iOS app
         run: flutter build ios --release --no-codesign
 
@@ -49,6 +59,14 @@ jobs:
           cp -R build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
           cd build/ios/ipa
           zip -r MuathAlsuraihi-unsigned.ipa Payload
+
+      - name: Verify IPA package
+        run: |
+          test -s build/ios/iphoneos/Runner.app/Runner
+          plutil -lint build/ios/iphoneos/Runner.app/Info.plist
+          xcrun lipo -verify_arch arm64 build/ios/iphoneos/Runner.app/Runner
+          unzip -tq build/ios/ipa/MuathAlsuraihi-unsigned.ipa
+          shasum -a 256 build/ios/ipa/MuathAlsuraihi-unsigned.ipa
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
