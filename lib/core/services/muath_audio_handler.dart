@@ -36,7 +36,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   @override Future<void> seek(Duration position) => _player.seek(position);
   @override Future<void> setSpeed(double speed) => _player.setSpeed(speed);
   Future<void> setVolume(double value) => _player.setVolume(value);
-  Future<void> setAutoPlayNext(bool enabled) => _player.setPauseAtEndOfItem(!enabled);
+  Future<void> setAutoPlayNext(bool enabled) => _player.setLoopMode(LoopMode.off);
   @override Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async { await _player.setLoopMode(switch (repeatMode) { AudioServiceRepeatMode.none => LoopMode.off, AudioServiceRepeatMode.one => LoopMode.one, AudioServiceRepeatMode.all || AudioServiceRepeatMode.group => LoopMode.all, }); }
   @override Future<void> skipToNext() async { if (_player.hasNext) await _player.seekToNext(); }
   @override Future<void> skipToPrevious() async { if (_player.hasPrevious) await _player.seekToPrevious(); }
