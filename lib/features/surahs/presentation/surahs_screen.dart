@@ -141,11 +141,10 @@ class _SurahCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('سورة ${surah.name}', style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 2),
-                  Text(!surah.available
-                      ? 'قريبًا'
-                      : (surah.durationText.isEmpty ? 'تظهر المدة تلقائيًا عند التشغيل' : surah.durationText),
-                      style: theme.textTheme.bodyMedium),
+                  if (!surah.available) ...[
+                    const SizedBox(height: 2),
+                    Text('قريبًا', style: theme.textTheme.bodyMedium),
+                  ],
                 ],
               ),
             ),

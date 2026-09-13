@@ -39,9 +39,21 @@ class _PlayerScreenState extends State<PlayerScreen> {
         : Duration(seconds: surah.durationSeconds);
     final livePosition = player.position > duration ? duration : player.position;
     final position = _dragPosition ?? livePosition;
+    final remaining = duration > position ? duration - position : Duration.zero;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('قيد التشغيل')),
+      appBar: AppBar(
+        title: const Text('قيد التشغيل'),
+        actions: [
+          IconButton(
+            tooltip: 'المفضلة',
+            onPressed: () => context.read<FavoritesProvider>().toggle(surah),
+            icon: Icon(context.watch<FavoritesProvider>().contains(surah)
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded),
+          ),
+        ],
+      ),
       body: SafeArea(
         top: false,
         child: Padding(
@@ -102,29 +114,26 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     : null,
               ),
               Row(
+                textDirection: TextDirection.rtl,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [_format(position), _format(duration)],
+                children: [_format(position), _format(remaining, prefix: '-')],
               ),
               const SizedBox(height: 12),
               Row(
+                textDirection: TextDirection.rtl,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    tooltip: 'تكرار',
-                    iconSize: 27,
-                    color: player.repeatMode == AudioServiceRepeatMode.none
-                        ? null
-                        : AppColors.gold,
-                    onPressed: player.cycleRepeatMode,
-                    icon: Icon(player.repeatMode == AudioServiceRepeatMode.one
-                        ? Icons.repeat_one_rounded
-                        : Icons.repeat_rounded),
+                    tooltip: 'رجوع 10 ثوانٍ',
+                    iconSize: 32,
+                    onPressed: () => player.skipBy(const Duration(seconds: -10)),
+                    icon: const Icon(Icons.replay_10_rounded),
                   ),
                   IconButton(
-                    tooltip: 'رجوع 15 ثانية',
+                    tooltip: 'السورة السابقة',
                     iconSize: 32,
-                    onPressed: () => player.skipBy(const Duration(seconds: -15)),
-                    icon: const Icon(Icons.replay_10_rounded),
+                    onPressed: player.previous,
+                    icon: const Icon(Icons.skip_previous_rounded),
                   ),
                   SizedBox(
                     width: 82,
@@ -146,13 +155,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     icon: const Icon(Icons.skip_next_rounded),
                   ),
                   IconButton(
-                    tooltip: 'المفضلة',
-                    iconSize: 27,
-                    onPressed: () =>
-                        context.read<FavoritesProvider>().toggle(surah),
-                    icon: Icon(context.watch<FavoritesProvider>().contains(surah)
-                        ? Icons.favorite_rounded
-                        : Icons.favorite_border_rounded),
+                    tooltip: 'تقدم 10 ثوانٍ',
+                    iconSize: 32,
+                    onPressed: () => player.skipBy(const Duration(seconds: 10)),
+                    icon: const Icon(Icons.forward_10_rounded),
                   ),
                 ],
               ),
@@ -161,13 +167,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () => _setRepeatPoint(context, player),
-                      icon: Icon(player.hasRepeatRange
+                      onPressed: player.cycleRepeatMode,
+                      icon: Icon(player.repeatMode == AudioServiceRepeatMode.one
                           ? Icons.repeat_one_rounded
                           : Icons.repeat_rounded),
-                      label: Text(player.hasRepeatRange
-                          ? 'إلغاء تكرار المقطع'
-                          : 'تكرار مقطع A-B'),
+                      label: const Text('تكرار'),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -219,8 +223,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 
-  Widget _format(Duration duration) => Text(
-        '${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}',
+  Widget _format(Duration duration, {String prefix = ''}) => Text(
+        '$prefix${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}',
       );
 
   Future<void> _chooseSpeed(BuildContext context, PlayerProvider player) async {
@@ -249,6 +253,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
     if (result != null) player.setSleepTimer(Duration(minutes: result));
   }
 
+  // Kept for a future, deliberately hidden A-B repeat interface.
+  // ignore: unused_element
   void _setRepeatPoint(BuildContext context, PlayerProvider player) {
     if (player.hasRepeatRange) {
       player.clearRepeatRange();

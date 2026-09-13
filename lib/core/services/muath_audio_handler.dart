@@ -21,6 +21,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     _playlist = playlist.where((item) => item.available).toList();
     if (!_playlist.any((item) => item.audioPath == surah.audioPath)) _playlist = [surah];
     final startIndex = _playlist.indexWhere((item) => item.audioPath == surah.audioPath);
+    queue.add(_playlist.map(_mediaItem).toList());
     final sources = _playlist.map((item) => AudioSource.asset(item.audioPath, tag: _mediaItem(item))).toList();
     final duration = await _player.setAudioSource(ConcatenatingAudioSource(children: sources), initialIndex: startIndex < 0 ? 0 : startIndex, initialPosition: initialPosition);
     _publishCurrentItem(_player.currentIndex);
@@ -40,8 +41,8 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   @override Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async { await _player.setLoopMode(switch (repeatMode) { AudioServiceRepeatMode.none => LoopMode.off, AudioServiceRepeatMode.one => LoopMode.one, AudioServiceRepeatMode.all || AudioServiceRepeatMode.group => LoopMode.all, }); }
   @override Future<void> skipToNext() async { if (_player.hasNext) await _player.seekToNext(); }
   @override Future<void> skipToPrevious() async { if (_player.hasPrevious) await _player.seekToPrevious(); }
-  @override Future<void> rewind() => seek(_safeOffset(const Duration(seconds: -15)));
-  @override Future<void> fastForward() => seek(_safeOffset(const Duration(seconds: 15)));
+  @override Future<void> rewind() => seek(_safeOffset(const Duration(seconds: -10)));
+  @override Future<void> fastForward() => seek(_safeOffset(const Duration(seconds: 10)));
   Duration _safeOffset(Duration amount) { final value = _player.position + amount; if (value < Duration.zero) return Duration.zero; final duration = _player.duration; return duration != null && value > duration ? duration : value; }
   void _broadcastState(PlaybackEvent event) { final playing = _player.playing; playbackState.add(PlaybackState(controls: [MediaControl.skipToPrevious, MediaControl.rewind, if (playing) MediaControl.pause else MediaControl.play, MediaControl.fastForward, MediaControl.skipToNext, MediaControl.stop], systemActions: const {MediaAction.seek, MediaAction.setSpeed}, androidCompactActionIndices: const [1, 2, 3], processingState: switch (_player.processingState) { ProcessingState.idle => AudioProcessingState.idle, ProcessingState.loading => AudioProcessingState.loading, ProcessingState.buffering => AudioProcessingState.buffering, ProcessingState.ready => AudioProcessingState.ready, ProcessingState.completed => AudioProcessingState.completed, }, playing: playing, updatePosition: _player.position, bufferedPosition: _player.bufferedPosition, speed: _player.speed, repeatMode: switch (_player.loopMode) { LoopMode.off => AudioServiceRepeatMode.none, LoopMode.one => AudioServiceRepeatMode.one, LoopMode.all => AudioServiceRepeatMode.all, }, queueIndex: event.currentIndex)); }
   @override Future<void> stop() async { await _player.stop(); return super.stop(); }
