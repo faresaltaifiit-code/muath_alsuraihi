@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
@@ -29,6 +30,7 @@ class PlayerProvider extends ChangeNotifier {
   bool _isPlaying = false;
   bool _isReady = false;
   bool _autoPlayNext = true;
+  bool _shuffleEnabled = false;
   double _speed = 1;
   AudioServiceRepeatMode _repeatMode = AudioServiceRepeatMode.none;
   String? _error;
@@ -41,6 +43,7 @@ class PlayerProvider extends ChangeNotifier {
   bool get isPlaying => _isPlaying;
   bool get isReady => _isReady;
   bool get autoPlayNext => _autoPlayNext;
+  bool get shuffleEnabled => _shuffleEnabled;
   double get speed => _speed;
   AudioServiceRepeatMode get repeatMode => _repeatMode;
   bool get hasSleepTimer => _sleepTimer?.isActive ?? false;
@@ -67,6 +70,9 @@ class PlayerProvider extends ChangeNotifier {
       _speed = state.speed;
       _repeatMode = state.repeatMode;
       _loopRangeIfNeeded();
+      if (_shuffleEnabled && state.processingState == AudioProcessingState.completed) {
+        _playRandomSurah();
+      }
       _scheduleSave();
       notifyListeners();
     });
@@ -112,7 +118,7 @@ class PlayerProvider extends ChangeNotifier {
     _repeatEnd = null;
     notifyListeners();
     try {
-      final sourceList = _autoPlayNext && surah.number > 0 && _playlist.isNotEmpty
+      final sourceList = _autoPlayNext && !_shuffleEnabled && surah.number > 0 && _playlist.isNotEmpty
           ? _playlist
           : <SurahModel>[surah];
       await (_handler! as MuathAudioHandler).loadSurah(
@@ -174,6 +180,18 @@ class PlayerProvider extends ChangeNotifier {
   void setAutoPlayNext(bool value) {
     _autoPlayNext = value;
     notifyListeners();
+  }
+
+  Future<void> toggleShuffle() async {
+    _shuffleEnabled = !_shuffleEnabled;
+    notifyListeners();
+  }
+
+  Future<void> _playRandomSurah() async {
+    if (_playlist.isEmpty) return;
+    final candidates = _playlist.where((surah) => surah.audioPath != _currentSurah?.audioPath).toList();
+    final next = (candidates.isEmpty ? _playlist : candidates)[Random().nextInt(candidates.isEmpty ? _playlist.length : candidates.length)];
+    await prepareSurah(next, autoplay: true);
   }
 
   void setRepeatStart() {

@@ -167,6 +167,17 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
+                      onPressed: player.toggleShuffle,
+                      icon: Icon(
+                        Icons.shuffle_rounded,
+                        color: player.shuffleEnabled ? Theme.of(context).colorScheme.primary : null,
+                      ),
+                      label: Text('عشوائي${player.shuffleEnabled ? " ✓" : ""}'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
                       onPressed: player.cycleRepeatMode,
                       icon: Icon(player.repeatMode == AudioServiceRepeatMode.one
                           ? Icons.repeat_one_rounded
