@@ -71,10 +71,10 @@ class RecitationsRepository {
 
   Map<String, dynamic> _decodeManifest(String source) {
     final value = jsonDecode(source);
-    if (value is! Map<String, dynamic> || value['items'] is! List<dynamic>) {
+    if (value is! Map || value['items'] is! List) {
       throw const FormatException('Invalid manifest');
     }
-    return value;
+    return Map<String, dynamic>.from(value);
   }
 
   Map<String, dynamic> _mergeManifestWithFallback(
@@ -86,12 +86,13 @@ class RecitationsRepository {
     final remoteByAudioId = <String, Map<String, dynamic>>{};
 
     for (final item in items) {
-      if (item is! Map<String, dynamic>) continue;
-      final id = item['audio_id'];
-      if (id is String) remoteByAudioId[id] = item;
-      final surahId = item['surah_id'];
+      if (item is! Map) continue;
+      final remoteItem = Map<String, dynamic>.from(item);
+      final id = remoteItem['audio_id'];
+      if (id is String) remoteByAudioId[id] = remoteItem;
+      final surahId = remoteItem['surah_id'];
       if (surahId is num) {
-        remoteBySurahNumber[surahId.toInt()] = item;
+        remoteBySurahNumber[surahId.toInt()] = remoteItem;
       }
     }
 
