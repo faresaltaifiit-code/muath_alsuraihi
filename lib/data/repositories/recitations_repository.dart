@@ -1,14 +1,118 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/constants/app_urls.dart';
 import '../models/surah_model.dart';
 
 class RecitationsRepository {
-  /// قائمة مضمنة في IPA؛ لا تحتاج اتصالًا بالإنترنت.
+  RecitationsRepository({
+    http.Client? client,
+    Future<SharedPreferences> Function()? preferences,
+  })  : _client = client ?? http.Client(),
+        _preferences = preferences ?? SharedPreferences.getInstance;
+
+  static const _manifestCacheKey = 'recitations_manifest_cache_v1';
+
+  final http.Client _client;
+  final Future<SharedPreferences> Function() _preferences;
+
+  /// يحدّث بيانات القائمة من Manifest، ويحفظ آخر نسخة صالحة محليًا.
+  /// تبقى مسارات الصوت المحلية كما هي في هذه المرحلة.
   Future<RecitationsCatalog> getCatalog() async {
     final source = await rootBundle.loadString('assets/data/recitations_fallback.json');
-    final root = jsonDecode(source) as Map<String, dynamic>;
+    final fallbackRoot = jsonDecode(source) as Map<String, dynamic>;
+
+    final manifest = await _loadManifest();
+    final root = manifest == null
+        ? fallbackRoot
+        : _mergeManifestWithFallback(fallbackRoot, manifest);
+
+    return _catalogFromRoot(root);
+  }
+
+  Future<Map<String, dynamic>?> _loadManifest() async {
+    try {
+      final response = await _client
+          .get(Uri.parse(AppUrls.manifestUrl))
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode != 200) throw StateError('Manifest request failed');
+
+      final manifest = _decodeManifest(response.body);
+      final preferences = await _preferences();
+      await preferences.setString(_manifestCacheKey, response.body);
+      return manifest;
+    } catch (_) {
+      try {
+        final preferences = await _preferences();
+        return _decodeManifestOrNull(preferences.getString(_manifestCacheKey));
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+
+  Map<String, dynamic>? _decodeManifestOrNull(String? source) {
+    if (source == null || source.isEmpty) return null;
+    try {
+      return _decodeManifest(source);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Map<String, dynamic> _decodeManifest(String source) {
+    final value = jsonDecode(source);
+    if (value is! Map<String, dynamic> || value['items'] is! List<dynamic>) {
+      throw const FormatException('Invalid manifest');
+    }
+    return value;
+  }
+
+  Map<String, dynamic> _mergeManifestWithFallback(
+    Map<String, dynamic> fallbackRoot,
+    Map<String, dynamic> manifest,
+  ) {
+    final items = manifest['items'] as List<dynamic>;
+    final remoteBySurahNumber = <int, Map<String, dynamic>>{};
+    final remoteByAudioId = <String, Map<String, dynamic>>{};
+
+    for (final item in items) {
+      if (item is! Map<String, dynamic>) continue;
+      final id = item['audio_id'];
+      if (id is String) remoteByAudioId[id] = item;
+      if (item['type'] == 'surah' && item['surah_id'] is num) {
+        remoteBySurahNumber[(item['surah_id'] as num).toInt()] = item;
+      }
+    }
+
+    List<dynamic> mergeList(List<dynamic>? localItems, bool isSurah) {
+      return (localItems ?? []).map((item) {
+        final local = Map<String, dynamic>.from(item as Map<String, dynamic>);
+        final remote = isSurah
+            ? remoteBySurahNumber[(local['number'] as num?)?.toInt()]
+            : remoteByAudioId[local['id'] as String? ?? ''];
+        if (remote == null) return local;
+
+        final url = remote['url'];
+        if (url is String && url.isNotEmpty) local['remote_audio_url'] = url;
+        final size = remote['size'];
+        if (size is num) local['file_size_bytes'] = size.toInt();
+        return local;
+      }).toList();
+    }
+
+    return {
+      ...fallbackRoot,
+      'surahs': mergeList(fallbackRoot['surahs'] as List<dynamic>?, true),
+      'special_recitations':
+          mergeList(fallbackRoot['special_recitations'] as List<dynamic>?, false),
+    };
+  }
+
+  RecitationsCatalog _catalogFromRoot(Map<String, dynamic> root) {
     final rawSurahs = root['surahs'] as List<dynamic>? ?? [];
     final surahs = rawSurahs
         .map((item) => SurahModel.fromJson(item as Map<String, dynamic>))

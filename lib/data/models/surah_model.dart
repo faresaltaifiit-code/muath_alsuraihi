@@ -10,6 +10,7 @@ class SurahModel {
     required this.available,
     required this.fileSizeBytes,
     required this.fileSizeText,
+    this.remoteAudioUrl,
   });
 
   factory SurahModel.fromJson(Map<String, dynamic> json) => SurahModel(
@@ -23,6 +24,7 @@ class SurahModel {
         available: json['available'] as bool? ?? true,
         fileSizeBytes: (json['file_size_bytes'] as num?)?.toInt() ?? 0,
         fileSizeText: json['file_size_text'] as String? ?? '',
+        remoteAudioUrl: json['remote_audio_url'] as String?,
       );
 
   final String id;
@@ -35,6 +37,8 @@ class SurahModel {
   final bool available;
   final int fileSizeBytes;
   final String fileSizeText;
+  /// عنوان المصدر البعيد محفوظ للمرحلة القادمة فقط؛ التشغيل لا يستخدمه بعد.
+  final String? remoteAudioUrl;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -47,6 +51,7 @@ class SurahModel {
         'available': available,
         'file_size_bytes': fileSizeBytes,
         'file_size_text': fileSizeText,
+        if (remoteAudioUrl != null) 'remote_audio_url': remoteAudioUrl,
       };
 }
 
