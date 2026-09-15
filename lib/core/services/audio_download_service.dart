@@ -86,6 +86,17 @@ class AudioDownloadService {
     }
   }
 
+  static Future<int> storageUsageBytes() async {
+    final directory = await _downloadsDirectory();
+    var total = 0;
+    await for (final item in directory.list()) {
+      if (item is File && item.path.endsWith('.mp3')) {
+        total += await item.length();
+      }
+    }
+    return total;
+  }
+
   static Future<Directory> _downloadsDirectory() async {
     final root = await getApplicationDocumentsDirectory();
     return Directory('${root.path}/audio_downloads').create(recursive: true);

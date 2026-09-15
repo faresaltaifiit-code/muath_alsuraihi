@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../providers/settings_provider.dart';
+import '../../../providers/downloads_provider.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -11,6 +12,7 @@ class MoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
+    final downloads = context.watch<DownloadsProvider>();
     return Scaffold(
       appBar: AppBar(title: const Text('المزيد')),
       body: ListView(
@@ -30,6 +32,35 @@ class MoreScreen extends StatelessWidget {
                 selected: {settings.themeMode},
                 onSelectionChanged: (values) => settings.setThemeMode(values.first),
               ),
+            ),
+          ),
+          const SizedBox(height: 28),
+          Text('التنزيلات', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 12),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.storage_rounded),
+                  title: const Text('المساحة المستخدمة'),
+                  trailing: Text(_formatBytes(downloads.storageBytes)),
+                ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.wifi_rounded),
+                  title: const Text('التحميل عبر Wi-Fi فقط'),
+                  subtitle: const Text('عند إيقافه، يمكنك التحميل عبر أي شبكة.'),
+                  value: downloads.wifiOnly,
+                  onChanged: downloads.setWifiOnly,
+                ),
+                ListTile(
+                  enabled: downloads.storageBytes > 0,
+                  leading: const Icon(Icons.delete_outline_rounded),
+                  title: const Text('حذف كل التنزيلات'),
+                  onTap: downloads.storageBytes == 0
+                      ? null
+                      : () => _confirmDeleteAll(context, downloads),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 28),
@@ -71,6 +102,26 @@ class MoreScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static String _formatBytes(int bytes) {
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
+  Future<void> _confirmDeleteAll(BuildContext context, DownloadsProvider downloads) async {
+    final approved = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('حذف كل التنزيلات؟'),
+        content: const Text('سيُحذف الصوت المحفوظ على هذا الجهاز فقط، ويمكن تنزيله لاحقًا.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('حذف')),
+        ],
+      ),
+    );
+    if (approved == true) await downloads.deleteAll();
   }
 }
 
