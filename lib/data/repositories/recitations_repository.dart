@@ -22,7 +22,8 @@ class RecitationsRepository {
   /// يحدّث بيانات القائمة من Manifest، ويحفظ آخر نسخة صالحة محليًا.
   /// تبقى مسارات الصوت المحلية كما هي في هذه المرحلة.
   Future<RecitationsCatalog> getCatalog() async {
-    final source = await rootBundle.loadString('assets/data/recitations_fallback.json');
+    final source =
+        await rootBundle.loadString('assets/data/recitations_fallback.json');
     final fallbackRoot = jsonDecode(source) as Map<String, dynamic>;
 
     final manifest = await _loadManifest();
@@ -38,11 +39,16 @@ class RecitationsRepository {
       final response = await _client
           .get(Uri.parse(AppUrls.manifestUrl))
           .timeout(const Duration(seconds: 10));
-      if (response.statusCode != 200) throw StateError('Manifest request failed');
+      if (response.statusCode != 200)
+        throw StateError('Manifest request failed');
 
       final manifest = _decodeManifest(response.body);
-      final preferences = await _preferences();
-      await preferences.setString(_manifestCacheKey, response.body);
+      try {
+        final preferences = await _preferences();
+        await preferences.setString(_manifestCacheKey, response.body);
+      } catch (_) {
+        // لا تمنع مشكلة التخزين المؤقت استخدام Manifest السليم من الشبكة.
+      }
       return manifest;
     } catch (_) {
       try {
@@ -116,8 +122,8 @@ class RecitationsRepository {
     return {
       ...fallbackRoot,
       'surahs': mergeList(fallbackRoot['surahs'] as List<dynamic>?, true),
-      'special_recitations':
-          mergeList(fallbackRoot['special_recitations'] as List<dynamic>?, false),
+      'special_recitations': mergeList(
+          fallbackRoot['special_recitations'] as List<dynamic>?, false),
     };
   }
 
@@ -157,4 +163,3 @@ class RecitationsCatalog {
   final List<SurahModel> surahs;
   final List<SurahModel> specialRecitations;
 }
-
