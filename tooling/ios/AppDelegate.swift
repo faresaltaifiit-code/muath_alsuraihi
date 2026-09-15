@@ -21,7 +21,7 @@ import UIKit
         }
 
         do {
-          let fileUrl = URL(fileURLWithPath: path)
+          var fileUrl = URL(fileURLWithPath: path)
           var values = URLResourceValues()
           values.isExcludedFromBackup = true
           try fileUrl.setResourceValues(values)
