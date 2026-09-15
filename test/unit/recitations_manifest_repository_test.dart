@@ -7,6 +7,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  const fallback = '''
+{
+  "surahs": [
+    {
+      "number": 1,
+      "name": "الفاتحة",
+      "audio_path": "assets/audio/001_الفاتحة.mp3",
+      "available": true
+    }
+  ],
+  "special_recitations": []
+}
+''';
+
   const manifest = '''
 {
   "items": [
@@ -31,6 +45,7 @@ void main() {
   test('reads the remote manifest and keeps the local playback path', () async {
     final repository = RecitationsRepository(
       client: MockClient((_) async => http.Response(manifest, 200)),
+      fallbackLoader: () async => fallback,
     );
 
     final catalog = await repository.getCatalog();
@@ -45,11 +60,13 @@ void main() {
   test('uses the saved manifest when the network is unavailable', () async {
     final onlineRepository = RecitationsRepository(
       client: MockClient((_) async => http.Response(manifest, 200)),
+      fallbackLoader: () async => fallback,
     );
     await onlineRepository.getCatalog();
 
     final offlineRepository = RecitationsRepository(
       client: MockClient((_) async => throw Exception('offline')),
+      fallbackLoader: () async => fallback,
     );
     final catalog = await offlineRepository.getCatalog();
     final fatiha = catalog.surahs.firstWhere((surah) => surah.number == 1);

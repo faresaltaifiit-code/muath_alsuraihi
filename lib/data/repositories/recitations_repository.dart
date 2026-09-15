@@ -11,19 +11,22 @@ class RecitationsRepository {
   RecitationsRepository({
     http.Client? client,
     Future<SharedPreferences> Function()? preferences,
+    Future<String> Function()? fallbackLoader,
   })  : _client = client ?? http.Client(),
-        _preferences = preferences ?? SharedPreferences.getInstance;
+        _preferences = preferences ?? SharedPreferences.getInstance,
+        _fallbackLoader = fallbackLoader ??
+            (() => rootBundle.loadString('assets/data/recitations_fallback.json'));
 
   static const _manifestCacheKey = 'recitations_manifest_cache_v1';
 
   final http.Client _client;
   final Future<SharedPreferences> Function() _preferences;
+  final Future<String> Function() _fallbackLoader;
 
   /// يحدّث بيانات القائمة من Manifest، ويحفظ آخر نسخة صالحة محليًا.
   /// تبقى مسارات الصوت المحلية كما هي في هذه المرحلة.
   Future<RecitationsCatalog> getCatalog() async {
-    final source =
-        await rootBundle.loadString('assets/data/recitations_fallback.json');
+    final source = await _fallbackLoader();
     final fallbackRoot = jsonDecode(source) as Map<String, dynamic>;
 
     final manifest = await _loadManifest();
