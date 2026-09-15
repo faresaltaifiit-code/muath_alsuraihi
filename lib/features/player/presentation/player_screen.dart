@@ -90,6 +90,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 const SizedBox(height: 14),
                 Text(player.error!, textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.redAccent)),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: player.retryCurrent,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('إعادة المحاولة'),
+                ),
               ],
               const Spacer(),
               Slider(

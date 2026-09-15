@@ -131,9 +131,17 @@ class PlayerProvider extends ChangeNotifier {
       _lastPosition = initialPosition ?? Duration.zero;
       await _savePlayback();
     } catch (_) {
-      _error = 'تعذر تشغيل ملف التلاوة المحلي.';
+      _error = surah.remoteAudioUrl?.isNotEmpty == true
+          ? 'تعذر تشغيل البث. تأكد من اتصال الإنترنت ثم أعد المحاولة.'
+          : 'تعذر تشغيل ملف التلاوة المحلي.';
       notifyListeners();
     }
+  }
+
+  Future<void> retryCurrent() async {
+    final surah = _currentSurah;
+    if (surah == null) return;
+    await prepareSurah(surah, autoplay: true);
   }
 
   Future<void> resumeLast() async {

@@ -17,16 +17,29 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   List<SurahModel> _playlist = const [];
 
   Future<void> loadSurah(SurahModel surah, {required List<SurahModel> playlist, bool autoplay = false, Duration? initialPosition}) async {
-    if (!surah.available || surah.audioPath.isEmpty) throw ArgumentError('هذه التلاوة غير متوفرة حاليًا.');
+    if (!surah.available || (surah.audioPath.isEmpty && !_hasRemoteSource(surah))) {
+      throw ArgumentError('هذه التلاوة غير متوفرة حاليًا.');
+    }
     _playlist = playlist.where((item) => item.available).toList();
     if (!_playlist.any((item) => item.audioPath == surah.audioPath)) _playlist = [surah];
     final startIndex = _playlist.indexWhere((item) => item.audioPath == surah.audioPath);
     queue.add(_playlist.map(_mediaItem).toList());
-    final sources = _playlist.map((item) => AudioSource.asset(item.audioPath, tag: _mediaItem(item))).toList();
+    final sources = _playlist.map(_audioSourceFor).toList();
     final duration = await _player.setAudioSource(ConcatenatingAudioSource(children: sources), initialIndex: startIndex < 0 ? 0 : startIndex, initialPosition: initialPosition);
     _publishCurrentItem(_player.currentIndex);
     if (duration != null && mediaItem.value != null) mediaItem.add(mediaItem.value!.copyWith(duration: duration));
     if (autoplay) unawaited(play());
+  }
+
+  bool _hasRemoteSource(SurahModel item) =>
+      item.remoteAudioUrl != null && item.remoteAudioUrl!.isNotEmpty;
+
+  AudioSource _audioSourceFor(SurahModel item) {
+    final tag = _mediaItem(item);
+    if (_hasRemoteSource(item)) {
+      return AudioSource.uri(Uri.parse(item.remoteAudioUrl!), tag: tag);
+    }
+    return AudioSource.asset(item.audioPath, tag: tag);
   }
 
   MediaItem _mediaItem(SurahModel item) => MediaItem(id: item.audioPath, title: item.number > 0 ? 'سورة ${item.name}' : item.name, artist: item.reciterName, duration: item.durationSeconds > 0 ? Duration(seconds: item.durationSeconds) : null);
