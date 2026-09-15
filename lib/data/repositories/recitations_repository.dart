@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,7 +16,8 @@ class RecitationsRepository {
   })  : _client = client ?? http.Client(),
         _preferences = preferences ?? SharedPreferences.getInstance,
         _fallbackLoader = fallbackLoader ??
-            (() => rootBundle.loadString('assets/data/recitations_fallback.json'));
+            (() =>
+                rootBundle.loadString('assets/data/recitations_fallback.json'));
 
   static const _manifestCacheKey = 'recitations_manifest_cache_v1';
 
@@ -53,7 +55,8 @@ class RecitationsRepository {
         // لا تمنع مشكلة التخزين المؤقت استخدام Manifest السليم من الشبكة.
       }
       return manifest;
-    } catch (_) {
+    } catch (error) {
+      if (kDebugMode) debugPrint('Manifest load error: $error');
       try {
         final preferences = await _preferences();
         return _decodeManifestOrNull(preferences.getString(_manifestCacheKey));
