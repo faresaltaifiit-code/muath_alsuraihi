@@ -43,15 +43,24 @@ void main() {
   });
 
   test('reads the remote manifest and keeps the local playback path', () async {
+    var requestCount = 0;
     final repository = RecitationsRepository(
-      client: MockClient((_) async => http.Response(manifest, 200)),
+      client: MockClient((_) async {
+        requestCount++;
+        return http.Response(manifest, 200);
+      }),
       fallbackLoader: () async => fallback,
     );
 
     final catalog = await repository.getCatalog();
     final fatiha = catalog.surahs.firstWhere((surah) => surah.number == 1);
 
-    expect(fatiha.remoteAudioUrl, 'https://example.test/001.mp3');
+    expect(requestCount, 1);
+    expect(
+      fatiha.remoteAudioUrl,
+      'https://example.test/001.mp3',
+      reason: 'number=${fatiha.number}, path=${fatiha.audioPath}',
+    );
     expect(fatiha.audioPath, 'assets/audio/001_الفاتحة.mp3');
     expect(fatiha.durationText, '0:42');
     expect(fatiha.fileSizeText, '633.5 KB');
