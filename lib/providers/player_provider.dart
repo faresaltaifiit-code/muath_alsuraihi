@@ -31,6 +31,7 @@ class PlayerProvider extends ChangeNotifier {
   bool _isReady = false;
   bool _autoPlayNext = true;
   bool _shuffleEnabled = false;
+  bool _randomTransitionInProgress = false;
   double _speed = 1;
   AudioServiceRepeatMode _repeatMode = AudioServiceRepeatMode.none;
   String? _error;
@@ -182,7 +183,13 @@ class PlayerProvider extends ChangeNotifier {
     await seek(safeTarget);
   }
 
-  Future<void> next() => _handler?.skipToNext() ?? Future.value();
+  Future<void> next() async {
+    if (_shuffleEnabled) {
+      await _playRandomSurah();
+      return;
+    }
+    await (_handler?.skipToNext() ?? Future.value());
+  }
   Future<void> previous() => _handler?.skipToPrevious() ?? Future.value();
 
   void setAutoPlayNext(bool value) {
@@ -196,10 +203,15 @@ class PlayerProvider extends ChangeNotifier {
   }
 
   Future<void> _playRandomSurah() async {
-    if (_playlist.isEmpty) return;
-    final candidates = _playlist.where((surah) => surah.audioPath != _currentSurah?.audioPath).toList();
-    final next = (candidates.isEmpty ? _playlist : candidates)[Random().nextInt(candidates.isEmpty ? _playlist.length : candidates.length)];
-    await prepareSurah(next, autoplay: true);
+    if (_randomTransitionInProgress) return;
+    final next = pickRandomSurah(_playlist, _currentSurah);
+    if (next == null) return;
+    _randomTransitionInProgress = true;
+    try {
+      await prepareSurah(next, autoplay: true);
+    } finally {
+      _randomTransitionInProgress = false;
+    }
   }
 
   void setRepeatStart() {
@@ -307,4 +319,18 @@ class PlayerProvider extends ChangeNotifier {
     _mediaItemSubscription?.cancel();
     super.dispose();
   }
+}
+
+@visibleForTesting
+SurahModel? pickRandomSurah(
+  List<SurahModel> playlist,
+  SurahModel? current, {
+  Random? random,
+}) {
+  if (playlist.isEmpty) return null;
+  final candidates = playlist
+      .where((surah) => surah.audioPath != current?.audioPath)
+      .toList();
+  final choices = candidates.isEmpty ? playlist : candidates;
+  return choices[(random ?? Random()).nextInt(choices.length)];
 }
