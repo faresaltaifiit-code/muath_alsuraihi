@@ -98,9 +98,15 @@ class RecitationsRepository {
     List<dynamic> mergeList(List<dynamic>? localItems, bool isSurah) {
       return (localItems ?? []).map((item) {
         final local = Map<String, dynamic>.from(item as Map<String, dynamic>);
+        final localAudioId = (local['audio_path'] as String? ?? '')
+            .split('/')
+            .last
+            .replaceFirst(RegExp(r'\.mp3$'), '');
         final remote = isSurah
-            ? remoteBySurahNumber[(local['number'] as num?)?.toInt()]
-            : remoteByAudioId[local['id'] as String? ?? ''];
+            ? remoteBySurahNumber[(local['number'] as num?)?.toInt()] ??
+                remoteByAudioId[localAudioId]
+            : remoteByAudioId[local['id'] as String? ?? ''] ??
+                remoteByAudioId[localAudioId];
         if (remote == null) return local;
 
         final url = remote['url'];
