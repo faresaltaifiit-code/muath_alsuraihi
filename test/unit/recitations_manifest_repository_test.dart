@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -86,4 +88,3 @@ void main() {
     expect(fatiha.remoteAudioUrl, 'https://example.test/001.mp3');
   });
 }
-import 'dart:convert';
