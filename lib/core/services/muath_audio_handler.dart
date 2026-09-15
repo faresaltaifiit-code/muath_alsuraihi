@@ -18,7 +18,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   List<SurahModel> _playlist = const [];
 
   Future<void> loadSurah(SurahModel surah, {required List<SurahModel> playlist, bool autoplay = false, Duration? initialPosition}) async {
-    if (!surah.available || (surah.audioPath.isEmpty && !_hasRemoteSource(surah))) {
+    if (!surah.available || (!surah.isBundled && !_hasRemoteSource(surah))) {
       throw ArgumentError('هذه التلاوة غير متوفرة حاليًا.');
     }
     _playlist = playlist.where((item) => item.available).toList();
@@ -42,7 +42,10 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     if (_hasRemoteSource(item)) {
       return AudioSource.uri(Uri.parse(item.remoteAudioUrl!), tag: tag);
     }
-    return AudioSource.asset(item.audioPath, tag: tag);
+    if (item.isBundled && item.audioPath.isNotEmpty) {
+      return AudioSource.asset(item.audioPath, tag: tag);
+    }
+    throw StateError('No bundled, downloaded, or remote source is available.');
   }
 
   MediaItem _mediaItem(SurahModel item) => MediaItem(id: item.audioPath, title: item.number > 0 ? 'سورة ${item.name}' : item.name, artist: item.reciterName, duration: item.durationSeconds > 0 ? Duration(seconds: item.durationSeconds) : null);

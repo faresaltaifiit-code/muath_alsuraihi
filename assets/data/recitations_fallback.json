@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "reciter": {
     "name": "الشيخ معاذ بن ماجد السريحي",
     "collection_title": "المصحف المرتل - رمضان 1446هـ"
@@ -14,7 +14,8 @@
       "audio_path": "assets/audio/001_الفاتحة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": true
     },
     {
       "number": 2,
@@ -25,7 +26,8 @@
       "audio_path": "assets/audio/002_البقرة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 3,
@@ -36,7 +38,8 @@
       "audio_path": "assets/audio/003_آل عمران.mp3",
       "available": false,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 4,
@@ -47,7 +50,8 @@
       "audio_path": "assets/audio/004_النساء.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 5,
@@ -58,7 +62,8 @@
       "audio_path": "assets/audio/005_المائدة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 6,
@@ -69,7 +74,8 @@
       "audio_path": "assets/audio/006_الأنعام.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 7,
@@ -80,7 +86,8 @@
       "audio_path": "assets/audio/007_الأعراف.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 8,
@@ -91,7 +98,8 @@
       "audio_path": "assets/audio/008_الأنفال.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 9,
@@ -102,7 +110,8 @@
       "audio_path": "assets/audio/009_التوبة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 10,
@@ -113,7 +122,8 @@
       "audio_path": "assets/audio/010_يونس.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 11,
@@ -124,7 +134,8 @@
       "audio_path": "assets/audio/011_هود.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 12,
@@ -135,7 +146,8 @@
       "audio_path": "assets/audio/012_يوسف.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 13,
@@ -146,7 +158,8 @@
       "audio_path": "assets/audio/013_الرعد.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 14,
@@ -157,7 +170,8 @@
       "audio_path": "assets/audio/014_إبراهيم.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 15,
@@ -168,7 +182,8 @@
       "audio_path": "assets/audio/015_الحجر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 16,
@@ -179,7 +194,8 @@
       "audio_path": "assets/audio/016_النحل.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 17,
@@ -190,7 +206,8 @@
       "audio_path": "assets/audio/017_الإسراء.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 18,
@@ -201,7 +218,8 @@
       "audio_path": "assets/audio/018_الكهف.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 19,
@@ -212,7 +230,8 @@
       "audio_path": "assets/audio/019_مريم.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 20,
@@ -223,7 +242,8 @@
       "audio_path": "assets/audio/020_طه.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 21,
@@ -234,7 +254,8 @@
       "audio_path": "assets/audio/021_الأنبياء.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 22,
@@ -245,7 +266,8 @@
       "audio_path": "assets/audio/022_الحج.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 23,
@@ -256,7 +278,8 @@
       "audio_path": "assets/audio/023_المؤمنون.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 24,
@@ -267,7 +290,8 @@
       "audio_path": "assets/audio/024_النور.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 25,
@@ -278,7 +302,8 @@
       "audio_path": "assets/audio/025_الفرقان.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 26,
@@ -289,7 +314,8 @@
       "audio_path": "assets/audio/026_الشعراء.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 27,
@@ -300,7 +326,8 @@
       "audio_path": "assets/audio/027_النمل.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 28,
@@ -311,7 +338,8 @@
       "audio_path": "assets/audio/028_القصص.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 29,
@@ -322,7 +350,8 @@
       "audio_path": "assets/audio/029_العنكبوت.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 30,
@@ -333,7 +362,8 @@
       "audio_path": "assets/audio/030_الروم.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 31,
@@ -344,7 +374,8 @@
       "audio_path": "assets/audio/031_لقمان.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 32,
@@ -355,7 +386,8 @@
       "audio_path": "assets/audio/032_السجدة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 33,
@@ -366,7 +398,8 @@
       "audio_path": "assets/audio/033_الأحزاب.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 34,
@@ -377,7 +410,8 @@
       "audio_path": "assets/audio/034_سبأ.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 35,
@@ -388,7 +422,8 @@
       "audio_path": "assets/audio/035_فاطر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 36,
@@ -399,7 +434,8 @@
       "audio_path": "assets/audio/036_يس.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 37,
@@ -410,7 +446,8 @@
       "audio_path": "assets/audio/037_الصافات.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 38,
@@ -421,7 +458,8 @@
       "audio_path": "assets/audio/038_ص.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 39,
@@ -432,7 +470,8 @@
       "audio_path": "assets/audio/039_الزمر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 40,
@@ -443,7 +482,8 @@
       "audio_path": "assets/audio/040_غافر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 41,
@@ -454,7 +494,8 @@
       "audio_path": "assets/audio/041_فصلت.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 42,
@@ -465,7 +506,8 @@
       "audio_path": "assets/audio/042_الشورى.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 43,
@@ -476,7 +518,8 @@
       "audio_path": "assets/audio/043_الزخرف.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 44,
@@ -487,7 +530,8 @@
       "audio_path": "assets/audio/044_الدخان.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 45,
@@ -498,7 +542,8 @@
       "audio_path": "assets/audio/045_الجاثية.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 46,
@@ -509,7 +554,8 @@
       "audio_path": "assets/audio/046_الأحقاف.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 47,
@@ -520,7 +566,8 @@
       "audio_path": "assets/audio/047_محمد.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 48,
@@ -531,7 +578,8 @@
       "audio_path": "assets/audio/048_الفتح.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 49,
@@ -542,7 +590,8 @@
       "audio_path": "assets/audio/049_الحجرات.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 50,
@@ -553,7 +602,8 @@
       "audio_path": "assets/audio/050_ق.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 51,
@@ -564,7 +614,8 @@
       "audio_path": "assets/audio/051_الذاريات.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 52,
@@ -575,7 +626,8 @@
       "audio_path": "assets/audio/052_الطور.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 53,
@@ -586,7 +638,8 @@
       "audio_path": "assets/audio/053_النجم.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 54,
@@ -597,7 +650,8 @@
       "audio_path": "assets/audio/054_القمر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 55,
@@ -608,7 +662,8 @@
       "audio_path": "assets/audio/055_الرحمن.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 56,
@@ -619,7 +674,8 @@
       "audio_path": "assets/audio/056_الواقعة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 57,
@@ -630,7 +686,8 @@
       "audio_path": "assets/audio/057_الحديد.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 58,
@@ -641,7 +698,8 @@
       "audio_path": "assets/audio/058_المجادلة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 59,
@@ -652,7 +710,8 @@
       "audio_path": "assets/audio/059_الحشر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 60,
@@ -663,7 +722,8 @@
       "audio_path": "assets/audio/060_الممتحنة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 61,
@@ -674,7 +734,8 @@
       "audio_path": "assets/audio/061_الصف.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 62,
@@ -685,7 +746,8 @@
       "audio_path": "assets/audio/062_الجمعة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 63,
@@ -696,7 +758,8 @@
       "audio_path": "assets/audio/063_المنافقون.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 64,
@@ -707,7 +770,8 @@
       "audio_path": "assets/audio/064_التغابن.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 65,
@@ -718,7 +782,8 @@
       "audio_path": "assets/audio/065_الطلاق.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 66,
@@ -729,7 +794,8 @@
       "audio_path": "assets/audio/066_التحريم.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 67,
@@ -740,7 +806,8 @@
       "audio_path": "assets/audio/067_الملك.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": true
     },
     {
       "number": 68,
@@ -751,7 +818,8 @@
       "audio_path": "assets/audio/068_القلم.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 69,
@@ -762,7 +830,8 @@
       "audio_path": "assets/audio/069_الحاقة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 70,
@@ -773,7 +842,8 @@
       "audio_path": "assets/audio/070_المعارج.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 71,
@@ -784,7 +854,8 @@
       "audio_path": "assets/audio/071_نوح.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 72,
@@ -795,7 +866,8 @@
       "audio_path": "assets/audio/072_الجن.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 73,
@@ -806,7 +878,8 @@
       "audio_path": "assets/audio/073_المزمل.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 74,
@@ -817,7 +890,8 @@
       "audio_path": "assets/audio/074_المدثر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 75,
@@ -828,7 +902,8 @@
       "audio_path": "assets/audio/075_القيامة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 76,
@@ -839,7 +914,8 @@
       "audio_path": "assets/audio/076_الإنسان.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 77,
@@ -850,7 +926,8 @@
       "audio_path": "assets/audio/077_المرسلات.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 78,
@@ -861,7 +938,8 @@
       "audio_path": "assets/audio/078_النبأ.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 79,
@@ -872,7 +950,8 @@
       "audio_path": "assets/audio/079_النازعات.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 80,
@@ -883,7 +962,8 @@
       "audio_path": "assets/audio/080_عبس.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 81,
@@ -894,7 +974,8 @@
       "audio_path": "assets/audio/081_التكوير.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 82,
@@ -905,7 +986,8 @@
       "audio_path": "assets/audio/082_الانفطار.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 83,
@@ -916,7 +998,8 @@
       "audio_path": "assets/audio/083_المطففين.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 84,
@@ -927,7 +1010,8 @@
       "audio_path": "assets/audio/084_الانشقاق.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 85,
@@ -938,7 +1022,8 @@
       "audio_path": "assets/audio/085_البروج.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 86,
@@ -949,7 +1034,8 @@
       "audio_path": "assets/audio/086_الطارق.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 87,
@@ -960,7 +1046,8 @@
       "audio_path": "assets/audio/087_الأعلى.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 88,
@@ -971,7 +1058,8 @@
       "audio_path": "assets/audio/088_الغاشية.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 89,
@@ -982,7 +1070,8 @@
       "audio_path": "assets/audio/089_الفجر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 90,
@@ -993,7 +1082,8 @@
       "audio_path": "assets/audio/090_البلد.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 91,
@@ -1004,7 +1094,8 @@
       "audio_path": "assets/audio/091_الشمس.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 92,
@@ -1015,7 +1106,8 @@
       "audio_path": "assets/audio/092_الليل.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 93,
@@ -1026,7 +1118,8 @@
       "audio_path": "assets/audio/093_الضحى.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 94,
@@ -1037,7 +1130,8 @@
       "audio_path": "assets/audio/094_الشرح.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 95,
@@ -1048,7 +1142,8 @@
       "audio_path": "assets/audio/095_التين.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 96,
@@ -1059,7 +1154,8 @@
       "audio_path": "assets/audio/096_العلق.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 97,
@@ -1070,7 +1166,8 @@
       "audio_path": "assets/audio/097_القدر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 98,
@@ -1081,7 +1178,8 @@
       "audio_path": "assets/audio/098_البينة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 99,
@@ -1092,7 +1190,8 @@
       "audio_path": "assets/audio/099_الزلزلة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 100,
@@ -1103,7 +1202,8 @@
       "audio_path": "assets/audio/100_العاديات.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 101,
@@ -1114,7 +1214,8 @@
       "audio_path": "assets/audio/101_القارعة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 102,
@@ -1125,7 +1226,8 @@
       "audio_path": "assets/audio/102_التكاثر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 103,
@@ -1136,7 +1238,8 @@
       "audio_path": "assets/audio/103_العصر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 104,
@@ -1147,7 +1250,8 @@
       "audio_path": "assets/audio/104_الهمزة.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 105,
@@ -1158,7 +1262,8 @@
       "audio_path": "assets/audio/105_الفيل.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 106,
@@ -1169,7 +1274,8 @@
       "audio_path": "assets/audio/106_قريش.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 107,
@@ -1180,7 +1286,8 @@
       "audio_path": "assets/audio/107_الماعون.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 108,
@@ -1191,7 +1298,8 @@
       "audio_path": "assets/audio/108_الكوثر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 109,
@@ -1202,7 +1310,8 @@
       "audio_path": "assets/audio/109_الكافرون.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 110,
@@ -1213,7 +1322,8 @@
       "audio_path": "assets/audio/110_النصر.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 111,
@@ -1224,7 +1334,8 @@
       "audio_path": "assets/audio/111_المسد.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": false
     },
     {
       "number": 112,
@@ -1235,7 +1346,8 @@
       "audio_path": "assets/audio/112_الإخلاص.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": true
     },
     {
       "number": 113,
@@ -1246,7 +1358,8 @@
       "audio_path": "assets/audio/113_الفلق.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": true
     },
     {
       "number": 114,
@@ -1257,7 +1370,8 @@
       "audio_path": "assets/audio/114_الناس.mp3",
       "available": true,
       "file_size_bytes": 0,
-      "file_size_text": ""
+      "file_size_text": "",
+      "bundled": true
     }
   ],
   "special_recitations": [
@@ -1265,14 +1379,15 @@
       "id": "douaa_khatm",
       "title": "دعاء ختم القرآن الكريم",
       "audio_path": "assets/audio/special_دعاء_ختم_القرآن.mp3",
-      "duration_text": ""
+      "duration_text": "",
+      "bundled": false
     },
     {
       "id": "khusuf",
       "title": "تلاوة خاشعة من صلاة الخسوف 1447هـ",
       "audio_path": "assets/audio/special_تلاوة_الخسوف.mp3",
-      "duration_text": ""
+      "duration_text": "",
+      "bundled": false
     }
   ]
 }
-

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../data/models/surah_model.dart';
@@ -23,14 +25,28 @@ class RecitationsProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final catalog = await _repository.getCatalog();
+      final catalog = await _repository.getLocalCatalog();
       _surahs = catalog.surahs;
       _specialRecitations = catalog.specialRecitations;
+      _isLoading = false;
+      notifyListeners();
+      unawaited(_refreshFromNetwork());
     } catch (_) {
       _errorMessage = 'تعذر قراءة قائمة التلاوات. حاول مرة أخرى لاحقًا.';
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> _refreshFromNetwork() async {
+    try {
+      final catalog = await _repository.getCatalog();
+      _surahs = catalog.surahs;
+      _specialRecitations = catalog.specialRecitations;
+      notifyListeners();
+    } catch (_) {
+      // Keep the local catalog visible when the network refresh fails.
     }
   }
 }

@@ -1,11 +1,16 @@
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 import '../../data/models/surah_model.dart';
 
 class AudioDownloadService {
+  static const _backupChannel =
+      MethodChannel('com.faresaltaifi.muath_alsuraihi/downloads');
+
   static Future<File?> localFileFor(String audioId) async {
     final file = File('${(await _downloadsDirectory()).path}/$audioId.mp3');
     return await file.exists() ? file : null;
@@ -64,6 +69,8 @@ class AudioDownloadService {
         await sink.close();
       }
       await partial.rename(target.path);
+      await _verifyChecksum(target, surah.checksum);
+      await _excludeFromBackup(target);
       onProgress(total ?? received, total ?? received);
     } finally {
       if (client == null) activeClient.close();
@@ -95,6 +102,28 @@ class AudioDownloadService {
       }
     }
     return total;
+  }
+
+  static Future<void> _verifyChecksum(File file, String? expectedChecksum) async {
+    if (expectedChecksum == null || expectedChecksum.isEmpty) return;
+    final actual = await sha256.bind(file.openRead()).first;
+    if (actual.toString().toLowerCase() == expectedChecksum.toLowerCase()) {
+      return;
+    }
+    await file.delete();
+    throw const HttpException('The downloaded file did not pass verification.');
+  }
+
+  static Future<void> _excludeFromBackup(File file) async {
+    if (!Platform.isIOS) return;
+    try {
+      await _backupChannel.invokeMethod<void>('excludeFromBackup', {
+        'path': file.path,
+      });
+    } on PlatformException {
+      if (await file.exists()) await file.delete();
+      rethrow;
+    }
   }
 
   static Future<Directory> _downloadsDirectory() async {

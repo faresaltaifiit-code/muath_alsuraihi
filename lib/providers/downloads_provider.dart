@@ -12,12 +12,19 @@ class DownloadsProvider extends ChangeNotifier {
   String? _error;
   int _storageBytes = 0;
   bool _wifiOnly = false;
+  bool _isDownloadingAll = false;
+  int _downloadAllTotal = 0;
+  int _downloadAllCompleted = 0;
 
   bool get isReady => _ready;
   bool _ready = false;
   String? get error => _error;
   int get storageBytes => _storageBytes;
   bool get wifiOnly => _wifiOnly;
+  bool get isDownloadingAll => _isDownloadingAll;
+  double? get downloadAllProgress => _downloadAllTotal == 0
+      ? null
+      : _downloadAllCompleted / _downloadAllTotal;
   bool isDownloaded(SurahModel surah) => _downloadedIds.contains(surah.id);
   bool isDownloading(SurahModel surah) => _progress.containsKey(surah.id);
   double? progressFor(SurahModel surah) => _progress[surah.id]?.fraction;
@@ -71,6 +78,43 @@ class DownloadsProvider extends ChangeNotifier {
     _downloadedIds = {};
     _storageBytes = 0;
     notifyListeners();
+  }
+
+  Future<void> downloadAll(Iterable<SurahModel> items) async {
+    if (_isDownloadingAll) return;
+    final pending = items
+        .where((item) =>
+            item.available &&
+            item.remoteAudioUrl?.isNotEmpty == true &&
+            !isDownloaded(item))
+        .toList();
+    if (pending.isEmpty) return;
+
+    if (_wifiOnly) {
+      final networks = await Connectivity().checkConnectivity();
+      if (!networks.contains(ConnectivityResult.wifi)) {
+        _error = 'ÙØ¹Ù‘Ù„ Ø´Ø¨ÙƒØ© Wi-Fi Ù„Ù„ØªØ­Ù…ÙŠÙ„ Ø£Ùˆ Ø£Ù„ØºÙ Ø®ÙŠØ§Ø± Wi-Fi ÙÙ‚Ø· Ù…Ù† Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª.';
+        notifyListeners();
+        return;
+      }
+    }
+
+    _error = null;
+    _isDownloadingAll = true;
+    _downloadAllTotal = pending.length;
+    _downloadAllCompleted = 0;
+    notifyListeners();
+    try {
+      for (final item in pending) {
+        await download(item);
+        if (!isDownloaded(item)) break;
+        _downloadAllCompleted += 1;
+        notifyListeners();
+      }
+    } finally {
+      _isDownloadingAll = false;
+      notifyListeners();
+    }
   }
 
   Future<void> setWifiOnly(bool value) async {

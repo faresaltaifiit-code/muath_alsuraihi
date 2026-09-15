@@ -11,6 +11,8 @@ class SurahModel {
     required this.fileSizeBytes,
     required this.fileSizeText,
     this.remoteAudioUrl,
+    this.isBundled = false,
+    this.checksum,
   });
 
   factory SurahModel.fromJson(Map<String, dynamic> json) => SurahModel(
@@ -25,6 +27,8 @@ class SurahModel {
         fileSizeBytes: (json['file_size_bytes'] as num?)?.toInt() ?? 0,
         fileSizeText: json['file_size_text'] as String? ?? '',
         remoteAudioUrl: json['remote_audio_url'] as String?,
+        isBundled: json['bundled'] as bool? ?? false,
+        checksum: json['checksum'] as String?,
       );
 
   final String id;
@@ -39,6 +43,8 @@ class SurahModel {
   final String fileSizeText;
   /// عنوان المصدر البعيد محفوظ للمرحلة القادمة فقط؛ التشغيل لا يستخدمه بعد.
   final String? remoteAudioUrl;
+  final bool isBundled;
+  final String? checksum;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -52,6 +58,8 @@ class SurahModel {
         'file_size_bytes': fileSizeBytes,
         'file_size_text': fileSizeText,
         if (remoteAudioUrl != null) 'remote_audio_url': remoteAudioUrl,
+        'bundled': isBundled,
+        if (checksum != null) 'checksum': checksum,
       };
 }
 

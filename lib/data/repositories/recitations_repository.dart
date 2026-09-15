@@ -24,11 +24,15 @@ class RecitationsRepository {
   final Future<SharedPreferences> Function() _preferences;
   final Future<String> Function() _fallbackLoader;
 
+  /// Returns the bundled catalog immediately, without waiting for the network.
+  Future<RecitationsCatalog> getLocalCatalog() async {
+    return _catalogFromRoot(await _loadFallbackRoot());
+  }
+
   /// يحدّث بيانات القائمة من Manifest، ويحفظ آخر نسخة صالحة محليًا.
   /// تبقى مسارات الصوت المحلية كما هي في هذه المرحلة.
   Future<RecitationsCatalog> getCatalog() async {
-    final source = await _fallbackLoader();
-    final fallbackRoot = jsonDecode(source) as Map<String, dynamic>;
+    final fallbackRoot = await _loadFallbackRoot();
 
     final manifest = await _loadManifest();
     final root = manifest == null
@@ -36,6 +40,11 @@ class RecitationsRepository {
         : _mergeManifestWithFallback(fallbackRoot, manifest);
 
     return _catalogFromRoot(root);
+  }
+
+  Future<Map<String, dynamic>> _loadFallbackRoot() async {
+    final source = await _fallbackLoader();
+    return jsonDecode(source) as Map<String, dynamic>;
   }
 
   Future<Map<String, dynamic>?> _loadManifest() async {
@@ -125,6 +134,10 @@ class RecitationsRepository {
         if (duration is num) {
           local['duration_seconds'] = duration.toInt();
           local['duration_text'] = _formatDuration(duration.toInt());
+        }
+        final checksum = remote['checksum'];
+        if (checksum is String && checksum.isNotEmpty) {
+          local['checksum'] = checksum;
         }
         return local;
       }).toList();

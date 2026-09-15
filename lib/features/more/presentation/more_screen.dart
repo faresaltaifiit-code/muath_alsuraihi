@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../data/models/surah_model.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../providers/downloads_provider.dart';
+import '../../../providers/recitations_provider.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -13,6 +15,7 @@ class MoreScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final downloads = context.watch<DownloadsProvider>();
+    final recitations = context.watch<RecitationsProvider>();
     return Scaffold(
       appBar: AppBar(title: const Text('المزيد')),
       body: ListView(
@@ -44,6 +47,25 @@ class MoreScreen extends StatelessWidget {
                   leading: const Icon(Icons.storage_rounded),
                   title: const Text('المساحة المستخدمة'),
                   trailing: Text(_formatBytes(downloads.storageBytes)),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.download_for_offline_rounded),
+                  title: Text(downloads.isDownloadingAll
+                      ? '\u064a\u062a\u0645 \u062a\u0646\u0632\u064a\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a'
+                      : '\u062a\u0646\u0632\u064a\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a'),
+                  subtitle: downloads.isDownloadingAll
+                      ? LinearProgressIndicator(value: downloads.downloadAllProgress)
+                      : const Text('\u062d\u0641\u0638 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a \u0644\u0644\u0627\u0633\u062a\u0645\u0627\u0639 \u062f\u0648\u0646 \u0625\u0646\u062a\u0631\u0646\u062a'),
+                  trailing: downloads.isDownloadingAll
+                      ? Text('${(100 * (downloads.downloadAllProgress ?? 0)).round()}%')
+                      : const Icon(Icons.chevron_left_rounded),
+                  onTap: downloads.isDownloadingAll
+                      ? null
+                      : () => _confirmDownloadAll(
+                            context,
+                            downloads,
+                            [...recitations.surahs, ...recitations.specialRecitations],
+                          ),
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.wifi_rounded),
@@ -107,6 +129,35 @@ class MoreScreen extends StatelessWidget {
   static String _formatBytes(int bytes) {
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
+  Future<void> _confirmDownloadAll(
+    BuildContext context,
+    DownloadsProvider downloads,
+    List<SurahModel> recitations,
+  ) async {
+    final approved = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('\u062a\u0646\u0632\u064a\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a\u061f'),
+        content: const Text(
+          '\u0633\u064a\u0633\u062a\u062e\u062f\u0645 \u0647\u0630\u0627 \u0645\u0633\u0627\u062d\u0629 \u0645\u0646 \u0627\u0644\u062c\u0647\u0627\u0632\u060c \u0648\u064a\u0645\u0643\u0646 \u062d\u0630\u0641 \u0627\u0644\u062a\u0646\u0632\u064a\u0644\u0627\u062a \u0644\u0627\u062d\u0642\u064b\u0627.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('\u0625\u0644\u063a\u0627\u0621'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('\u062a\u0646\u0632\u064a\u0644'),
+          ),
+        ],
+      ),
+    );
+    if (approved == true) {
+      await downloads.downloadAll(recitations);
+    }
   }
 
   Future<void> _confirmDeleteAll(BuildContext context, DownloadsProvider downloads) async {
