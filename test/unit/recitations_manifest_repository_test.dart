@@ -17,6 +17,7 @@ void main() {
       "number": 1,
       "url": "https://example.test/001.mp3",
       "size": 648722,
+      "duration": 42,
       "type": "surah"
     }
   ]
@@ -37,6 +38,8 @@ void main() {
 
     expect(fatiha.remoteAudioUrl, 'https://example.test/001.mp3');
     expect(fatiha.audioPath, 'assets/audio/001_الفاتحة.mp3');
+    expect(fatiha.durationText, '0:42');
+    expect(fatiha.fileSizeText, '633.5 KB');
   });
 
   test('uses the saved manifest when the network is unavailable', () async {

@@ -99,7 +99,15 @@ class RecitationsRepository {
         final url = remote['url'];
         if (url is String && url.isNotEmpty) local['remote_audio_url'] = url;
         final size = remote['size'];
-        if (size is num) local['file_size_bytes'] = size.toInt();
+        if (size is num) {
+          local['file_size_bytes'] = size.toInt();
+          local['file_size_text'] = _formatBytes(size.toInt());
+        }
+        final duration = remote['duration'];
+        if (duration is num) {
+          local['duration_seconds'] = duration.toInt();
+          local['duration_text'] = _formatDuration(duration.toInt());
+        }
         return local;
       }).toList();
     }
@@ -110,6 +118,16 @@ class RecitationsRepository {
       'special_recitations':
           mergeList(fallbackRoot['special_recitations'] as List<dynamic>?, false),
     };
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    return '${minutes}:${(seconds % 60).toString().padLeft(2, '0')}';
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
   RecitationsCatalog _catalogFromRoot(Map<String, dynamic> root) {

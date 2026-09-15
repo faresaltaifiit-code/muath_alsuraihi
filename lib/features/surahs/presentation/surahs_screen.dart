@@ -143,6 +143,17 @@ class _SurahCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('سورة ${surah.name}', style: theme.textTheme.titleMedium),
+                  if (surah.available &&
+                      (surah.durationText.isNotEmpty ||
+                          surah.fileSizeText.isNotEmpty)) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      [surah.durationText, surah.fileSizeText]
+                          .where((value) => value.isNotEmpty)
+                          .join(' • '),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
                   if (!surah.available) ...[
                     const SizedBox(height: 2),
                     Text('قريبًا', style: theme.textTheme.bodyMedium),
@@ -187,7 +198,20 @@ class _DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (downloads.isDownloaded(surah)) {
-      return const Icon(Icons.check_circle_rounded, color: Colors.green);
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Tooltip(
+            message: 'محملة',
+            child: Icon(Icons.check_circle_rounded, color: Colors.green),
+          ),
+          IconButton(
+            tooltip: 'حذف تنزيل سورة ${surah.name}',
+            icon: const Icon(Icons.delete_outline_rounded),
+            onPressed: () => _confirmDelete(context),
+          ),
+        ],
+      );
     }
     if (downloads.isDownloading(surah)) {
       final value = downloads.progressFor(surah);
@@ -202,6 +226,21 @@ class _DownloadButton extends StatelessWidget {
       onPressed: () => downloads.download(surah),
       icon: const Icon(Icons.download_rounded),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final approved = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('حذف تنزيل سورة ${surah.name}؟'),
+        content: const Text('سيُحذف الصوت المحفوظ على هذا الجهاز فقط.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('حذف')),
+        ],
+      ),
+    );
+    if (approved == true) await downloads.delete(surah);
   }
 }
 
