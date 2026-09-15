@@ -7,6 +7,7 @@ import 'features/navigation/presentation/root_navigation_screen.dart';
 import 'providers/recitations_provider.dart';
 import 'providers/player_provider.dart';
 import 'providers/favorites_provider.dart';
+import 'providers/downloads_provider.dart';
 import 'providers/settings_provider.dart';
 
 class MuathAlsuraihiApp extends StatelessWidget {
@@ -19,6 +20,7 @@ class MuathAlsuraihiApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RecitationsProvider()..loadSurahs()),
         ChangeNotifierProvider(create: (_) => PlayerProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => FavoritesProvider()..load()),
+        ChangeNotifierProvider(create: (_) => DownloadsProvider()..load()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..load()),
       ],
       child: Consumer<SettingsProvider>(

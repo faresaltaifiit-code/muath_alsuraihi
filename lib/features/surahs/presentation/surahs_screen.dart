@@ -6,6 +6,7 @@ import '../../../data/models/surah_model.dart';
 import '../../player/presentation/player_screen.dart';
 import '../../../providers/recitations_provider.dart';
 import '../../../providers/favorites_provider.dart';
+import '../../../providers/downloads_provider.dart';
 
 class SurahsScreen extends StatefulWidget {
   const SurahsScreen({super.key});
@@ -115,6 +116,7 @@ class _SurahCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final downloads = context.watch<DownloadsProvider>();
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -163,6 +165,7 @@ class _SurahCard extends StatelessWidget {
               },
               icon: Icon(surah.available ? Icons.play_arrow_rounded : Icons.schedule_rounded),
             ),
+            if (surah.available) _DownloadButton(surah: surah, downloads: downloads),
             IconButton(
               tooltip: 'المفضلة',
               onPressed: () => context.read<FavoritesProvider>().toggle(surah),
@@ -172,6 +175,32 @@ class _SurahCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _DownloadButton extends StatelessWidget {
+  const _DownloadButton({required this.surah, required this.downloads});
+  final SurahModel surah;
+  final DownloadsProvider downloads;
+
+  @override
+  Widget build(BuildContext context) {
+    if (downloads.isDownloaded(surah)) {
+      return const Icon(Icons.check_circle_rounded, color: Colors.green);
+    }
+    if (downloads.isDownloading(surah)) {
+      final value = downloads.progressFor(surah);
+      return SizedBox(
+        width: 36,
+        height: 36,
+        child: CircularProgressIndicator(value: value, strokeWidth: 3),
+      );
+    }
+    return IconButton(
+      tooltip: 'تحميل سورة ${surah.name}',
+      onPressed: () => downloads.download(surah),
+      icon: const Icon(Icons.download_rounded),
     );
   }
 }

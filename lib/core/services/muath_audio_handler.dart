@@ -4,6 +4,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../../data/models/surah_model.dart';
+import 'audio_download_service.dart';
 
 /// طبقة الصوت الأصلية: قائمة تشغيل محلية تعمل مع شاشة القفل والخلفية.
 class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
@@ -24,7 +25,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     if (!_playlist.any((item) => item.audioPath == surah.audioPath)) _playlist = [surah];
     final startIndex = _playlist.indexWhere((item) => item.audioPath == surah.audioPath);
     queue.add(_playlist.map(_mediaItem).toList());
-    final sources = _playlist.map(_audioSourceFor).toList();
+    final sources = await Future.wait(_playlist.map(_audioSourceFor));
     final duration = await _player.setAudioSource(ConcatenatingAudioSource(children: sources), initialIndex: startIndex < 0 ? 0 : startIndex, initialPosition: initialPosition);
     _publishCurrentItem(_player.currentIndex);
     if (duration != null && mediaItem.value != null) mediaItem.add(mediaItem.value!.copyWith(duration: duration));
@@ -34,8 +35,10 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   bool _hasRemoteSource(SurahModel item) =>
       item.remoteAudioUrl != null && item.remoteAudioUrl!.isNotEmpty;
 
-  AudioSource _audioSourceFor(SurahModel item) {
+  Future<AudioSource> _audioSourceFor(SurahModel item) async {
     final tag = _mediaItem(item);
+    final localDownload = await AudioDownloadService.localFileFor(item.id);
+    if (localDownload != null) return AudioSource.file(localDownload.path, tag: tag);
     if (_hasRemoteSource(item)) {
       return AudioSource.uri(Uri.parse(item.remoteAudioUrl!), tag: tag);
     }
