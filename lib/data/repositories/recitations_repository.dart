@@ -83,8 +83,9 @@ class RecitationsRepository {
       if (item is! Map<String, dynamic>) continue;
       final id = item['audio_id'];
       if (id is String) remoteByAudioId[id] = item;
-      if (item['type'] == 'surah' && item['surah_id'] is num) {
-        remoteBySurahNumber[(item['surah_id'] as num).toInt()] = item;
+      final surahId = item['surah_id'];
+      if (surahId is num) {
+        remoteBySurahNumber[surahId.toInt()] = item;
       }
     }
 
