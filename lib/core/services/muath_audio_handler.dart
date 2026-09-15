@@ -39,11 +39,11 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     final tag = _mediaItem(item);
     final localDownload = await AudioDownloadService.localFileFor(item.id);
     if (localDownload != null) return AudioSource.file(localDownload.path, tag: tag);
-    if (_hasRemoteSource(item)) {
-      return AudioSource.uri(Uri.parse(item.remoteAudioUrl!), tag: tag);
-    }
     if (item.isBundled && item.audioPath.isNotEmpty) {
       return AudioSource.asset(item.audioPath, tag: tag);
+    }
+    if (_hasRemoteSource(item)) {
+      return AudioSource.uri(Uri.parse(item.remoteAudioUrl!), tag: tag);
     }
     throw StateError('No bundled, downloaded, or remote source is available.');
   }
