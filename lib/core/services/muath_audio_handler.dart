@@ -21,7 +21,10 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     if (!surah.available || (!surah.isBundled && !_hasRemoteSource(surah))) {
       throw ArgumentError('هذه التلاوة غير متوفرة حاليًا.');
     }
-    _playlist = playlist.where((item) => item.available).toList();
+    _playlist = playlist
+        .where((item) => item.available)
+        .map((item) => item.audioPath == surah.audioPath ? surah : item)
+        .toList();
     if (!_playlist.any((item) => item.audioPath == surah.audioPath)) _playlist = [surah];
     final startIndex = _playlist.indexWhere((item) => item.audioPath == surah.audioPath);
     queue.add(_playlist.map(_mediaItem).toList());

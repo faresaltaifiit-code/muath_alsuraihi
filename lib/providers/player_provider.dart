@@ -91,8 +91,15 @@ class PlayerProvider extends ChangeNotifier {
 
   void setPlaylist(List<SurahModel> value) {
     final available = value.where((item) => item.available).toList();
-    if (listEquals(_playlist.map((item) => item.audioPath).toList(),
-        available.map((item) => item.audioPath).toList())) {
+    final sameSources = listEquals(
+      _playlist.map((item) => item.remoteAudioUrl).toList(),
+      available.map((item) => item.remoteAudioUrl).toList(),
+    );
+    final sameBundledState = listEquals(
+      _playlist.map((item) => item.isBundled).toList(),
+      available.map((item) => item.isBundled).toList(),
+    );
+    if (sameSources && sameBundledState) {
       return;
     }
     _playlist = available;
