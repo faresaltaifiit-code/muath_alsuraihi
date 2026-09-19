@@ -31,7 +31,6 @@ class PlayerProvider extends ChangeNotifier {
   bool _isReady = false;
   bool _autoPlayNext = true;
   bool _shuffleEnabled = false;
-  bool _randomTransitionInProgress = false;
   double _speed = 1;
   AudioServiceRepeatMode _repeatMode = AudioServiceRepeatMode.none;
   String? _error;
@@ -71,9 +70,6 @@ class PlayerProvider extends ChangeNotifier {
       _speed = state.speed;
       _repeatMode = state.repeatMode;
       _loopRangeIfNeeded();
-      if (_shuffleEnabled && state.processingState == AudioProcessingState.completed) {
-        _playRandomSurah();
-      }
       _scheduleSave();
       notifyListeners();
     });
@@ -126,12 +122,14 @@ class PlayerProvider extends ChangeNotifier {
     _repeatEnd = null;
     notifyListeners();
     try {
-      final sourceList = _autoPlayNext && !_shuffleEnabled && surah.number > 0 && _playlist.isNotEmpty
+      final sourceList = surah.number > 0 && _playlist.isNotEmpty
           ? _playlist
           : <SurahModel>[surah];
       await (_handler! as MuathAudioHandler).loadSurah(
         surah,
         playlist: sourceList,
+        autoPlayNext: _autoPlayNext,
+        shuffleEnabled: _shuffleEnabled,
         autoplay: autoplay,
         initialPosition: initialPosition,
       );
@@ -191,33 +189,34 @@ class PlayerProvider extends ChangeNotifier {
   }
 
   Future<void> next() async {
-    if (_shuffleEnabled) {
-      await _playRandomSurah();
-      return;
-    }
     await (_handler?.skipToNext() ?? Future.value());
   }
   Future<void> previous() => _handler?.skipToPrevious() ?? Future.value();
 
-  void setAutoPlayNext(bool value) {
+  Future<void> setAutoPlayNext(bool value) async {
+    if (_autoPlayNext == value) return;
     _autoPlayNext = value;
     notifyListeners();
+    final current = _currentSurah;
+    if (current != null) {
+      await prepareSurah(
+        current,
+        autoplay: _isPlaying,
+        initialPosition: _position,
+      );
+    }
   }
 
   Future<void> toggleShuffle() async {
     _shuffleEnabled = !_shuffleEnabled;
     notifyListeners();
-  }
-
-  Future<void> _playRandomSurah() async {
-    if (_randomTransitionInProgress) return;
-    final next = pickRandomSurah(_playlist, _currentSurah);
-    if (next == null) return;
-    _randomTransitionInProgress = true;
-    try {
-      await prepareSurah(next, autoplay: true);
-    } finally {
-      _randomTransitionInProgress = false;
+    final current = _currentSurah;
+    if (current != null) {
+      await prepareSurah(
+        current,
+        autoplay: _isPlaying,
+        initialPosition: _position,
+      );
     }
   }
 
