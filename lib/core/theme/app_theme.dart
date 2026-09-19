@@ -109,7 +109,7 @@ abstract final class AppTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 64,
+        height: 56,
         backgroundColor: scaffoldBackground,
         indicatorColor: Colors.transparent,
         elevation: 0,

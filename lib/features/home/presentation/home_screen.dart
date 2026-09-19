@@ -48,7 +48,12 @@ class HomeScreen extends StatelessWidget {
             ],
             if (hasRecent) ...[
               const SliverToBoxAdapter(child: SizedBox(height: 30)),
-              const SliverToBoxAdapter(child: _SectionTitle('استمعت مؤخرًا')),
+              SliverToBoxAdapter(
+                child: _SectionTitle(
+                  'استمعت مؤخرًا',
+                  onShowAll: () => _openLibrary(context),
+                ),
+              ),
               const SliverToBoxAdapter(child: SizedBox(height: 12)),
               SliverToBoxAdapter(child: _RecentList(items: player.recentSurahs)),
             ],
@@ -65,7 +70,6 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _LibraryCard(
-                        count: recitations.surahs.where((surah) => surah.available).length,
                         onTap: () => _openLibrary(context),
                       ),
                     ),
@@ -84,7 +88,6 @@ class HomeScreen extends StatelessWidget {
             ] else ...[
               SliverToBoxAdapter(
                 child: _LibraryCard(
-                  count: recitations.surahs.where((surah) => surah.available).length,
                   onTap: () => _openLibrary(context),
                 ),
               ),
@@ -113,9 +116,12 @@ class _Header extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('السلام عليكم', style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: 1),
-                Text('معاذ السريحي', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'معاذ السريحي',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                ),
                 Text('قرآن وتلاوات', style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
@@ -143,12 +149,13 @@ class _HeaderAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: Theme.of(context).cardTheme.color,
+        color: Colors.transparent,
         shape: const CircleBorder(),
         child: IconButton(
           tooltip: tooltip,
           onPressed: onPressed,
-          icon: Icon(icon, size: 20),
+          constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+          icon: Icon(icon, size: 22),
         ),
       );
 }
@@ -194,40 +201,29 @@ class _ContinueListeningCard extends StatelessWidget {
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
         ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.forestGreen.withValues(alpha: .22),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
-              children: [
-                Icon(Icons.history_rounded, color: AppColors.softGold),
-                SizedBox(width: 8),
-                Text('استمر من حيث توقفت',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 17)),
-              ],
+            const Text(
+              'استمر من حيث توقفت',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 18),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
             Text('سورة ${surah.name}',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Colors.white,
-                      fontSize: 26,
+                      fontSize: 28,
                     )),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
-              'توقفت عند ${_formatDuration(player.lastPosition)}',
+              '${_formatDuration(player.lastPosition)} / ${_formatDuration(duration)}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: .8)),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Directionality(
               textDirection: TextDirection.rtl,
               child: ClipRRect(
@@ -240,17 +236,22 @@ class _ContinueListeningCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 14),
-            SizedBox(
-              child: FilledButton.icon(
-                onPressed: player.resumeLast,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(0, 44),
-                  backgroundColor: AppColors.softGold,
-                  foregroundColor: AppColors.forestGreen,
+            const SizedBox(height: 12),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: SizedBox(
+                width: 52,
+                height: 52,
+                child: FilledButton(
+                  onPressed: player.resumeLast,
+                  style: FilledButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    shape: const CircleBorder(),
+                    backgroundColor: AppColors.softGold,
+                    foregroundColor: AppColors.forestGreen,
+                  ),
+                  child: const Icon(Icons.play_arrow_rounded, size: 30),
                 ),
-                icon: const Icon(Icons.play_arrow_rounded, size: 28),
-                label: const Text('متابعة الاستماع'),
               ),
             ),
           ],
@@ -261,11 +262,26 @@ class _ContinueListeningCard extends StatelessWidget {
 }
 
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.value);
+  const _SectionTitle(this.value, {this.onShowAll});
   final String value;
+  final VoidCallback? onShowAll;
 
   @override
-  Widget build(BuildContext context) => Text(value, style: Theme.of(context).textTheme.titleLarge);
+  Widget build(BuildContext context) => Row(
+        children: [
+          Expanded(
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 19),
+            ),
+          ),
+          if (onShowAll != null)
+            TextButton(
+              onPressed: onShowAll,
+              child: const Text('عرض الكل ‹'),
+            ),
+        ],
+      );
 }
 
 class _RecentList extends StatelessWidget {
@@ -274,12 +290,34 @@ class _RecentList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: 108,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: items.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 12),
-          itemBuilder: (context, index) => _RecentCard(surah: items[index]),
+        height: 90,
+        child: Stack(
+          children: [
+            ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) => _RecentCard(surah: items[index]),
+            ),
+            IgnorePointer(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  width: 22,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerRight,
+                      end: Alignment.centerLeft,
+                      colors: [
+                        Theme.of(context).scaffoldBackgroundColor,
+                        Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       );
 }
@@ -290,7 +328,7 @@ class _RecentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: 144,
+        width: 140,
         child: Card(
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -298,13 +336,13 @@ class _RecentCard extends StatelessWidget {
               MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: surah)),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.history_rounded, size: 18, color: Theme.of(context).colorScheme.secondary),
+                      Icon(Icons.history_outlined, size: 14, color: Theme.of(context).colorScheme.secondary),
                       const Spacer(),
                       _SourceBadge(surah: surah),
                     ],
@@ -350,8 +388,7 @@ class _SourceBadge extends StatelessWidget {
 }
 
 class _LibraryCard extends StatelessWidget {
-  const _LibraryCard({required this.count, required this.onTap});
-  final int count;
+  const _LibraryCard({required this.onTap});
   final VoidCallback onTap;
 
   @override
@@ -452,5 +489,10 @@ class _ShortcutCard extends StatelessWidget {
       );
 }
 
-String _formatDuration(Duration value) =>
-    '${value.inMinutes.remainder(60).toString().padLeft(2, '0')}:${value.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+String _formatDuration(Duration value) {
+  final seconds = value.inSeconds.remainder(60).toString().padLeft(2, '0');
+  if (value.inHours > 0) {
+    return '${value.inHours}:${value.inMinutes.remainder(60).toString().padLeft(2, '0')}:$seconds';
+  }
+  return '${value.inMinutes}:$seconds';
+}

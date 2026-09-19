@@ -35,15 +35,20 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
             ),
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: (value) => setState(() => _index = value),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: _SelectedNavIcon(Icons.home_rounded), label: 'الرئيسية'),
-            NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: _SelectedNavIcon(Icons.menu_book_rounded), label: 'السور'),
-            NavigationDestination(icon: Icon(Icons.favorite_border_rounded), selectedIcon: _SelectedNavIcon(Icons.favorite_rounded), label: 'المفضلة'),
-            NavigationDestination(icon: Icon(Icons.more_horiz_rounded), selectedIcon: _SelectedNavIcon(Icons.more_rounded), label: 'المزيد'),
-          ],
+        bottomNavigationBar: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+          ),
+          child: NavigationBar(
+            selectedIndex: _index,
+            onDestinationSelected: (value) => setState(() => _index = value),
+            destinations: const [
+              NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: _SelectedNavIcon(Icons.home_outlined), label: 'الرئيسية'),
+              NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: _SelectedNavIcon(Icons.menu_book_outlined), label: 'السور'),
+              NavigationDestination(icon: Icon(Icons.favorite_border_rounded), selectedIcon: _SelectedNavIcon(Icons.favorite_border_rounded), label: 'المفضلة'),
+              NavigationDestination(icon: Icon(Icons.more_horiz_rounded), selectedIcon: _SelectedNavIcon(Icons.more_horiz_rounded), label: 'المزيد'),
+            ],
+          ),
         ),
       );
   }

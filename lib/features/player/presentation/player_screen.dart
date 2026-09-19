@@ -243,9 +243,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 
-  Widget _format(Duration duration, {String prefix = ''}) => Text(
-        '$prefix${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}',
-      );
+  Widget _format(Duration duration, {String prefix = ''}) {
+    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    final value = duration.inHours > 0
+        ? '${duration.inHours}:${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:$seconds'
+        : '${duration.inMinutes}:$seconds';
+    return Text('$prefix$value');
+  }
 
   Future<void> _chooseSpeed(BuildContext context, PlayerProvider player) async {
     final result = await showModalBottomSheet<double>(
