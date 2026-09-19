@@ -48,7 +48,7 @@ class HomeScreen extends StatelessWidget {
             ],
             if (hasRecent) ...[
               const SliverToBoxAdapter(child: SizedBox(height: 30)),
-              const SliverToBoxAdapter(child: _SectionTitle('آخر ما استمعت')),
+              const SliverToBoxAdapter(child: _SectionTitle('استمعت مؤخرًا')),
               const SliverToBoxAdapter(child: SizedBox(height: 12)),
               SliverToBoxAdapter(child: _RecentList(items: player.recentSurahs)),
             ],
@@ -109,16 +109,6 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: AppColors.emerald,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.star_rounded, color: AppColors.softGold, size: 23),
-          ),
-          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,13 +228,16 @@ class _ContinueListeningCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: .8)),
             ),
             const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 4,
-                color: AppColors.softGold,
-                backgroundColor: Colors.white.withValues(alpha: .2),
+            Directionality(
+              textDirection: TextDirection.rtl,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 4,
+                  color: AppColors.softGold,
+                  backgroundColor: Colors.white.withValues(alpha: .2),
+                ),
               ),
             ),
             const SizedBox(height: 14),
@@ -311,17 +304,20 @@ class _RecentCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.history_rounded, size: 18, color: AppColors.emerald),
+                      Icon(Icons.history_rounded, size: 18, color: Theme.of(context).colorScheme.secondary),
                       const Spacer(),
                       _SourceBadge(surah: surah),
                     ],
                   ),
                   const Spacer(),
-                  Text(
-                    'سورة ${surah.name}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 14),
+                  Tooltip(
+                    message: surah.number > 0 ? 'سورة ${surah.name}' : surah.name,
+                    child: Text(
+                      surah.number > 0 ? 'سورة ${surah.name}' : surah.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 14),
+                    ),
                   ),
                   const SizedBox(height: 3),
                   Text(surah.durationText, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12)),
@@ -344,7 +340,9 @@ class _SourceBadge extends StatelessWidget {
       message: downloaded ? 'محملة' : 'بث',
       child: Icon(
         downloaded ? Icons.check_circle_rounded : Icons.cloud_outlined,
-        color: downloaded ? AppColors.emerald : Theme.of(context).textTheme.bodySmall?.color,
+        color: downloaded
+            ? Theme.of(context).colorScheme.secondary
+            : Theme.of(context).textTheme.bodyMedium?.color,
         size: 17,
       ),
     );
@@ -358,9 +356,9 @@ class _LibraryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _ShortcutCard(
-        icon: Icons.menu_book_rounded,
-        title: 'المصحف',
-        detail: '$count سورة',
+        icon: Icons.menu_book_outlined,
+        title: 'السور',
+        detail: '',
         onTap: onTap,
       );
 }
@@ -443,10 +441,10 @@ class _ShortcutCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: AppColors.emerald, size: 30),
+                Icon(icon, color: Theme.of(context).colorScheme.secondary, size: 24),
                 const SizedBox(height: 18),
                 Text(title, style: Theme.of(context).textTheme.titleMedium),
-                Text(detail, style: Theme.of(context).textTheme.bodySmall),
+                if (detail.isNotEmpty) Text(detail, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),

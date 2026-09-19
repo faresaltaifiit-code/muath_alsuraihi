@@ -127,12 +127,12 @@ class _SurahCard extends StatelessWidget {
               height: 42,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.softGold,
+                color: Theme.of(context).colorScheme.secondary,
                 borderRadius: BorderRadius.circular(13),
               ),
               child: Text('${surah.number}',
                   style: const TextStyle(
-                    color: AppColors.forestGreen,
+                    color: Theme.of(context).colorScheme.onSecondary,
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
                   )),
@@ -197,28 +197,36 @@ class _DownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasFailed = downloads.error?.contains(surah.name) ?? false;
     if (downloads.isDownloaded(surah)) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Tooltip(
-            message: 'محملة',
-            child: Icon(Icons.check_circle_rounded, color: Colors.green),
-          ),
-          IconButton(
-            tooltip: 'حذف تنزيل سورة ${surah.name}',
-            icon: const Icon(Icons.delete_outline_rounded),
-            onPressed: () => _confirmDelete(context),
-          ),
-        ],
+      return IconButton(
+        tooltip: 'محملة — اضغط للحذف',
+        icon: Icon(Icons.check_rounded, color: Theme.of(context).colorScheme.secondary, size: 18),
+        onPressed: () => _confirmDelete(context),
       );
     }
     if (downloads.isDownloading(surah)) {
       final value = downloads.progressFor(surah);
-      return SizedBox(
-        width: 36,
-        height: 36,
-        child: CircularProgressIndicator(value: value, strokeWidth: 3),
+      return Tooltip(
+        message: value == null ? 'جاري التحميل' : 'جاري التحميل ${(value * 100).round()}%',
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularProgressIndicator(value: value, strokeWidth: 2),
+              Text(value == null ? '…' : '${(value * 100).round()}%', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9)),
+            ],
+          ),
+        ),
+      );
+    }
+    if (hasFailed) {
+      return IconButton(
+        tooltip: 'تعذر التنزيل — إعادة المحاولة',
+        icon: const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 18),
+        onPressed: () => downloads.download(surah),
       );
     }
     return IconButton(

@@ -82,11 +82,14 @@ class MiniPlayer extends StatelessWidget {
                     ],
                   ),
                 ),
-                LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 3,
-                  color: AppColors.emerald,
-                  backgroundColor: Colors.transparent,
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 3,
+                    color: Theme.of(context).colorScheme.secondary,
+                    backgroundColor: Colors.transparent,
+                  ),
                 ),
               ],
             ),

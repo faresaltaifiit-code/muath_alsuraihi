@@ -98,26 +98,29 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 ),
               ],
               const Spacer(),
-              Slider(
-                value: position.inMilliseconds.toDouble(),
-                max: duration.inMilliseconds > 0 ? duration.inMilliseconds.toDouble() : 1,
-                onChangeStart: duration > Duration.zero
-                    ? (value) => setState(
-                        () => _dragPosition = Duration(milliseconds: value.round()),
-                      )
-                    : null,
-                onChanged: duration > Duration.zero
-                    ? (value) => setState(
-                        () => _dragPosition = Duration(milliseconds: value.round()),
-                      )
-                    : null,
-                onChangeEnd: duration > Duration.zero
-                    ? (value) async {
-                        final target = Duration(milliseconds: value.round());
-                        setState(() => _dragPosition = null);
-                        await player.seek(target);
-                      }
-                    : null,
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: Slider(
+                  value: position.inMilliseconds.toDouble(),
+                  max: duration.inMilliseconds > 0 ? duration.inMilliseconds.toDouble() : 1,
+                  onChangeStart: duration > Duration.zero
+                      ? (value) => setState(
+                          () => _dragPosition = Duration(milliseconds: value.round()),
+                        )
+                      : null,
+                  onChanged: duration > Duration.zero
+                      ? (value) => setState(
+                          () => _dragPosition = Duration(milliseconds: value.round()),
+                        )
+                      : null,
+                  onChangeEnd: duration > Duration.zero
+                      ? (value) async {
+                          final target = Duration(milliseconds: value.round());
+                          setState(() => _dragPosition = null);
+                          await player.seek(target);
+                        }
+                      : null,
+                ),
               ),
               Row(
                 textDirection: TextDirection.rtl,
