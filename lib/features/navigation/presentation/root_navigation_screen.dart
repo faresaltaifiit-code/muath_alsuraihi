@@ -24,23 +24,49 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
     final recitations = context.watch<RecitationsProvider>();
     context.read<PlayerProvider>().setPlaylist(recitations.surahs);
     return Scaffold(
-        body: Column(
+        body: Stack(
           children: [
-            Expanded(child: IndexedStack(index: _index, children: _screens)),
-            const MiniPlayer(),
+            Positioned.fill(child: IndexedStack(index: _index, children: _screens)),
+            const PositionedDirectional(
+              start: 12,
+              end: 12,
+              bottom: 12,
+              child: MiniPlayer(),
+            ),
           ],
         ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (value) => setState(() => _index = value),
           destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded), label: 'الرئيسية'),
-            NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: Icon(Icons.menu_book_rounded), label: 'السور'),
-            NavigationDestination(icon: Icon(Icons.favorite_border_rounded), selectedIcon: Icon(Icons.favorite_rounded), label: 'المفضلة'),
-            NavigationDestination(icon: Icon(Icons.more_horiz_rounded), selectedIcon: Icon(Icons.more_rounded), label: 'المزيد'),
+            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: _SelectedNavIcon(Icons.home_rounded), label: 'الرئيسية'),
+            NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: _SelectedNavIcon(Icons.menu_book_rounded), label: 'السور'),
+            NavigationDestination(icon: Icon(Icons.favorite_border_rounded), selectedIcon: _SelectedNavIcon(Icons.favorite_rounded), label: 'المفضلة'),
+            NavigationDestination(icon: Icon(Icons.more_horiz_rounded), selectedIcon: _SelectedNavIcon(Icons.more_rounded), label: 'المزيد'),
           ],
         ),
       );
   }
+}
+
+class _SelectedNavIcon extends StatelessWidget {
+  const _SelectedNavIcon(this.icon);
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon),
+          const SizedBox(height: 3),
+          const SizedBox(
+            width: 4,
+            height: 4,
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: Color(0xFFE8D8B5), shape: BoxShape.circle),
+            ),
+          ),
+        ],
+      );
 }
 

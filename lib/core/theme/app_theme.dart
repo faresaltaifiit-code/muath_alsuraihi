@@ -48,22 +48,22 @@ abstract final class AppTheme {
       ),
       titleLarge: baseTextTheme.titleLarge?.copyWith(
         color: text,
-        fontSize: 21,
+        fontSize: 26,
         fontWeight: FontWeight.w700,
       ),
       titleMedium: baseTextTheme.titleMedium?.copyWith(
         color: text,
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: FontWeight.w600,
       ),
       bodyLarge: baseTextTheme.bodyLarge?.copyWith(
         color: text,
-        fontSize: 17,
+        fontSize: 15,
         height: 1.6,
       ),
       bodyMedium: baseTextTheme.bodyMedium?.copyWith(
         color: mutedText,
-        fontSize: 15,
+        fontSize: 12,
         height: 1.5,
       ),
     );
@@ -87,8 +87,8 @@ abstract final class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppColors.gold.withValues(alpha: 0.18)),
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: AppColors.emerald.withValues(alpha: 0.18)),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -98,15 +98,25 @@ abstract final class AppTheme {
           foregroundColor: Colors.white,
           textStyle: textTheme.titleMedium,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 72,
-        backgroundColor: surface,
-        indicatorColor: AppColors.softGold,
-        labelTextStyle: WidgetStatePropertyAll(textTheme.bodyMedium),
+        backgroundColor: AppColors.forestGreen,
+        indicatorColor: Colors.transparent,
+        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
+              color: states.contains(WidgetState.selected)
+                  ? AppColors.softGold
+                  : AppColors.darkMutedText,
+            )),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => textTheme.bodySmall?.copyWith(
+              color: states.contains(WidgetState.selected)
+                  ? AppColors.softGold
+                  : AppColors.darkMutedText,
+              fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
+            )),
       ),
       dividerTheme: DividerThemeData(
         color: mutedText.withValues(alpha: 0.16),

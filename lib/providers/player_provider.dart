@@ -29,6 +29,7 @@ class PlayerProvider extends ChangeNotifier {
   Duration _duration = Duration.zero;
   Duration _lastPosition = Duration.zero;
   bool _isPlaying = false;
+  bool _hasPlaybackInSession = false;
   bool _isReady = false;
   bool _autoPlayNext = true;
   bool _shuffleEnabled = false;
@@ -44,6 +45,8 @@ class PlayerProvider extends ChangeNotifier {
   Duration get duration => _duration;
   Duration get lastPosition => _lastPosition;
   bool get isPlaying => _isPlaying;
+  /// True only after the user starts or resumes playback in this app session.
+  bool get hasPlaybackInSession => _hasPlaybackInSession;
   bool get isReady => _isReady;
   bool get autoPlayNext => _autoPlayNext;
   bool get shuffleEnabled => _shuffleEnabled;
@@ -131,6 +134,7 @@ class PlayerProvider extends ChangeNotifier {
         autoplay: autoplay,
         initialPosition: initialPosition,
       );
+      _hasPlaybackInSession = true;
       _lastSurah = surah;
       _lastPosition = initialPosition ?? Duration.zero;
       await _savePlayback();
