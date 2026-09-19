@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../data/models/surah_model.dart';
 import '../../player/presentation/player_screen.dart';
 import '../../../providers/recitations_provider.dart';
@@ -131,7 +130,7 @@ class _SurahCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(13),
               ),
               child: Text('${surah.number}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Theme.of(context).colorScheme.onSecondary,
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
@@ -142,7 +141,12 @@ class _SurahCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('سورة ${surah.name}', style: theme.textTheme.titleMedium),
+                  Text(
+                    'سورة ${surah.name}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium,
+                  ),
                   if (surah.available &&
                       (surah.durationText.isNotEmpty ||
                           surah.fileSizeText.isNotEmpty)) ...[
@@ -273,7 +277,7 @@ class _StateMessage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 54, color: AppColors.emerald),
+              Icon(icon, size: 54, color: Theme.of(context).colorScheme.secondary),
               const SizedBox(height: 16),
               Text(title, textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge),

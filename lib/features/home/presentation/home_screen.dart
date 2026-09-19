@@ -28,8 +28,14 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
-          child: CustomScrollView(
-            slivers: [
+          child: TweenAnimationBuilder<double>(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 240),
+            tween: Tween(begin: 0, end: 1),
+            builder: (context, value, child) => Opacity(opacity: value, child: child),
+            child: CustomScrollView(
+              slivers: [
             SliverToBoxAdapter(
               child: _Header(
                 onSearch: () => _openLibrary(context),
@@ -92,7 +98,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ],
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -377,11 +384,11 @@ class _SourceBadge extends StatelessWidget {
     return Tooltip(
       message: downloaded ? 'محملة' : 'بث',
       child: Icon(
-        downloaded ? Icons.check_circle_rounded : Icons.cloud_outlined,
+        downloaded ? Icons.check_rounded : Icons.arrow_downward_rounded,
         color: downloaded
             ? Theme.of(context).colorScheme.secondary
             : Theme.of(context).textTheme.bodyMedium?.color,
-        size: 17,
+        size: 16,
       ),
     );
   }

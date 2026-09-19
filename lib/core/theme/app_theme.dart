@@ -90,7 +90,10 @@ abstract final class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: surface,
-        elevation: 0,
+        elevation: brightness == Brightness.light ? 1 : 0,
+        shadowColor: brightness == Brightness.light
+            ? AppColors.lightBorder.withValues(alpha: .28)
+            : Colors.transparent,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
