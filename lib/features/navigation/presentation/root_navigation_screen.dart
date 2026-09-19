@@ -59,19 +59,15 @@ class _SelectedNavIcon extends StatelessWidget {
   final IconData icon;
 
   @override
-  Widget build(BuildContext context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon),
-          const SizedBox(height: 3),
-          const SizedBox(
-            width: 4,
-            height: 4,
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: Color(0xFFE8D8B5), shape: BoxShape.circle),
-            ),
-          ),
-        ],
+  Widget build(BuildContext context) => Container(
+        width: 54,
+        height: 30,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondary.withValues(alpha: .22),
+          borderRadius: BorderRadius.circular(99),
+        ),
+        child: Icon(icon),
       );
 }
 

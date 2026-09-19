@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,14 +19,12 @@ class MiniPlayer extends StatelessWidget {
     final progress = duration > Duration.zero
         ? (player.position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
         : 0.0;
-    final surface = Theme.of(context).colorScheme.surface.withValues(alpha: .88);
+    final theme = Theme.of(context);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-        child: Material(
-          color: surface,
+      child: Material(
+          color: theme.brightness == Brightness.dark ? AppColors.darkSecondarySurface : AppColors.lightSecondarySurface,
           child: InkWell(
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: surah)),
@@ -44,10 +40,10 @@ class MiniPlayer extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: const BoxDecoration(
-                          color: AppColors.forestGreen,
+                          gradient: LinearGradient(colors: [AppColors.emerald, AppColors.forestGreen]),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.multitrack_audio_rounded, color: AppColors.softGold, size: 20),
+                        child: const Icon(Icons.play_arrow_rounded, color: AppColors.softGold, size: 22),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -69,9 +65,14 @@ class MiniPlayer extends StatelessWidget {
                           ],
                         ),
                       ),
-                      IconButton.filledTonal(
+                      IconButton(
                         tooltip: player.isPlaying ? 'إيقاف مؤقت' : 'تشغيل',
                         onPressed: player.togglePlayPause,
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.goldAccent,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(42, 42),
+                        ),
                         icon: Icon(player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
                       ),
                       IconButton(
@@ -87,14 +88,13 @@ class MiniPlayer extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 3,
-                    color: Theme.of(context).colorScheme.secondary,
+                  color: AppColors.goldAccent,
                     backgroundColor: Colors.transparent,
                   ),
                 ),
               ],
             ),
           ),
-        ),
       ),
     );
   }
