@@ -23,9 +23,10 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: CustomScrollView(
+        child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
-          slivers: [
+          child: CustomScrollView(
+            slivers: [
             SliverToBoxAdapter(child: _Header(onSearch: () => _openLibrary(context))),
             if (!hasContinue) ...[
               const SliverToBoxAdapter(child: SizedBox(height: 28)),
@@ -54,7 +55,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ],
-          ],
+            ],
+          ),
         ),
       ),
     );
