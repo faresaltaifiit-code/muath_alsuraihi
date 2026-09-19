@@ -9,7 +9,7 @@ abstract final class AppTheme {
         surface: AppColors.lightSurface,
         text: AppColors.lightText,
         mutedText: AppColors.lightMutedText,
-        accent: AppColors.forestGreen,
+        accent: AppColors.goldAccent,
         border: AppColors.lightBorder,
       );
 
@@ -20,7 +20,7 @@ abstract final class AppTheme {
         text: AppColors.darkText,
         mutedText: AppColors.darkMutedText,
         accent: AppColors.softGold,
-        border: AppColors.darkSecondarySurface,
+        border: AppColors.darkBorder,
       );
 
   static ThemeData _theme({
@@ -35,21 +35,24 @@ abstract final class AppTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.emerald,
       brightness: brightness,
-      primary: AppColors.forestGreen,
+      primary: AppColors.emerald,
       secondary: accent,
       surface: surface,
     );
 
-    final baseTextTheme = ThemeData(brightness: brightness).textTheme;
+    final baseTextTheme =
+        ThemeData(brightness: brightness, fontFamily: 'Tajawal').textTheme;
     final textTheme = baseTextTheme.copyWith(
       displaySmall: baseTextTheme.displaySmall?.copyWith(
         color: text,
-        fontSize: 30,
+        fontFamily: 'Amiri',
+        fontSize: 36,
         fontWeight: FontWeight.w600,
       ),
       headlineSmall: baseTextTheme.headlineSmall?.copyWith(
         color: text,
-        fontSize: 28,
+        fontFamily: 'Amiri',
+        fontSize: 30,
         fontWeight: FontWeight.w600,
       ),
       titleLarge: baseTextTheme.titleLarge?.copyWith(
@@ -76,6 +79,7 @@ abstract final class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Tajawal',
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: scaffoldBackground,
@@ -90,44 +94,48 @@ abstract final class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: surface,
-        elevation: brightness == Brightness.light ? 1 : 0,
-        shadowColor: brightness == Brightness.light
-            ? AppColors.lightBorder.withValues(alpha: .28)
-            : Colors.transparent,
+        elevation: 0,
+        shadowColor: Colors.transparent,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: border, width: brightness == Brightness.dark ? .5 : 1),
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(
+              color: border, width: brightness == Brightness.dark ? .5 : 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(56),
           backgroundColor: accent,
-          foregroundColor: brightness == Brightness.dark ? AppColors.darkBackground : Colors.white,
+          foregroundColor: brightness == Brightness.dark
+              ? AppColors.darkBackground
+              : Colors.white,
           textStyle: textTheme.titleMedium,
           shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 56,
+        height: 64,
         backgroundColor: scaffoldBackground,
         indicatorColor: Colors.transparent,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
               color: states.contains(WidgetState.selected)
-                  ? accent
+                  ? AppColors.goldAccent
                   : mutedText,
             )),
-        labelTextStyle: WidgetStateProperty.resolveWith((states) => textTheme.bodySmall?.copyWith(
-              color: states.contains(WidgetState.selected)
-                  ? accent
-                  : mutedText,
-              fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w400,
-            )),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+            (states) => textTheme.bodySmall?.copyWith(
+                  color: states.contains(WidgetState.selected)
+                      ? AppColors.goldAccent
+                      : mutedText,
+                  fontWeight: states.contains(WidgetState.selected)
+                      ? FontWeight.w600
+                      : FontWeight.w400,
+                )),
       ),
       dividerTheme: DividerThemeData(
         color: border,
@@ -137,4 +145,3 @@ abstract final class AppTheme {
     );
   }
 }
-
