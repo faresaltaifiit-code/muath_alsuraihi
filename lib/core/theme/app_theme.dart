@@ -9,6 +9,8 @@ abstract final class AppTheme {
         surface: AppColors.lightSurface,
         text: AppColors.lightText,
         mutedText: AppColors.lightMutedText,
+        accent: AppColors.forestGreen,
+        border: AppColors.lightBorder,
       );
 
   static ThemeData get dark => _theme(
@@ -17,6 +19,8 @@ abstract final class AppTheme {
         surface: AppColors.darkSurface,
         text: AppColors.darkText,
         mutedText: AppColors.darkMutedText,
+        accent: AppColors.softGold,
+        border: AppColors.darkSecondarySurface,
       );
 
   static ThemeData _theme({
@@ -25,12 +29,14 @@ abstract final class AppTheme {
     required Color surface,
     required Color text,
     required Color mutedText,
+    required Color accent,
+    required Color border,
   }) {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.emerald,
       brightness: brightness,
       primary: AppColors.forestGreen,
-      secondary: AppColors.gold,
+      secondary: accent,
       surface: surface,
     );
 
@@ -39,31 +45,31 @@ abstract final class AppTheme {
       displaySmall: baseTextTheme.displaySmall?.copyWith(
         color: text,
         fontSize: 30,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
       ),
       headlineSmall: baseTextTheme.headlineSmall?.copyWith(
         color: text,
-        fontSize: 24,
-        fontWeight: FontWeight.w700,
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
       ),
       titleLarge: baseTextTheme.titleLarge?.copyWith(
         color: text,
-        fontSize: 26,
-        fontWeight: FontWeight.w700,
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
       ),
       titleMedium: baseTextTheme.titleMedium?.copyWith(
         color: text,
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
+        fontSize: 17,
+        fontWeight: FontWeight.w500,
       ),
       bodyLarge: baseTextTheme.bodyLarge?.copyWith(
         color: text,
-        fontSize: 15,
+        fontSize: 14,
         height: 1.6,
       ),
       bodyMedium: baseTextTheme.bodyMedium?.copyWith(
         color: mutedText,
-        fontSize: 12,
+        fontSize: 13,
         height: 1.5,
       ),
     );
@@ -87,41 +93,44 @@ abstract final class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: AppColors.emerald.withValues(alpha: 0.18)),
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: border, width: brightness == Brightness.dark ? .5 : 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(56),
-          backgroundColor: AppColors.forestGreen,
-          foregroundColor: Colors.white,
+          backgroundColor: accent,
+          foregroundColor: brightness == Brightness.dark ? AppColors.darkBackground : Colors.white,
           textStyle: textTheme.titleMedium,
           shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           ),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 72,
-        backgroundColor: AppColors.forestGreen,
+        height: 64,
+        backgroundColor: scaffoldBackground,
         indicatorColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
         iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
               color: states.contains(WidgetState.selected)
-                  ? AppColors.softGold
-                  : AppColors.darkMutedText,
+                  ? accent
+                  : mutedText,
             )),
         labelTextStyle: WidgetStateProperty.resolveWith((states) => textTheme.bodySmall?.copyWith(
               color: states.contains(WidgetState.selected)
-                  ? AppColors.softGold
-                  : AppColors.darkMutedText,
-              fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
+                  ? accent
+                  : mutedText,
+              fontWeight: states.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w400,
             )),
       ),
       dividerTheme: DividerThemeData(
-        color: mutedText.withValues(alpha: 0.16),
+        color: border,
         space: 1,
       ),
+      iconTheme: IconThemeData(color: accent, size: 22),
     );
   }
 }
