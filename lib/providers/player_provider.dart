@@ -12,6 +12,8 @@ import '../data/models/surah_model.dart';
 
 class PlayerProvider extends ChangeNotifier {
   static const _lastPlaybackKey = 'last_playback';
+  static const _recentPlaybackKey = 'recent_playback';
+  static const _recentLimit = 5;
   AudioHandler? _handler;
   StreamSubscription<PlaybackState>? _playbackSubscription;
   StreamSubscription<MediaItem?>? _mediaItemSubscription;
@@ -22,11 +24,10 @@ class PlayerProvider extends ChangeNotifier {
   List<SurahModel> _playlist = const [];
   SurahModel? _currentSurah;
   SurahModel? _lastSurah;
+  List<SurahModel> _recentSurahs = const [];
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   Duration _lastPosition = Duration.zero;
-  Duration? _repeatStart;
-  Duration? _repeatEnd;
   bool _isPlaying = false;
   bool _isReady = false;
   bool _autoPlayNext = true;
@@ -37,6 +38,8 @@ class PlayerProvider extends ChangeNotifier {
 
   SurahModel? get currentSurah => _currentSurah;
   SurahModel? get lastSurah => _lastSurah;
+  /// Stored only on this device. Nothing in this list is sent anywhere.
+  List<SurahModel> get recentSurahs => List.unmodifiable(_recentSurahs);
   Duration get position => _position;
   Duration get duration => _duration;
   Duration get lastPosition => _lastPosition;
@@ -47,9 +50,6 @@ class PlayerProvider extends ChangeNotifier {
   double get speed => _speed;
   AudioServiceRepeatMode get repeatMode => _repeatMode;
   bool get hasSleepTimer => _sleepTimer?.isActive ?? false;
-  bool get hasRepeatRange => _repeatStart != null && _repeatEnd != null;
-  Duration? get repeatStart => _repeatStart;
-  Duration? get repeatEnd => _repeatEnd;
   String? get error => _error;
 
   Future<void> initialize() async {
@@ -69,7 +69,6 @@ class PlayerProvider extends ChangeNotifier {
       _isPlaying = state.playing;
       _speed = state.speed;
       _repeatMode = state.repeatMode;
-      _loopRangeIfNeeded();
       _scheduleSave();
       notifyListeners();
     });
@@ -82,6 +81,7 @@ class PlayerProvider extends ChangeNotifier {
     });
     _isReady = true;
     await _restoreLastPlayback();
+    await _restoreRecentPlayback();
     notifyListeners();
   }
 
@@ -118,8 +118,6 @@ class PlayerProvider extends ChangeNotifier {
     _duration = surah.durationSeconds > 0
         ? Duration(seconds: surah.durationSeconds)
         : Duration.zero;
-    _repeatStart = null;
-    _repeatEnd = null;
     notifyListeners();
     try {
       final sourceList = surah.number > 0 && _playlist.isNotEmpty
@@ -220,30 +218,6 @@ class PlayerProvider extends ChangeNotifier {
     }
   }
 
-  void setRepeatStart() {
-    _repeatStart = _position;
-    if (_repeatEnd != null && _repeatEnd! <= _repeatStart!) _repeatEnd = null;
-    notifyListeners();
-  }
-
-  void setRepeatEnd() {
-    if (_repeatStart == null || _position <= _repeatStart!) return;
-    _repeatEnd = _position;
-    notifyListeners();
-  }
-
-  void clearRepeatRange() {
-    _repeatStart = null;
-    _repeatEnd = null;
-    notifyListeners();
-  }
-
-  void _loopRangeIfNeeded() {
-    if (_repeatStart != null && _repeatEnd != null && _position >= _repeatEnd!) {
-      _handler?.seek(_repeatStart!);
-    }
-  }
-
   void setSleepTimer(Duration duration, {bool fadeOut = true}) {
     _sleepTimer?.cancel();
     _sleepTimer = Timer(duration, () async {
@@ -301,6 +275,43 @@ class PlayerProvider extends ChangeNotifier {
         'position_ms': _position.inMilliseconds,
       }),
     );
+    final wasUpdated = _recordRecent(surah);
+    if (wasUpdated) {
+      await preferences.setString(
+        _recentPlaybackKey,
+        jsonEncode(_recentSurahs.map((item) => item.toJson()).toList()),
+      );
+      notifyListeners();
+    }
+  }
+
+  bool _recordRecent(SurahModel surah) {
+    final updated = <SurahModel>[
+      surah,
+      ..._recentSurahs.where((item) => item.audioPath != surah.audioPath),
+    ].take(_recentLimit).toList();
+    final changed = !listEquals(
+      updated.map((item) => item.audioPath).toList(),
+      _recentSurahs.map((item) => item.audioPath).toList(),
+    );
+    _recentSurahs = updated;
+    return changed;
+  }
+
+  Future<void> _restoreRecentPlayback() async {
+    final preferences = await SharedPreferences.getInstance();
+    final value = preferences.getString(_recentPlaybackKey);
+    if (value == null) return;
+    try {
+      final items = jsonDecode(value) as List<dynamic>;
+      _recentSurahs = items
+          .whereType<Map<String, dynamic>>()
+          .map(SurahModel.fromJson)
+          .take(_recentLimit)
+          .toList();
+    } catch (_) {
+      await preferences.remove(_recentPlaybackKey);
+    }
   }
 
   Future<void> _restoreLastPlayback() async {

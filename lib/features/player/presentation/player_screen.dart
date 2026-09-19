@@ -270,28 +270,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
     if (result != null) player.setSleepTimer(Duration(minutes: result));
   }
 
-  // Kept for a future, deliberately hidden A-B repeat interface.
-  // ignore: unused_element
-  void _setRepeatPoint(BuildContext context, PlayerProvider player) {
-    if (player.hasRepeatRange) {
-      player.clearRepeatRange();
-      return;
-    }
-    if (player.repeatStart == null) {
-      player.setRepeatStart();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تحديد بداية المقطع A. حرّك الشريط ثم اضغط الزر مرة أخرى لتحديد B.')),
-      );
-    } else {
-      player.setRepeatEnd();
-      if (!player.hasRepeatRange) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('يجب أن تكون نهاية المقطع بعد بدايته.')),
-        );
-      }
-    }
-  }
-
 }
 
 class _OptionsSheet<T> extends StatelessWidget {

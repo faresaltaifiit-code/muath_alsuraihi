@@ -111,8 +111,14 @@ class MoreScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'التلاوات محفوظة داخل التطبيق وتعمل دون اتصال بالإنترنت. يمكنك حفظ المفضلة والاستماع في الخلفية وشاشة القفل.',
+                    'تتوفر الفاتحة والملك والإخلاص والفلق والناس داخل التطبيق للاستماع دون إنترنت. أما بقية التلاوات فتُبث عبر الإنترنت أو يمكنك تنزيل ما تريد للاستماع لاحقًا دون اتصال.',
                     style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'التطبيق بدون إعلانات وبدون تتبع.',
+                    style: Theme.of(context).textTheme.bodySmall,
                     textAlign: TextAlign.center,
                   ),
                 ],

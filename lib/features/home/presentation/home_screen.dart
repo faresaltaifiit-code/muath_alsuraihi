@@ -3,113 +3,126 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
-import '../../surahs/presentation/surahs_screen.dart';
-import '../../library/presentation/library_screens.dart';
-import '../../library/presentation/special_recitations_screen.dart';
+import '../../../data/models/surah_model.dart';
 import '../../../providers/player_provider.dart';
+import '../../../providers/recitations_provider.dart';
+import '../../library/presentation/special_recitations_screen.dart';
+import '../../player/presentation/player_screen.dart';
+import '../../surahs/presentation/surahs_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final player = context.watch<PlayerProvider>();
+    final recitations = context.watch<RecitationsProvider>();
+    final hasContinue = player.lastSurah != null;
+    final hasRecent = player.recentSurahs.length >= 3;
+    final hasSpecial = recitations.specialRecitations.isNotEmpty;
 
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
           slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _Header(theme: theme),
-                  const SizedBox(height: 24),
-                  const _ContinueListeningCard(),
-                  const SizedBox(height: 30),
-                  Text('استكشف التلاوات', style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 14),
-                ]),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => _HomeSectionCard(item: _sections[index]),
-                  childCount: _sections.length,
+            SliverToBoxAdapter(child: _Header(onSearch: () => _openLibrary(context))),
+            if (!hasContinue) ...[
+              const SliverToBoxAdapter(child: SizedBox(height: 28)),
+              const SliverToBoxAdapter(child: _WelcomeMessage()),
+            ],
+            if (hasContinue) ...[
+              const SliverToBoxAdapter(child: SizedBox(height: 26)),
+              SliverToBoxAdapter(child: _ContinueListeningCard(player: player)),
+            ],
+            if (hasRecent) ...[
+              const SliverToBoxAdapter(child: SizedBox(height: 30)),
+              const SliverToBoxAdapter(child: _SectionTitle('آخر ما استمعت')),
+              const SliverToBoxAdapter(child: SizedBox(height: 12)),
+              SliverToBoxAdapter(child: _RecentList(items: player.recentSurahs)),
+            ],
+            const SliverToBoxAdapter(child: SizedBox(height: 30)),
+            SliverToBoxAdapter(child: _LibraryCard(onTap: () => _openLibrary(context))),
+            if (hasSpecial) ...[
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              SliverToBoxAdapter(
+                child: _SpecialRecitationsCard(
+                  count: recitations.specialRecitations.length,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => const SpecialRecitationsScreen()),
+                  ),
                 ),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 1.12,
-                ),
               ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            ],
           ],
         ),
       ),
     );
   }
-}
 
-class _Header extends StatelessWidget {
-  const _Header({required this.theme});
-
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: AppColors.forestGreen,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Icon(
-            Icons.auto_stories_rounded,
-            color: Colors.white,
-            size: 28,
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(AppStrings.appName, style: theme.textTheme.titleLarge),
-              const SizedBox(height: 2),
-              Text('المصحف المرتل · رمضان 1446هـ',
-                  style: theme.textTheme.bodyMedium),
-            ],
-          ),
-        ),
-      ],
-    );
+  void _openLibrary(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SurahsScreen()));
   }
 }
 
+class _Header extends StatelessWidget {
+  const _Header({required this.onSearch});
+  final VoidCallback onSearch;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.forestGreen,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.auto_stories_rounded, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(AppStrings.appName, style: Theme.of(context).textTheme.titleLarge)),
+          IconButton(
+            tooltip: 'البحث في السور',
+            onPressed: onSearch,
+            icon: const Icon(Icons.search_rounded),
+          ),
+        ],
+      );
+}
+
+class _WelcomeMessage extends StatelessWidget {
+  const _WelcomeMessage();
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              const Icon(Icons.waving_hand_rounded, color: AppColors.softGold, size: 30),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  'مرحبًا بك، اختر سورة وابدأ الاستماع.',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
 class _ContinueListeningCard extends StatelessWidget {
-  const _ContinueListeningCard();
+  const _ContinueListeningCard({required this.player});
+  final PlayerProvider player;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Consumer<PlayerProvider>(
-      builder: (context, player, _) {
-        final last = player.lastSurah;
-        final title = last == null
-            ? 'اختر سورة لبدء التلاوة'
-            : 'سورة ${last.name}';
-        final description = last == null
-            ? 'سيُحفظ آخر موضع استماعك تلقائيًا.'
-            : 'استكمل من ${_formatDuration(player.lastPosition)}';
-        return DecoratedBox(
+    final surah = player.lastSurah!;
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.forestGreen, AppColors.emerald],
@@ -119,7 +132,7 @@ class _ContinueListeningCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.forestGreen.withValues(alpha: 0.22),
+            color: AppColors.forestGreen.withValues(alpha: .22),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -134,168 +147,149 @@ class _ContinueListeningCard extends StatelessWidget {
               children: [
                 Icon(Icons.history_rounded, color: AppColors.softGold),
                 SizedBox(width: 8),
-                Text(
-                  'تابع الاستماع',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 17,
-                  ),
-                ),
+                Text('استمر من حيث توقفت',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 17)),
               ],
             ),
             const SizedBox(height: 18),
-            Text(title,
-                style: theme.textTheme.titleLarge?.copyWith(color: Colors.white)),
-            const SizedBox(height: 6),
+            Text('سورة ${surah.name}',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
+            const SizedBox(height: 5),
             Text(
-              description,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: Colors.white.withValues(alpha: 0.78)),
+              'الموضع ${_formatDuration(player.lastPosition)}',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: .8)),
             ),
             const SizedBox(height: 18),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: last == null
-                    ? () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(builder: (_) => const SurahsScreen()),
-                        )
-                    : player.resumeLast,
+                onPressed: player.resumeLast,
                 style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(52),
+                  minimumSize: const Size.fromHeight(54),
                   backgroundColor: AppColors.softGold,
                   foregroundColor: AppColors.forestGreen,
                 ),
                 icon: const Icon(Icons.play_arrow_rounded, size: 28),
-                label: Text(last == null ? 'ابدأ الاستماع' : 'استكمل الاستماع'),
+                label: const Text('متابعة الاستماع'),
               ),
             ),
           ],
         ),
       ),
-        );
-      },
     );
   }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.value);
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Text(value, style: Theme.of(context).textTheme.titleLarge);
+}
+
+class _RecentList extends StatelessWidget {
+  const _RecentList({required this.items});
+  final List<SurahModel> items;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        height: 142,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: items.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 12),
+          itemBuilder: (context, index) => _RecentCard(surah: items[index]),
+        ),
+      );
+}
+
+class _RecentCard extends StatelessWidget {
+  const _RecentCard({required this.surah});
+  final SurahModel surah;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: 172,
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: surah)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppColors.softGold,
+                    foregroundColor: AppColors.forestGreen,
+                    child: Text('${surah.number}'),
+                  ),
+                  const Spacer(),
+                  Text('سورة ${surah.name}', maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 3),
+                  Text(surah.durationText, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+}
+
+class _LibraryCard extends StatelessWidget {
+  const _LibraryCard({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => _NavigationCard(
+        icon: Icons.menu_book_rounded,
+        title: 'المكتبة',
+        subtitle: 'تصفح السور، وابحث عنها، وأضفها إلى المفضلة',
+        onTap: onTap,
+      );
+}
+
+class _SpecialRecitationsCard extends StatelessWidget {
+  const _SpecialRecitationsCard({required this.count, required this.onTap});
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => _NavigationCard(
+        icon: Icons.auto_awesome_rounded,
+        title: 'تلاوات خاصة',
+        subtitle: '$count تلاوات، منها دعاء الختم وتلاوة الخسوف',
+        onTap: onTap,
+      );
+}
+
+class _NavigationCard extends StatelessWidget {
+  const _NavigationCard({required this.icon, required this.title, required this.subtitle, required this.onTap});
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: ListTile(
+          contentPadding: const EdgeInsetsDirectional.fromSTEB(18, 14, 12, 14),
+          leading: CircleAvatar(
+            backgroundColor: AppColors.softGold,
+            foregroundColor: AppColors.forestGreen,
+            child: Icon(icon),
+          ),
+          title: Text(title, style: Theme.of(context).textTheme.titleMedium),
+          subtitle: Text(subtitle),
+          trailing: const Icon(Icons.chevron_left_rounded),
+          onTap: onTap,
+        ),
+      );
 }
 
 String _formatDuration(Duration value) =>
     '${value.inMinutes.remainder(60).toString().padLeft(2, '0')}:${value.inSeconds.remainder(60).toString().padLeft(2, '0')}';
-
-class _HomeSectionCard extends StatelessWidget {
-  const _HomeSectionCard({required this.item});
-
-  final _HomeSection item;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Semantics(
-      button: true,
-      label: item.title,
-      child: Material(
-        color: theme.cardTheme.color,
-        borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: () {
-            if (item.title == 'السور') {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const SurahsScreen()),
-              );
-              return;
-            }
-            if (item.title == 'المفضلة') {
-              Navigator.of(context).push(MaterialPageRoute<void>(
-                builder: (_) => const FavoritesScreen(),
-              ));
-              return;
-            }
-            if (item.title == 'تلاوات مختارة') {
-              Navigator.of(context).push(MaterialPageRoute<void>(
-                builder: (_) => const SpecialRecitationsScreen(),
-              ));
-              return;
-            }
-            _showComingSoon(context, item.title);
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: item.color.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(item.icon, color: item.color, size: 28),
-                ),
-                const Spacer(),
-                Text(item.title, style: theme.textTheme.titleMedium),
-                const SizedBox(height: 3),
-                Text(item.subtitle, style: theme.textTheme.bodyMedium),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-void _showComingSoon(BuildContext context, String sectionName) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('$sectionName سيكون جاهزًا في الخطوات القادمة.')),
-  );
-}
-
-const _sections = [
-  _HomeSection(
-    title: 'السور',
-    subtitle: '114 سورة',
-    icon: Icons.menu_book_rounded,
-    color: AppColors.emerald,
-  ),
-  _HomeSection(
-    title: 'الأجزاء',
-    subtitle: '30 جزءًا',
-    icon: Icons.bookmark_added_rounded,
-    color: AppColors.gold,
-  ),
-  _HomeSection(
-    title: 'تلاوات مختارة',
-    subtitle: 'استمع الآن',
-    icon: Icons.auto_awesome_rounded,
-    color: Color(0xFF7565A8),
-  ),
-  _HomeSection(
-    title: 'المفضلة',
-    subtitle: 'تلاواتك المحفوظة',
-    icon: Icons.favorite_rounded,
-    color: Color(0xFFB4515A),
-  ),
-  _HomeSection(
-    title: 'عن الشيخ',
-    subtitle: 'نبذة ومعلومات',
-    icon: Icons.person_rounded,
-    color: Color(0xFF756347),
-  ),
-];
-
-class _HomeSection {
-  const _HomeSection({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-}
-
