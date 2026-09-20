@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../data/models/surah_model.dart';
 import 'audio_download_service.dart';
@@ -28,6 +31,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   bool _sequenceLoaded = false;
   int _activePlaylistIndex = 0;
   bool _isAutoAdvancing = false;
+  Uri? _artworkUri;
 
   Future<void> loadSurah(
     SurahModel surah, {
@@ -50,6 +54,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     _autoPlayNext = autoPlayNext;
     _shuffleEnabled = shuffleEnabled;
     _sequenceLoaded = false;
+    await _ensureArtworkUri();
     queue.add(_playlist.map(_mediaItem).toList());
     final source = await _audioSourceFor(surah);
     final duration = await _player.setAudioSource(
@@ -121,7 +126,29 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     }
   }
 
-  MediaItem _mediaItem(SurahModel item) => MediaItem(id: item.audioPath, title: item.number > 0 ? 'سورة ${item.name}' : item.name, artist: item.reciterName, duration: item.durationSeconds > 0 ? Duration(seconds: item.durationSeconds) : null);
+  Future<void> _ensureArtworkUri() async {
+    if (_artworkUri != null) return;
+    try {
+      final directory = await getApplicationSupportDirectory();
+      final file = File('${directory.path}${Platform.pathSeparator}carplay-artwork.png');
+      if (!await file.exists()) {
+        final data = await rootBundle.load('assets/images/carplay-artwork.png');
+        await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+      }
+      _artworkUri = file.uri;
+    } catch (_) {
+      // Artwork is optional metadata, so playback stays available if copying fails.
+    }
+  }
+
+  MediaItem _mediaItem(SurahModel item) => MediaItem(
+        id: item.audioPath,
+        title: 'سورة ${item.name}',
+        artist: 'معاذ بن ماجد السريحي',
+        album: 'قرآن وتلاوات',
+        artUri: _artworkUri,
+        duration: item.durationSeconds > 0 ? Duration(seconds: item.durationSeconds) : null,
+      );
   void _publishCurrentItem(int? index) { if (index != null && index >= 0 && index < _playlist.length) mediaItem.add(_mediaItem(_playlist[index])); }
   void _publishMeasuredDuration(Duration? duration) { final current = mediaItem.value; if (duration != null && current != null) mediaItem.add(current.copyWith(duration: duration)); }
   @override Future<void> play() => _player.play();

@@ -34,6 +34,7 @@ flutter:
   assets:
     - assets/data/
     - assets/audio/
+    - assets/images/carplay-artwork.png
   fonts:
     - family: Amiri
       fonts:
