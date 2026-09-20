@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/constants/app_strings.dart';
@@ -27,6 +28,8 @@ class MuathAlsuraihiApp extends StatelessWidget {
         builder: (context, settings, _) => MaterialApp(
           title: AppStrings.appName,
           debugShowCheckedModeBanner: false,
+          supportedLocales: const [Locale('ar')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: settings.themeMode,
