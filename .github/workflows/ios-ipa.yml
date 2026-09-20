@@ -35,7 +35,7 @@ jobs:
         run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('assets/data/recitations_fallback.json','utf8'));if(!Array.isArray(c.surahs)||c.surahs.length!==114)throw new Error('Expected 114 surahs');const n=c.surahs.map(x=>x.number).sort((a,b)=>a-b);if(n.some((x,i)=>x!==i+1))throw new Error('Invalid surah numbering');console.log('Validated '+c.surahs.length+' surahs');"
 
       - name: Validate local audio files
-        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('assets/data/recitations_fallback.json','utf8'));const bundled=[...c.surahs,...(c.special_recitations||[])].filter(x=>x.bundled);if(bundled.length!==5)throw new Error('Expected exactly five bundled recitations');for(const s of bundled){if(!fs.existsSync(s.audio_path))throw new Error('Missing-audio '+s.audio_path)}console.log('Validated '+bundled.length+' bundled recitations');"
+        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('assets/data/recitations_fallback.json','utf8'));const bundled=[...c.surahs,...(c.special_recitations||[])].filter(x=>x.bundled);const bundledSurahs=c.surahs.filter(x=>x.bundled);if(bundledSurahs.length!==5)throw new Error('Expected exactly five bundled surahs');for(const s of bundled){if(!fs.existsSync(s.audio_path))throw new Error('Missing-audio '+s.audio_path)}console.log('Validated '+bundled.length+' bundled audio items');"
 
       - name: Create iOS project and set local-audio mode
         run: |
