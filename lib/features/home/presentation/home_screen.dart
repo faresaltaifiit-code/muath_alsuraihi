@@ -261,7 +261,7 @@ class _ContinueCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Directionality(
-                    textDirection: TextDirection.rtl,
+                    textDirection: TextDirection.ltr,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(99),
                       child: LinearProgressIndicator(
@@ -443,16 +443,20 @@ class _RecentCard extends StatelessWidget {
                           .bodyMedium
                           ?.copyWith(fontSize: 12)),
                   const Spacer(),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(9),
-                    child: LinearProgressIndicator(
-                      value: entry.surah.durationSeconds > 0
-                          ? (entry.position.inSeconds / entry.surah.durationSeconds)
-                              .clamp(0.0, 1.0)
-                          : 0,
-                      minHeight: 3,
-                      color: AppColors.goldAccent,
-                      backgroundColor: Theme.of(context).dividerColor,
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(9),
+                      child: LinearProgressIndicator(
+                        value: entry.surah.durationSeconds > 0
+                            ? (entry.position.inSeconds /
+                                    entry.surah.durationSeconds)
+                                .clamp(0.0, 1.0)
+                            : 0,
+                        minHeight: 3,
+                        color: AppColors.goldAccent,
+                        backgroundColor: Theme.of(context).dividerColor,
+                      ),
                     ),
                   ),
                 ],
