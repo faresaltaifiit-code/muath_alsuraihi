@@ -728,11 +728,6 @@ bool _belongsToJuz(int surahNumber, int juzNumber) {
   return surahNumber >= range.$1 && surahNumber <= range.$2;
 }
 
-String _juzSubtitle(int juzNumber) {
-  final range = _juzRanges[juzNumber - 1];
-  return '\u0627\u0644\u062c\u0632\u0621 $juzNumber \u00b7 \u0645\u0646 \u0627\u0644\u0633\u0648\u0631\u0629 ${range.$1} \u0625\u0644\u0649 ${range.$2}';
-}
-
 const _juzRanges = <(int, int)>[
   (1, 2), (2, 3), (3, 4), (4, 4), (4, 5), (5, 6), (6, 7),
   (7, 8), (8, 9), (9, 9), (9, 11), (11, 12), (12, 15), (15, 16),
