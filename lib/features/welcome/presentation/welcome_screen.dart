@@ -45,7 +45,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final data = _pages[_page];
     final isLast = _page == _pages.length - 1;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return Scaffold(
