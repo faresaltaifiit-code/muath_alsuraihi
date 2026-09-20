@@ -114,20 +114,41 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
       unawaited(_player.pause());
       return;
     }
-    final nextIndex = _shuffleEnabled
-        ? _randomIndex()
-        : _activePlaylistIndex + 1;
-    if (nextIndex < 0 || nextIndex >= _playlist.length) return;
-    unawaited(_advanceAutomatically(nextIndex));
+    final candidates = _automaticCandidates();
+    if (candidates.isEmpty) return;
+    unawaited(_advanceAutomatically(candidates));
   }
 
-  Future<void> _advanceAutomatically(int index) async {
+  List<int> _automaticCandidates() {
+    if (_shuffleEnabled) {
+      final candidates = List<int>.generate(_playlist.length, (index) => index)
+        ..remove(_activePlaylistIndex)
+        ..shuffle();
+      return candidates;
+    }
+
+    return List<int>.generate(
+      _playlist.length - _activePlaylistIndex - 1,
+      (offset) => _activePlaylistIndex + offset + 1,
+    );
+  }
+
+  Future<void> _advanceAutomatically(List<int> candidates) async {
     _isAutoAdvancing = true;
     try {
-      await _selectSingleSurah(index, autoplay: true);
+      for (final index in candidates) {
+        try {
+          await _selectSingleSurah(index, autoplay: true);
+          return;
+        } catch (_) {
+          // A stream can fail temporarily in the background. Try the next
+          // available item instead of leaving automatic playback stuck.
+        }
+      }
+      await _player.pause();
     } catch (_) {
-      // A failed remote/local replacement must leave playback stopped rather
-      // than repeatedly attempting the same transition in the background.
+      // A failed replacement must leave playback stopped rather than retrying
+      // forever in the background.
       await _player.pause();
     } finally {
       _isAutoAdvancing = false;
