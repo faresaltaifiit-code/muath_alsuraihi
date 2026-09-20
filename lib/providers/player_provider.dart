@@ -13,7 +13,7 @@ import '../data/models/surah_model.dart';
 class PlayerProvider extends ChangeNotifier {
   static const _lastPlaybackKey = 'last_playback';
   static const _recentPlaybackKey = 'recent_playback';
-  static const _recentLimit = 5;
+  static const _recentLimit = 10;
   AudioHandler? _handler;
   StreamSubscription<PlaybackState>? _playbackSubscription;
   StreamSubscription<MediaItem?>? _mediaItemSubscription;
@@ -24,7 +24,7 @@ class PlayerProvider extends ChangeNotifier {
   List<SurahModel> _playlist = const [];
   SurahModel? _currentSurah;
   SurahModel? _lastSurah;
-  List<SurahModel> _recentSurahs = const [];
+  List<ListeningHistoryEntry> _recentHistory = const [];
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   Duration _lastPosition = Duration.zero;
@@ -40,7 +40,11 @@ class PlayerProvider extends ChangeNotifier {
   SurahModel? get currentSurah => _currentSurah;
   SurahModel? get lastSurah => _lastSurah;
   /// Stored only on this device. Nothing in this list is sent anywhere.
-  List<SurahModel> get recentSurahs => List.unmodifiable(_recentSurahs);
+  List<ListeningHistoryEntry> get recentHistory =>
+      List.unmodifiable(_recentHistory);
+  /// Compatibility view for existing callers that only need the surah models.
+  List<SurahModel> get recentSurahs =>
+      List.unmodifiable(_recentHistory.map((entry) => entry.surah));
   Duration get position => _position;
   Duration get duration => _duration;
   Duration get lastPosition => _lastPosition;
@@ -279,27 +283,24 @@ class PlayerProvider extends ChangeNotifier {
         'position_ms': _position.inMilliseconds,
       }),
     );
-    final wasUpdated = _recordRecent(surah);
-    if (wasUpdated) {
-      await preferences.setString(
-        _recentPlaybackKey,
-        jsonEncode(_recentSurahs.map((item) => item.toJson()).toList()),
-      );
-      notifyListeners();
-    }
+    _recordRecent(surah, _position);
+    await preferences.setString(
+      _recentPlaybackKey,
+      jsonEncode(_recentHistory.map((entry) => entry.toJson()).toList()),
+    );
+    notifyListeners();
   }
 
-  bool _recordRecent(SurahModel surah) {
-    final updated = <SurahModel>[
-      surah,
-      ..._recentSurahs.where((item) => item.audioPath != surah.audioPath),
-    ].take(_recentLimit).toList();
-    final changed = !listEquals(
-      updated.map((item) => item.audioPath).toList(),
-      _recentSurahs.map((item) => item.audioPath).toList(),
+  void _recordRecent(SurahModel surah, Duration position) {
+    final entry = ListeningHistoryEntry(
+      surah: surah,
+      position: position,
+      listenedAt: DateTime.now(),
     );
-    _recentSurahs = updated;
-    return changed;
+    _recentHistory = <ListeningHistoryEntry>[
+      entry,
+      ..._recentHistory.where((item) => item.surah.audioPath != surah.audioPath),
+    ].take(_recentLimit).toList();
   }
 
   Future<void> _restoreRecentPlayback() async {
@@ -308,9 +309,19 @@ class PlayerProvider extends ChangeNotifier {
     if (value == null) return;
     try {
       final items = jsonDecode(value) as List<dynamic>;
-      _recentSurahs = items
+      _recentHistory = items
           .whereType<Map<String, dynamic>>()
-          .map(SurahModel.fromJson)
+          .map((item) {
+            if (item.containsKey('surah')) {
+              return ListeningHistoryEntry.fromJson(item);
+            }
+            // Migrate the previous local-only list format without losing it.
+            return ListeningHistoryEntry(
+              surah: SurahModel.fromJson(item),
+              position: Duration.zero,
+              listenedAt: DateTime.fromMillisecondsSinceEpoch(0),
+            );
+          })
           .take(_recentLimit)
           .toList();
     } catch (_) {
@@ -354,4 +365,32 @@ SurahModel? pickRandomSurah(
       .toList();
   final choices = candidates.isEmpty ? playlist : candidates;
   return choices[(random ?? Random()).nextInt(choices.length)];
+}
+
+@immutable
+class ListeningHistoryEntry {
+  const ListeningHistoryEntry({
+    required this.surah,
+    required this.position,
+    required this.listenedAt,
+  });
+
+  final SurahModel surah;
+  final Duration position;
+  final DateTime listenedAt;
+
+  Map<String, dynamic> toJson() => {
+        'surah': surah.toJson(),
+        'position_ms': position.inMilliseconds,
+        'listened_at_ms': listenedAt.millisecondsSinceEpoch,
+      };
+
+  factory ListeningHistoryEntry.fromJson(Map<String, dynamic> json) =>
+      ListeningHistoryEntry(
+        surah: SurahModel.fromJson(json['surah'] as Map<String, dynamic>),
+        position: Duration(milliseconds: (json['position_ms'] as num?)?.toInt() ?? 0),
+        listenedAt: DateTime.fromMillisecondsSinceEpoch(
+          (json['listened_at_ms'] as num?)?.toInt() ?? 0,
+        ),
+      );
 }

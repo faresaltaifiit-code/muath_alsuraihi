@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final player = context.watch<PlayerProvider>();
     final recitations = context.watch<RecitationsProvider>();
-    final recent = player.recentSurahs;
+    final recent = player.recentHistory;
 
     return Scaffold(
       body: SafeArea(
@@ -348,7 +348,7 @@ class _SectionHeader extends StatelessWidget {
 
 class _RecentRow extends StatelessWidget {
   const _RecentRow({required this.items});
-  final List<SurahModel> items;
+  final List<ListeningHistoryEntry> items;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -357,14 +357,14 @@ class _RecentRow extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           itemCount: items.length,
           separatorBuilder: (_, __) => const SizedBox(width: 10),
-          itemBuilder: (context, index) => _RecentCard(surah: items[index]),
+          itemBuilder: (context, index) => _RecentCard(entry: items[index]),
         ),
       );
 }
 
 class _RecentCard extends StatelessWidget {
-  const _RecentCard({required this.surah});
-  final SurahModel surah;
+  const _RecentCard({required this.entry});
+  final ListeningHistoryEntry entry;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -372,8 +372,16 @@ class _RecentCard extends StatelessWidget {
         child: Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
-                builder: (_) => PlayerScreen(surah: surah))),
+            onTap: () async {
+              await context.read<PlayerProvider>().prepareSurah(
+                    entry.surah,
+                    autoplay: true,
+                    initialPosition: entry.position,
+                  );
+              if (!context.mounted) return;
+              Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => PlayerScreen(surah: entry.surah)));
+            },
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -390,24 +398,31 @@ class _RecentCard extends StatelessWidget {
                         color: AppColors.softGold, size: 22),
                   ),
                   const SizedBox(height: 10),
-                  Text('سورة ${surah.name}',
+                  Text('سورة ${entry.surah.name}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium
                           ?.copyWith(fontFamily: 'Amiri', fontSize: 18)),
-                  Text('مؤخرًا',
+                  Text(_relativeTime(entry.listenedAt),
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium
                           ?.copyWith(fontSize: 12)),
                   const Spacer(),
-                  Container(
-                      height: 3,
-                      decoration: BoxDecoration(
-                          color: AppColors.goldAccent,
-                          borderRadius: BorderRadius.circular(9))),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(9),
+                    child: LinearProgressIndicator(
+                      value: entry.surah.durationSeconds > 0
+                          ? (entry.position.inSeconds / entry.surah.durationSeconds)
+                              .clamp(0.0, 1.0)
+                          : 0,
+                      minHeight: 3,
+                      color: AppColors.goldAccent,
+                      backgroundColor: Theme.of(context).dividerColor,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -587,4 +602,13 @@ String _formatDuration(Duration value) {
   if (value.inHours > 0)
     return '${value.inHours}:${value.inMinutes.remainder(60).toString().padLeft(2, '0')}:$seconds';
   return '${value.inMinutes}:$seconds';
+}
+
+String _relativeTime(DateTime value) {
+  if (value.millisecondsSinceEpoch == 0) return 'مؤخرًا';
+  final difference = DateTime.now().difference(value);
+  if (difference.inDays == 0) return 'اليوم';
+  if (difference.inDays == 1) return 'أمس';
+  if (difference.inDays < 7) return 'منذ ${difference.inDays} أيام';
+  return 'منذ أسبوع';
 }
