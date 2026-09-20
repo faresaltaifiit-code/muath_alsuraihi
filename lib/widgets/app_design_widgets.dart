@@ -3,11 +3,20 @@ import 'package:flutter/material.dart';
 import '../core/constants/app_colors.dart';
 
 class StarNumberBadge extends StatelessWidget {
-  const StarNumberBadge({super.key, required this.number, this.size = 46, this.inverted = false});
+  const StarNumberBadge({
+    super.key,
+    required this.number,
+    this.size = 46,
+    this.inverted = false,
+    this.numberFontSize,
+    this.numberFontFamily,
+  });
 
   final int number;
   final double size;
   final bool inverted;
+  final double? numberFontSize;
+  final String? numberFontFamily;
 
   @override
   Widget build(BuildContext context) => CustomPaint(
@@ -27,6 +36,8 @@ class StarNumberBadge extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: inverted ? AppColors.softGold : AppColors.goldAccent,
                     fontWeight: FontWeight.w700,
+                    fontFamily: numberFontFamily,
+                    fontSize: numberFontSize,
                   ),
             ),
           ),
