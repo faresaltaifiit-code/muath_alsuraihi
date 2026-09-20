@@ -14,6 +14,10 @@ import 'audio_download_service.dart';
 class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   MuathAudioHandler() {
     _player.playbackEventStream.listen(_broadcastState);
+    // playbackEventStream alone is not guaranteed to emit a regular position
+    // update on every iOS playback route. Relay just_audio's position stream
+    // so the UI, persistence, and ±10-second controls always use fresh time.
+    _player.positionStream.listen((_) => _broadcastState(_player.playbackEvent));
     _player.currentIndexStream.listen((index) {
       if (_sequenceLoaded && index != null) {
         _activePlaylistIndex = index;
