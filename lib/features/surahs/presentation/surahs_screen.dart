@@ -76,7 +76,7 @@ class _SurahsScreenState extends State<SurahsScreen> {
           child: Column(
             children: [
               _SurahsHeader(
-                total: recitations.surahs.length,
+                total: results.length,
                 downloaded: downloadedCount,
                 sort: _sort,
                 onSortChanged: (value) => setState(() => _sort = value),
@@ -706,6 +706,10 @@ String _normalizeArabic(String value) => value
     .replaceAll('ى', 'ي')
     .replaceAll('ؤ', 'و')
     .replaceAll('ئ', 'ي')
+    .replaceAllMapped(
+      RegExp(r'[\u0660-\u0669]'),
+      (match) => (match.group(0)!.codeUnitAt(0) - 0x0660).toString(),
+    )
     .trim();
 
 String _sortLabel(_SurahSort sort) => switch (sort) {
