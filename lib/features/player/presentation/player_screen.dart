@@ -1,6 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' show FontFeature;
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
