@@ -55,7 +55,9 @@ class MoreScreen extends StatelessWidget {
                       : '\u062a\u0646\u0632\u064a\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a'),
                   subtitle: downloads.isDownloadingAll
                       ? LinearProgressIndicator(value: downloads.downloadAllProgress)
-                      : const Text('\u062d\u0641\u0638 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a \u0644\u0644\u0627\u0633\u062a\u0645\u0627\u0639 \u062f\u0648\u0646 \u0625\u0646\u062a\u0631\u0646\u062a'),
+                      : Text(
+                          'حفظ جميع التلاوات للاستماع دون إنترنت · ${_formatBytes(downloads.downloadAllExpectedBytes)}',
+                        ),
                   trailing: downloads.isDownloadingAll
                       ? Text('${(100 * (downloads.downloadAllProgress ?? 0)).round()}%')
                       : const Icon(Icons.chevron_left_rounded),

@@ -102,13 +102,20 @@ class DownloadsProvider extends ChangeNotifier {
     }
 
     _error = null;
-    _isDownloadingAll = true;
-    _downloadAllTotal = pending.length;
-    _downloadAllCompleted = 0;
-    _downloadAllExpectedBytes = pending.fold<int>(
+    final availableBytes = await AudioDownloadService.availableStorageBytes();
+    final requiredBytes = pending.fold<int>(
       0,
       (total, item) => total + item.fileSizeBytes,
     );
+    if (availableBytes != null && availableBytes < requiredBytes) {
+      _error = 'لا تتوفر مساحة كافية لتنزيل جميع التلاوات.';
+      notifyListeners();
+      return;
+    }
+    _isDownloadingAll = true;
+    _downloadAllTotal = pending.length;
+    _downloadAllCompleted = 0;
+    _downloadAllExpectedBytes = requiredBytes;
     notifyListeners();
     try {
       for (final item in pending) {

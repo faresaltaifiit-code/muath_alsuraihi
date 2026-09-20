@@ -117,6 +117,11 @@ class AudioDownloadService {
     return total;
   }
 
+  static Future<int?> availableStorageBytes() async {
+    if (!Platform.isIOS) return null;
+    return _backupChannel.invokeMethod<int>('availableStorage');
+  }
+
   static Future<void> _verifyChecksum(File file, String? expectedChecksum) async {
     if (expectedChecksum == null || expectedChecksum.isEmpty) {
       throw StateError('A checksum is required before saving audio.');

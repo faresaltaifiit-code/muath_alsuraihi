@@ -13,6 +13,21 @@ import UIKit
         binaryMessenger: controller.binaryMessenger
       )
       downloadsChannel.setMethodCallHandler { call, result in
+        if call.method == "availableStorage" {
+          do {
+            let values = try URL(fileURLWithPath: NSHomeDirectory())
+              .resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+            result(values.volumeAvailableCapacityForImportantUsage)
+          } catch {
+            result(FlutterError(
+              code: "available_storage_failed",
+              message: error.localizedDescription,
+              details: nil
+            ))
+          }
+          return
+        }
+
         guard call.method == "excludeFromBackup",
               let arguments = call.arguments as? [String: Any],
               let path = arguments["path"] as? String else {
