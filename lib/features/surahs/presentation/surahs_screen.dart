@@ -15,9 +15,10 @@ enum _SurahFilter { all, downloaded, favorite, short }
 enum _SurahSort { mushaf, alphabetical, longest, shortest }
 
 class SurahsScreen extends StatefulWidget {
-  const SurahsScreen({super.key, this.focusSearch = false});
+  const SurahsScreen({super.key, this.focusSearch = false, this.juzNumber});
 
   final bool focusSearch;
+  final int? juzNumber;
 
   @override
   State<SurahsScreen> createState() => _SurahsScreenState();
@@ -34,6 +35,14 @@ class _SurahsScreenState extends State<SurahsScreen> {
   void initState() {
     super.initState();
     if (widget.focusSearch) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _searchFocusNode.requestFocus());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SurahsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusSearch && !oldWidget.focusSearch) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _searchFocusNode.requestFocus());
     }
   }
@@ -71,6 +80,7 @@ class _SurahsScreenState extends State<SurahsScreen> {
                 downloaded: downloadedCount,
                 sort: _sort,
                 onSortChanged: (value) => setState(() => _sort = value),
+                juzNumber: widget.juzNumber,
               ),
               const SizedBox(height: 16),
               _SearchField(
@@ -112,6 +122,9 @@ class _SurahsScreenState extends State<SurahsScreen> {
   }) {
     final normalizedQuery = _normalizeArabic(_query);
     final results = source.where((surah) {
+      if (widget.juzNumber != null && !_belongsToJuz(surah.number, widget.juzNumber!)) {
+        return false;
+      }
       final matchesQuery = normalizedQuery.isEmpty ||
           _normalizeArabic(surah.name).contains(normalizedQuery) ||
           surah.number.toString().contains(normalizedQuery);
@@ -143,12 +156,14 @@ class _SurahsHeader extends StatelessWidget {
     required this.downloaded,
     required this.sort,
     required this.onSortChanged,
+    this.juzNumber,
   });
 
   final int total;
   final int downloaded;
   final _SurahSort sort;
   final ValueChanged<_SurahSort> onSortChanged;
+  final int? juzNumber;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -409,7 +424,9 @@ class _SurahRow extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
+                      Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Text(
                         surah.available ? meta : 'قريبًا',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -419,6 +436,7 @@ class _SurahRow extends StatelessWidget {
                               : null,
                           fontSize: 12.5,
                           fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                         ),
                       ),
                     ],
@@ -704,3 +722,21 @@ String _formatDuration(Duration value) {
   }
   return '${value.inMinutes}:$seconds';
 }
+
+bool _belongsToJuz(int surahNumber, int juzNumber) {
+  final range = _juzRanges[juzNumber - 1];
+  return surahNumber >= range.$1 && surahNumber <= range.$2;
+}
+
+String _juzSubtitle(int juzNumber) {
+  final range = _juzRanges[juzNumber - 1];
+  return '\u0627\u0644\u062c\u0632\u0621 $juzNumber \u00b7 \u0645\u0646 \u0627\u0644\u0633\u0648\u0631\u0629 ${range.$1} \u0625\u0644\u0649 ${range.$2}';
+}
+
+const _juzRanges = <(int, int)>[
+  (1, 2), (2, 3), (3, 4), (4, 4), (4, 5), (5, 6), (6, 7),
+  (7, 8), (8, 9), (9, 9), (9, 11), (11, 12), (12, 15), (15, 16),
+  (17, 18), (18, 20), (21, 22), (23, 25), (25, 27), (27, 29),
+  (29, 33), (33, 36), (36, 39), (39, 41), (41, 45), (46, 51),
+  (51, 57), (58, 66), (67, 77), (78, 114),
+];

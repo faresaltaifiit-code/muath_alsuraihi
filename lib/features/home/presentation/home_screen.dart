@@ -16,7 +16,9 @@ import '../../surahs/presentation/surahs_screen.dart';
 const _showFridaySermon = false;
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.onOpenSurahs});
+
+  final void Function({bool focusSearch})? onOpenSurahs;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,10 @@ class HomeScreen extends StatelessWidget {
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                  child: _Header(onSearch: () => _openSurahs(context))),
+                child: _Header(
+                  onSearch: () => _openSurahs(context, focusSearch: true),
+                ),
+              ),
               if (player.lastSurah != null) ...[
                 const SliverToBoxAdapter(child: SizedBox(height: 20)),
                 SliverToBoxAdapter(child: _ContinueCard(player: player)),
@@ -110,9 +115,13 @@ class HomeScreen extends StatelessWidget {
 
   static bool _isFriday() => DateTime.now().weekday == DateTime.friday;
 
-  void _openSurahs(BuildContext context) {
+  void _openSurahs(BuildContext context, {bool focusSearch = false}) {
+    if (onOpenSurahs != null) {
+      onOpenSurahs!(focusSearch: focusSearch);
+      return;
+    }
     Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (_) => const SurahsScreen()));
+        .push(MaterialPageRoute<void>(builder: (_) => SurahsScreen(focusSearch: focusSearch)));
   }
 
   Future<void> _playRandom(BuildContext context, List<SurahModel> items) async {
@@ -337,11 +346,20 @@ class _SectionHeader extends StatelessWidget {
           Expanded(
               child:
                   Text(title, style: Theme.of(context).textTheme.titleLarge)),
-          TextButton.icon(
-            onPressed: onAction,
-            icon: icon == null ? const SizedBox.shrink() : Icon(icon, size: 16),
-            label: Text(action),
-          ),
+          if (icon == null)
+            TextButton(onPressed: onAction, child: Text(action))
+          else
+            OutlinedButton.icon(
+              onPressed: onAction,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.goldAccent,
+                side: BorderSide(color: Theme.of(context).dividerColor),
+                padding: const EdgeInsetsDirectional.fromSTEB(12, 6, 12, 6),
+                shape: const StadiumBorder(),
+              ),
+              icon: Icon(icon, size: 16),
+              label: Text(action),
+            ),
         ],
       );
 }

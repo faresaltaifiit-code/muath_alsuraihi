@@ -17,7 +17,14 @@ class RootNavigationScreen extends StatefulWidget {
 
 class _RootNavigationScreenState extends State<RootNavigationScreen> {
   int _index = 0;
-  static const _screens = [HomeScreen(), SurahsScreen(), FavoritesScreen(), MoreScreen()];
+  bool _focusSurahsSearch = false;
+
+  void _openSurahs({bool focusSearch = false}) {
+    setState(() {
+      _index = 1;
+      _focusSurahsSearch = focusSearch;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +33,17 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
     return Scaffold(
         body: Stack(
           children: [
-            Positioned.fill(child: IndexedStack(index: _index, children: _screens)),
+            Positioned.fill(
+              child: IndexedStack(
+                index: _index,
+                children: [
+                  HomeScreen(onOpenSurahs: _openSurahs),
+                  SurahsScreen(focusSearch: _focusSurahsSearch),
+                  const FavoritesScreen(),
+                  const MoreScreen(),
+                ],
+              ),
+            ),
             const PositionedDirectional(
               start: 12,
               end: 12,
@@ -41,7 +58,10 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
           ),
           child: NavigationBar(
             selectedIndex: _index,
-            onDestinationSelected: (value) => setState(() => _index = value),
+            onDestinationSelected: (value) => setState(() {
+              _index = value;
+              _focusSurahsSearch = false;
+            }),
             destinations: const [
               NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: _SelectedNavIcon(Icons.home_outlined), label: 'الرئيسية'),
               NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: _SelectedNavIcon(Icons.menu_book_outlined), label: 'السور'),

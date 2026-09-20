@@ -60,7 +60,11 @@ class MiniPlayer extends StatelessWidget {
                               surah.number > 0 ? 'سورة ${surah.name}' : surah.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontFamily: 'Amiri',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 19,
+                                  ),
                             ),
                             Text(
                               surah.reciterName,
