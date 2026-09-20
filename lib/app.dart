@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/constants/app_strings.dart';
 import 'core/theme/app_theme.dart';
 import 'features/navigation/presentation/root_navigation_screen.dart';
+import 'features/welcome/presentation/welcome_screen.dart';
 import 'providers/recitations_provider.dart';
 import 'providers/player_provider.dart';
 import 'providers/favorites_provider.dart';
@@ -37,7 +38,11 @@ class MuathAlsuraihiApp extends StatelessWidget {
             textDirection: TextDirection.rtl,
             child: child ?? const SizedBox.shrink(),
           ),
-          home: const RootNavigationScreen(),
+          home: !settings.isLoaded
+              ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+              : settings.hasSeenWelcome
+                  ? const RootNavigationScreen()
+                  : const WelcomeScreen(),
         ),
       ),
     );
