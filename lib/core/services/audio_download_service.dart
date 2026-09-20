@@ -51,7 +51,11 @@ class AudioDownloadService {
       if (response.statusCode == HttpStatus.requestedRangeNotSatisfiable &&
           offset > 0) {
         await partial.delete();
-        return download(surah, onProgress: onProgress, client: activeClient);
+        return await download(
+          surah,
+          onProgress: onProgress,
+          client: activeClient,
+        );
       }
       if (response.statusCode != HttpStatus.ok &&
           response.statusCode != HttpStatus.partialContent) {
