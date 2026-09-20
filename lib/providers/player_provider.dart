@@ -262,6 +262,8 @@ class PlayerProvider extends ChangeNotifier {
     _sleepTimer?.cancel();
     _fadeTimer?.cancel();
     _sleepTimer = null;
+    // A cancelled fade must not leave the next playback quiet.
+    unawaited((_handler as MuathAudioHandler?)?.setVolume(1) ?? Future.value());
     notifyListeners();
   }
 

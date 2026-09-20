@@ -89,7 +89,7 @@ class MiniPlayer extends StatelessWidget {
                   ),
                 ),
                 Directionality(
-                  textDirection: TextDirection.rtl,
+                  textDirection: TextDirection.ltr,
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 3,

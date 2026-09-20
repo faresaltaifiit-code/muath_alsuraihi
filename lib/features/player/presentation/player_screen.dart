@@ -581,7 +581,7 @@ class _OptionsGrid extends StatelessWidget {
             onTap: player.toggleShuffle,
           ),
           _OptionTile(
-            label: 'تكرار',
+            label: 'تكرار السورة',
             icon: player.repeatMode == AudioServiceRepeatMode.one
                 ? Icons.repeat_one_rounded
                 : Icons.repeat_rounded,
