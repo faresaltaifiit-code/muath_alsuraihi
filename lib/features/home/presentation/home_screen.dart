@@ -143,35 +143,49 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         children: [
           Container(
-            width: 54,
-            height: 54,
+            width: 62,
+            height: 62,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
                 colors: [AppColors.emerald, AppColors.forestGreen],
               ),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(Icons.menu_book_outlined,
-                color: AppColors.softGold, size: 28),
+            child: const Center(
+              child: StarNumberBadge(
+                number: 0,
+                size: 38,
+                inverted: true,
+                child: Icon(
+                  Icons.menu_book_outlined,
+                  color: AppColors.softGold,
+                  size: 23,
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('السلام عليكم',
+                Text('الشيخ',
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
-                        ?.copyWith(fontSize: 13)),
+                        ?.copyWith(
+                          color: AppColors.goldAccent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        )),
                 Text(
-                  'معاذ السريحي',
+                  'معاذ بن ماجد السريحي',
                   style: Theme.of(context)
                       .textTheme
                       .displaySmall
-                      ?.copyWith(fontSize: 28),
+                      ?.copyWith(fontSize: 25, fontWeight: FontWeight.w700),
                 ),
               ],
             ),

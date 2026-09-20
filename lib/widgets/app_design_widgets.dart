@@ -10,6 +10,7 @@ class StarNumberBadge extends StatelessWidget {
     this.inverted = false,
     this.numberFontSize,
     this.numberFontFamily,
+    this.child,
   });
 
   final int number;
@@ -17,6 +18,7 @@ class StarNumberBadge extends StatelessWidget {
   final bool inverted;
   final double? numberFontSize;
   final String? numberFontFamily;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) => CustomPaint(
@@ -31,15 +33,16 @@ class StarNumberBadge extends StatelessWidget {
         child: SizedBox.square(
           dimension: size,
           child: Center(
-            child: Text(
-              '$number',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: inverted ? AppColors.softGold : AppColors.goldAccent,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: numberFontFamily,
-                    fontSize: numberFontSize,
-                  ),
-            ),
+            child: child ??
+                Text(
+                  '$number',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: inverted ? AppColors.softGold : AppColors.goldAccent,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: numberFontFamily,
+                        fontSize: numberFontSize,
+                      ),
+                ),
           ),
         ),
       );
