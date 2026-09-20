@@ -87,7 +87,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 1.15,
+                  mainAxisExtent: 150,
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 12)),
@@ -516,33 +516,70 @@ class _SoonChip extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(
-              color: Theme.of(context).dividerColor, style: BorderStyle.solid),
-          borderRadius: BorderRadius.circular(18),
+  Widget build(BuildContext context) => CustomPaint(
+        painter: _DashedRoundedBorder(
+          color: Theme.of(context).dividerColor,
+          radius: 18,
         ),
-        child: Row(
-          children: [
-            Icon(icon,
-                size: 18, color: Theme.of(context).textTheme.bodyMedium?.color),
-            const SizedBox(width: 8),
-            Text(label, style: Theme.of(context).textTheme.bodyMedium),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.darkSecondarySurface
-                      : AppColors.lightSecondarySurface,
-                  borderRadius: BorderRadius.circular(99)),
-              child: const Text('قريبًا',
-                  style: TextStyle(color: AppColors.goldAccent, fontSize: 11)),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Icon(icon,
+                  size: 18, color: Theme.of(context).textTheme.bodyMedium?.color),
+              const SizedBox(width: 8),
+              Text(label, style: Theme.of(context).textTheme.bodyMedium),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.darkSecondarySurface
+                        : AppColors.lightSecondarySurface,
+                    borderRadius: BorderRadius.circular(99)),
+                child: const Text('قريبًا',
+                    style: TextStyle(color: AppColors.goldAccent, fontSize: 11)),
+              ),
+            ],
+          ),
         ),
       );
+}
+
+class _DashedRoundedBorder extends CustomPainter {
+  const _DashedRoundedBorder({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Offset.zero & size,
+        Radius.circular(radius),
+      ));
+    final metric = path.computeMetrics().single;
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+    const dash = 4.0;
+    const gap = 3.0;
+    for (var distance = 0.0; distance < metric.length; distance += dash + gap) {
+      canvas.drawPath(
+        metric.extractPath(
+          distance,
+          (distance + dash).clamp(0.0, metric.length).toDouble(),
+        ),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedRoundedBorder oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
 }
 
 String _formatDuration(Duration value) {
