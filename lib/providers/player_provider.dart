@@ -180,7 +180,7 @@ class PlayerProvider extends ChangeNotifier {
   Future<void> cycleRepeatMode() async {
     final next = switch (_repeatMode) {
       AudioServiceRepeatMode.none => AudioServiceRepeatMode.one,
-      AudioServiceRepeatMode.one => AudioServiceRepeatMode.all,
+      AudioServiceRepeatMode.one => AudioServiceRepeatMode.none,
       _ => AudioServiceRepeatMode.none,
     };
     await _handler?.setRepeatMode(next);

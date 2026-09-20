@@ -18,12 +18,6 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     // update on every iOS playback route. Relay just_audio's position stream
     // so the UI, persistence, and ±10-second controls always use fresh time.
     _player.positionStream.listen((_) => _broadcastState(_player.playbackEvent));
-    _player.currentIndexStream.listen((index) {
-      if (_sequenceLoaded && index != null) {
-        _activePlaylistIndex = index;
-        _publishCurrentItem(index);
-      }
-    });
     _player.durationStream.listen(_publishMeasuredDuration);
     _player.processingStateStream.listen(_handleProcessingState);
   }
@@ -32,7 +26,6 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   List<SurahModel> _playlist = const [];
   bool _autoPlayNext = true;
   bool _shuffleEnabled = false;
-  bool _sequenceLoaded = false;
   int _activePlaylistIndex = 0;
   bool _isAutoAdvancing = false;
   Uri? _artworkUri;
@@ -45,7 +38,10 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     bool autoplay = false,
     Duration? initialPosition,
   }) async {
-    if (!surah.available || (!surah.isBundled && !_hasRemoteSource(surah))) {
+    final hasLocalDownload =
+        await AudioDownloadService.localFileFor(surah.id) != null;
+    if (!surah.available ||
+        (!surah.isBundled && !hasLocalDownload && !_hasRemoteSource(surah))) {
       throw ArgumentError('هذه التلاوة غير متوفرة حاليًا.');
     }
     _playlist = playlist
@@ -57,7 +53,6 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     _activePlaylistIndex = startIndex < 0 ? 0 : startIndex;
     _autoPlayNext = autoPlayNext;
     _shuffleEnabled = shuffleEnabled;
-    _sequenceLoaded = false;
     await _ensureArtworkUri();
     queue.add(_playlist.map(_mediaItem).toList());
     final source = await _audioSourceFor(surah);
@@ -88,10 +83,13 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
 
   Future<void> _selectSingleSurah(int index, {required bool autoplay}) async {
     if (index < 0 || index >= _playlist.length) return;
+    final item = _playlist[index];
+    final source = await _audioSourceFor(item);
+    final duration = await _player.setAudioSource(source);
+    // Do not change the active item until the replacement source is ready.
+    // This keeps the player controls on the current surah if a remote source
+    // cannot be reached or a downloaded file is invalid.
     _activePlaylistIndex = index;
-    final duration = await _player.setAudioSource(
-      await _audioSourceFor(_playlist[index]),
-    );
     _publishCurrentItem(index);
     if (duration != null && mediaItem.value != null) {
       mediaItem.add(mediaItem.value!.copyWith(duration: duration));
@@ -109,9 +107,11 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   void _handleProcessingState(ProcessingState state) {
-    if (state != ProcessingState.completed ||
-        !_autoPlayNext ||
-        _isAutoAdvancing) {
+    if (state != ProcessingState.completed || _isAutoAdvancing) {
+      return;
+    }
+    if (!_autoPlayNext) {
+      unawaited(_player.pause());
       return;
     }
     final nextIndex = _shuffleEnabled
@@ -125,6 +125,10 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     _isAutoAdvancing = true;
     try {
       await _selectSingleSurah(index, autoplay: true);
+    } catch (_) {
+      // A failed remote/local replacement must leave playback stopped rather
+      // than repeatedly attempting the same transition in the background.
+      await _player.pause();
     } finally {
       _isAutoAdvancing = false;
     }
@@ -164,14 +168,13 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     _autoPlayNext = enabled;
     await _player.setLoopMode(LoopMode.off);
   }
-  @override Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async { await _player.setLoopMode(switch (repeatMode) { AudioServiceRepeatMode.none => LoopMode.off, AudioServiceRepeatMode.one => LoopMode.one, AudioServiceRepeatMode.all || AudioServiceRepeatMode.group => LoopMode.all, }); }
+  @override Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async { await _player.setLoopMode(repeatMode == AudioServiceRepeatMode.one ? LoopMode.one : LoopMode.off); }
   @override Future<void> skipToNext() async {
     if (_shuffleEnabled) {
       await _selectSingleSurah(_randomIndex(), autoplay: _player.playing);
       return;
     }
-    if (_sequenceLoaded && _player.hasNext) await _player.seekToNext();
-    if (!_sequenceLoaded && _activePlaylistIndex + 1 < _playlist.length) {
+    if (_activePlaylistIndex + 1 < _playlist.length) {
       await _selectSingleSurah(
         _activePlaylistIndex + 1,
         autoplay: _player.playing,
@@ -183,8 +186,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
       await _selectSingleSurah(_randomIndex(), autoplay: _player.playing);
       return;
     }
-    if (_sequenceLoaded && _player.hasPrevious) await _player.seekToPrevious();
-    if (!_sequenceLoaded && _activePlaylistIndex > 0) {
+    if (_activePlaylistIndex > 0) {
       await _selectSingleSurah(
         _activePlaylistIndex - 1,
         autoplay: _player.playing,
@@ -194,6 +196,6 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   @override Future<void> rewind() => seek(_safeOffset(const Duration(seconds: -10)));
   @override Future<void> fastForward() => seek(_safeOffset(const Duration(seconds: 10)));
   Duration _safeOffset(Duration amount) { final value = _player.position + amount; if (value < Duration.zero) return Duration.zero; final duration = _player.duration; return duration != null && value > duration ? duration : value; }
-  void _broadcastState(PlaybackEvent event) { final playing = _player.playing; playbackState.add(PlaybackState(controls: [MediaControl.skipToPrevious, if (playing) MediaControl.pause else MediaControl.play, MediaControl.skipToNext, MediaControl.stop], systemActions: const {MediaAction.seek, MediaAction.setSpeed}, androidCompactActionIndices: const [0, 1, 2], processingState: switch (_player.processingState) { ProcessingState.idle => AudioProcessingState.idle, ProcessingState.loading => AudioProcessingState.loading, ProcessingState.buffering => AudioProcessingState.buffering, ProcessingState.ready => AudioProcessingState.ready, ProcessingState.completed => AudioProcessingState.completed, }, playing: playing, updatePosition: _player.position, bufferedPosition: _player.bufferedPosition, speed: _player.speed, repeatMode: switch (_player.loopMode) { LoopMode.off => AudioServiceRepeatMode.none, LoopMode.one => AudioServiceRepeatMode.one, LoopMode.all => AudioServiceRepeatMode.all, }, queueIndex: _sequenceLoaded ? event.currentIndex : _activePlaylistIndex)); }
+  void _broadcastState(PlaybackEvent event) { final playing = _player.playing; playbackState.add(PlaybackState(controls: [MediaControl.skipToPrevious, if (playing) MediaControl.pause else MediaControl.play, MediaControl.skipToNext, MediaControl.stop], systemActions: const {MediaAction.seek, MediaAction.setSpeed}, androidCompactActionIndices: const [0, 1, 2], processingState: switch (_player.processingState) { ProcessingState.idle => AudioProcessingState.idle, ProcessingState.loading => AudioProcessingState.loading, ProcessingState.buffering => AudioProcessingState.buffering, ProcessingState.ready => AudioProcessingState.ready, ProcessingState.completed => AudioProcessingState.completed, }, playing: playing, updatePosition: _player.position, bufferedPosition: _player.bufferedPosition, speed: _player.speed, repeatMode: _player.loopMode == LoopMode.one ? AudioServiceRepeatMode.one : AudioServiceRepeatMode.none, queueIndex: _activePlaylistIndex)); }
   @override Future<void> stop() async { await _player.stop(); return super.stop(); }
 }
