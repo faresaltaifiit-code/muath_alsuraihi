@@ -21,11 +21,17 @@ class MiniPlayer extends StatelessWidget {
         : 0.0;
     final theme = Theme.of(context);
 
-    return ClipRRect(
+    return Material(
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(22),
-      child: Material(
+      child: Ink(
+        decoration: BoxDecoration(
           color: theme.brightness == Brightness.dark ? AppColors.darkSecondarySurface : AppColors.lightSecondarySurface,
-          child: InkWell(
+          border: Border.all(color: theme.dividerColor),
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: surah)),
             ),
@@ -37,11 +43,11 @@ class MiniPlayer extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(colors: [AppColors.emerald, AppColors.forestGreen]),
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(13),
                         ),
                         child: const Icon(Icons.play_arrow_rounded, color: AppColors.softGold, size: 22),
                       ),
@@ -75,11 +81,6 @@ class MiniPlayer extends StatelessWidget {
                         ),
                         icon: Icon(player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
                       ),
-                      IconButton(
-                        tooltip: 'التالي',
-                        onPressed: player.next,
-                        icon: const Icon(Icons.skip_next_rounded),
-                      ),
                     ],
                   ),
                 ),
@@ -88,13 +89,14 @@ class MiniPlayer extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 3,
-                  color: AppColors.goldAccent,
-                    backgroundColor: Colors.transparent,
+                    color: AppColors.goldAccent,
+                    backgroundColor: theme.dividerColor,
                   ),
                 ),
               ],
             ),
           ),
+        ),
       ),
     );
   }
