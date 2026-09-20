@@ -35,6 +35,9 @@ class AudioDownloadService {
       throw StateError('لا يوجد رابط تحميل لهذه التلاوة.');
     }
 
+    if (surah.checksum == null || surah.checksum!.isEmpty) {
+      throw StateError('A checksum is required before downloading audio.');
+    }
     final directory = await _downloadsDirectory();
     final target = File('${directory.path}/${surah.id}.mp3');
     final partial = File('${target.path}.part');
@@ -45,6 +48,11 @@ class AudioDownloadService {
     final activeClient = client ?? http.Client();
     try {
       final response = await activeClient.send(request);
+      if (response.statusCode == HttpStatus.requestedRangeNotSatisfiable &&
+          offset > 0) {
+        await partial.delete();
+        return download(surah, onProgress: onProgress, client: activeClient);
+      }
       if (response.statusCode != HttpStatus.ok &&
           response.statusCode != HttpStatus.partialContent) {
         throw HttpException('تعذر تحميل التلاوة (رمز ${response.statusCode}).');
@@ -68,8 +76,9 @@ class AudioDownloadService {
       } finally {
         await sink.close();
       }
+      await _verifyChecksum(partial, surah.checksum);
+      if (await target.exists()) await target.delete();
       await partial.rename(target.path);
-      await _verifyChecksum(target, surah.checksum);
       await _excludeFromBackup(target);
       onProgress(total ?? received, total ?? received);
     } finally {
@@ -105,12 +114,14 @@ class AudioDownloadService {
   }
 
   static Future<void> _verifyChecksum(File file, String? expectedChecksum) async {
-    if (expectedChecksum == null || expectedChecksum.isEmpty) return;
+    if (expectedChecksum == null || expectedChecksum.isEmpty) {
+      throw StateError('A checksum is required before saving audio.');
+    }
     final actual = await sha256.bind(file.openRead()).first;
     if (actual.toString().toLowerCase() == expectedChecksum.toLowerCase()) {
       return;
     }
-    await file.delete();
+    if (await file.exists()) await file.delete();
     throw const HttpException('The downloaded file did not pass verification.');
   }
 

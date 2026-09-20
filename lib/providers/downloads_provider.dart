@@ -15,6 +15,7 @@ class DownloadsProvider extends ChangeNotifier {
   bool _isDownloadingAll = false;
   int _downloadAllTotal = 0;
   int _downloadAllCompleted = 0;
+  int _downloadAllExpectedBytes = 0;
 
   bool get isReady => _ready;
   bool _ready = false;
@@ -25,6 +26,7 @@ class DownloadsProvider extends ChangeNotifier {
   double? get downloadAllProgress => _downloadAllTotal == 0
       ? null
       : _downloadAllCompleted / _downloadAllTotal;
+  int get downloadAllExpectedBytes => _downloadAllExpectedBytes;
   bool isDownloaded(SurahModel surah) => _downloadedIds.contains(surah.id);
   bool isDownloading(SurahModel surah) => _progress.containsKey(surah.id);
   double? progressFor(SurahModel surah) => _progress[surah.id]?.fraction;
@@ -103,12 +105,15 @@ class DownloadsProvider extends ChangeNotifier {
     _isDownloadingAll = true;
     _downloadAllTotal = pending.length;
     _downloadAllCompleted = 0;
+    _downloadAllExpectedBytes = pending.fold<int>(
+      0,
+      (total, item) => total + item.fileSizeBytes,
+    );
     notifyListeners();
     try {
       for (final item in pending) {
         await download(item);
-        if (!isDownloaded(item)) break;
-        _downloadAllCompleted += 1;
+        if (isDownloaded(item)) _downloadAllCompleted += 1;
         notifyListeners();
       }
     } finally {
