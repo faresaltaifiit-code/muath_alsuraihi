@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../data/models/surah_model.dart';
 import '../../../providers/player_provider.dart';
 import '../../../providers/recitations_provider.dart';
@@ -181,7 +182,7 @@ class _Header extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         )),
                 Text(
-                  'معاذ بن ماجد السريحي',
+                  AppStrings.reciterName.replaceFirst('الشيخ ', ''),
                   style: Theme.of(context)
                       .textTheme
                       .displaySmall

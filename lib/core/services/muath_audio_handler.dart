@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../data/models/surah_model.dart';
+import '../constants/app_strings.dart';
 import 'audio_download_service.dart';
 
 /// طبقة الصوت الأصلية: قائمة تشغيل محلية تعمل مع شاشة القفل والخلفية.
@@ -173,7 +174,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   MediaItem _mediaItem(SurahModel item) => MediaItem(
         id: item.audioPath,
         title: 'سورة ${item.name}',
-        artist: 'معاذ بن ماجد السريحي',
+        artist: AppStrings.reciterName,
         album: 'قرآن وتلاوات',
         artUri: _artworkUri,
         duration: item.durationSeconds > 0 ? Duration(seconds: item.durationSeconds) : null,
