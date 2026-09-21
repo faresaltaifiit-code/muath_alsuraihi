@@ -222,6 +222,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                   leading: Text('${time.inMinutes}:${(time.inSeconds % 60).toString().padLeft(2, '0')}'),
                   title: Text(label),
                   onTap: () { player.seek(time); Navigator.pop(context); },
+                  onLongPress: () => _renameBookmark(context, bookmarks, item),
                   trailing: IconButton(icon: const Icon(Icons.delete_outline_rounded), onPressed: () => bookmarks.remove(item)),
                 );
               })),
@@ -235,6 +236,23 @@ class _PlayerScreenState extends State<PlayerScreen>
         },
       ),
     );
+  }
+
+  Future<void> _renameBookmark(BuildContext context, BookmarksProvider bookmarks, BookmarkEntry item) async {
+    final controller = TextEditingController(text: item.label);
+    final label = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تسمية العلامة'),
+        content: TextField(controller: controller, autofocus: true, maxLength: 40, decoration: const InputDecoration(hintText: 'اسم اختياري')),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
+          FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('حفظ')),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (label != null) await bookmarks.rename(item, label);
   }
 }
 
