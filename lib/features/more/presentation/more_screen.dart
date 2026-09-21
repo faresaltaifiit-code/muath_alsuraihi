@@ -54,7 +54,19 @@ class MoreScreen extends StatelessWidget {
                       ? '\u064a\u062a\u0645 \u062a\u0646\u0632\u064a\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a'
                       : '\u062a\u0646\u0632\u064a\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a'),
                   subtitle: downloads.isDownloadingAll
-                      ? LinearProgressIndicator(value: downloads.downloadAllProgress)
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              LinearProgressIndicator(value: downloads.downloadAllProgress),
+                              const SizedBox(height: 7),
+                              Text(
+                                'يتم تنزيل ${downloads.downloadAllCompleted + 1} من ${downloads.downloadAllTotal} · ${(100 * (downloads.downloadAllProgress ?? 0)).round()}٪',
+                              ),
+                            ],
+                          ),
+                        )
                       : Text(
                           'حفظ جميع التلاوات للاستماع دون إنترنت · ${_formatBytes(downloads.downloadAllExpectedBytes)}',
                         ),

@@ -16,6 +16,8 @@ class DownloadsProvider extends ChangeNotifier {
   int _downloadAllTotal = 0;
   int _downloadAllCompleted = 0;
   int _downloadAllExpectedBytes = 0;
+  int _downloadAllCurrentReceived = 0;
+  int? _downloadAllCurrentTotal;
 
   bool get isReady => _ready;
   bool _ready = false;
@@ -23,9 +25,17 @@ class DownloadsProvider extends ChangeNotifier {
   int get storageBytes => _storageBytes;
   bool get wifiOnly => _wifiOnly;
   bool get isDownloadingAll => _isDownloadingAll;
-  double? get downloadAllProgress => _downloadAllTotal == 0
-      ? null
-      : _downloadAllCompleted / _downloadAllTotal;
+  double? get downloadAllProgress {
+    if (_downloadAllTotal == 0) return null;
+    final currentFraction = _downloadAllCurrentTotal == null || _downloadAllCurrentTotal == 0
+        ? 0.0
+        : _downloadAllCurrentReceived / _downloadAllCurrentTotal!;
+    return ((_downloadAllCompleted + currentFraction) / _downloadAllTotal)
+        .clamp(0.0, 1.0)
+        .toDouble();
+  }
+  int get downloadAllTotal => _downloadAllTotal;
+  int get downloadAllCompleted => _downloadAllCompleted;
   int get downloadAllExpectedBytes => _downloadAllExpectedBytes;
   bool isDownloaded(SurahModel surah) => _downloadedIds.contains(surah.id);
   bool isDownloading(SurahModel surah) => _progress.containsKey(surah.id);
@@ -40,7 +50,10 @@ class DownloadsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> download(SurahModel surah) async {
+  Future<void> download(
+    SurahModel surah, {
+    void Function(int received, int? total)? onProgress,
+  }) async {
     if (isDownloaded(surah) || isDownloading(surah)) return;
     if (_wifiOnly) {
       final networks = await Connectivity().checkConnectivity();
@@ -56,6 +69,7 @@ class DownloadsProvider extends ChangeNotifier {
     try {
       await AudioDownloadService.download(surah, onProgress: (received, total) {
         _progress[surah.id] = _DownloadProgress(received, total);
+        onProgress?.call(received, total);
         notifyListeners();
       });
       final savedFile = await AudioDownloadService.localFileFor(surah.id);
@@ -133,15 +147,28 @@ class DownloadsProvider extends ChangeNotifier {
     _downloadAllTotal = pending.length;
     _downloadAllCompleted = 0;
     _downloadAllExpectedBytes = requiredBytes;
+    _downloadAllCurrentReceived = 0;
+    _downloadAllCurrentTotal = null;
     notifyListeners();
     try {
       for (final item in pending) {
-        await download(item);
+        _downloadAllCurrentReceived = 0;
+        _downloadAllCurrentTotal = null;
+        notifyListeners();
+        await download(
+          item,
+          onProgress: (received, total) {
+            _downloadAllCurrentReceived = received;
+            _downloadAllCurrentTotal = total;
+          },
+        );
         if (isDownloaded(item)) _downloadAllCompleted += 1;
         notifyListeners();
       }
     } finally {
       _isDownloadingAll = false;
+      _downloadAllCurrentReceived = 0;
+      _downloadAllCurrentTotal = null;
       notifyListeners();
     }
   }
