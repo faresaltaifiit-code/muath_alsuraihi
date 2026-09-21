@@ -11,6 +11,7 @@ import 'providers/player_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/downloads_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/bookmarks_provider.dart';
 
 class MuathAlsuraihiApp extends StatelessWidget {
   const MuathAlsuraihiApp({super.key});
@@ -24,6 +25,7 @@ class MuathAlsuraihiApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FavoritesProvider()..load()),
         ChangeNotifierProvider(create: (_) => DownloadsProvider()..load()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..load()),
+        ChangeNotifierProvider(create: (_) => BookmarksProvider()..load()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) => MaterialApp(

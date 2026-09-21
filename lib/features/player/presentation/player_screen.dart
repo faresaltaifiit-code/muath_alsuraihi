@@ -10,6 +10,7 @@ import '../../../data/models/surah_model.dart';
 import '../../../providers/downloads_provider.dart';
 import '../../../providers/favorites_provider.dart';
 import '../../../providers/player_provider.dart';
+import '../../../providers/bookmarks_provider.dart';
 import '../../../widgets/app_design_widgets.dart';
 
 class PlayerScreen extends StatefulWidget {
@@ -51,6 +52,7 @@ class _PlayerScreenState extends State<PlayerScreen>
     final player = context.watch<PlayerProvider>();
     final downloads = context.watch<DownloadsProvider>();
     final favorites = context.watch<FavoritesProvider>();
+    final bookmarks = context.watch<BookmarksProvider>();
     final surah = player.currentSurah ?? widget.surah;
     final duration = player.duration > Duration.zero
         ? player.duration
@@ -75,8 +77,10 @@ class _PlayerScreenState extends State<PlayerScreen>
                 children: [
                   _TopBar(
                     favorite: favorites.contains(surah),
+                    hasBookmarks: bookmarks.forSurah(surah.id).isNotEmpty,
                     onDismiss: () => Navigator.of(context).maybePop(),
                     onFavorite: () => favorites.toggle(surah),
+                    onBookmarks: () => _showBookmarks(context, surah.id, surah.name, player),
                   ),
                   const SizedBox(height: 12),
                   _Artwork(
@@ -196,19 +200,63 @@ class _PlayerScreenState extends State<PlayerScreen>
     );
     if (result != null) player.setSleepTimer(Duration(minutes: result));
   }
+
+  Future<void> _showBookmarks(BuildContext context, String surahId, String name, PlayerProvider player) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => Consumer<BookmarksProvider>(
+        builder: (context, bookmarks, _) {
+          final items = bookmarks.forSurah(surahId);
+          return SafeArea(child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text('علاماتي', style: Theme.of(context).textTheme.headlineSmall),
+              Text('سورة $name · ${items.length} علامات'),
+              const SizedBox(height: 12),
+              Flexible(child: ListView.builder(shrinkWrap: true, itemCount: items.length, itemBuilder: (_, index) {
+                final item = items[index];
+                final time = Duration(milliseconds: item.positionMs);
+                final label = item.label.isEmpty ? 'بدون اسم' : item.label;
+                return ListTile(
+                  leading: Text('${time.inMinutes}:${(time.inSeconds % 60).toString().padLeft(2, '0')}'),
+                  title: Text(label),
+                  onTap: () { player.seek(time); Navigator.pop(context); },
+                  trailing: IconButton(icon: const Icon(Icons.delete_outline_rounded), onPressed: () => bookmarks.remove(item)),
+                );
+              })),
+              FilledButton.icon(
+                onPressed: () => bookmarks.add(surahId, player.position),
+                icon: const Icon(Icons.bookmark_add_outlined),
+                label: const Text('إضافة علامة عند الموضع الحالي'),
+              ),
+            ]),
+          ));
+        },
+      ),
+    );
+  }
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.favorite, required this.onDismiss, required this.onFavorite});
+  const _TopBar({required this.favorite, required this.hasBookmarks, required this.onDismiss, required this.onFavorite, required this.onBookmarks});
   final bool favorite;
+  final bool hasBookmarks;
   final VoidCallback onDismiss;
   final VoidCallback onFavorite;
+  final VoidCallback onBookmarks;
 
   @override
   Widget build(BuildContext context) => SizedBox(
         height: 44,
         child: Row(
           children: [
+            IconButton(
+              tooltip: 'علاماتي',
+              onPressed: onBookmarks,
+              color: hasBookmarks ? AppColors.goldAccent : null,
+              icon: const Icon(Icons.bookmark_outline_rounded, size: 24),
+            ),
             IconButton(
               tooltip: 'إغلاق المشغل',
               onPressed: onDismiss,
