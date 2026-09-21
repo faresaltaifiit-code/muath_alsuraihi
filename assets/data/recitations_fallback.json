@@ -33,12 +33,12 @@
       "number": 3,
       "name": "آل عمران",
       "reciter_name": "معاذ بن ماجد السريحي",
-      "duration_seconds": 0,
-      "duration_text": "",
+      "duration_seconds": 3794,
+      "duration_text": "1:03:14",
       "audio_path": "assets/audio/003_آل عمران.mp3",
-      "available": false,
-      "file_size_bytes": 0,
-      "file_size_text": "",
+      "available": true,
+      "file_size_bytes": 59630252,
+      "file_size_text": "56.9 MB",
       "bundled": false
     },
     {
