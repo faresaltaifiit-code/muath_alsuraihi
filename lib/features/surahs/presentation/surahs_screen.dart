@@ -72,7 +72,7 @@ class _SurahsScreenState extends State<SurahsScreen> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 112),
+          padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 12),
           child: Column(
             children: [
               _SurahsHeader(
