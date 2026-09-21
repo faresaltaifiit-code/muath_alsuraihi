@@ -104,10 +104,15 @@ class MoreScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Center(child: Text('الشيخ معاذ بن ماجد السريحي', style: Theme.of(context).textTheme.titleMedium)),
+                  Center(
+                    child: Text(
+                      AppStrings.reciterName,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
                   const SizedBox(height: 14),
                   Text(
-                    'هذا التطبيق يقدّم المصحف المرتل للشيخ معاذ بن ماجد السريحي، تسجيلات رمضان 1446هـ.',
+                    'يقدّم التطبيق تلاوات الشيخ معاذ بن ماجد السريحي.',
                     style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
