@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../data/models/surah_model.dart';
 import '../../../providers/downloads_provider.dart';
 import '../../../providers/favorites_provider.dart';
@@ -93,7 +94,12 @@ class _PlayerScreenState extends State<PlayerScreen>
                         ),
                   ),
                   const SizedBox(height: 2),
-                  Text(surah.reciterName, style: Theme.of(context).textTheme.bodyLarge),
+                  Text(
+                    kReciterName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
                   if (isDownloaded) ...[
                     const SizedBox(height: 10),
                     const _DownloadedChip(),
@@ -143,7 +149,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                     onSpeed: () => _chooseSpeed(context, player),
                     onSleep: () => _chooseSleepTimer(context, player),
                     onShare: () => Share.share(
-                      'استمع إلى سورة ${surah.name} بصوت ${surah.reciterName} عبر تطبيق معاذ السريحي',
+                      'استمع إلى سورة ${surah.name} بصوت $kReciterName عبر تطبيق معاذ السريحي',
                     ),
                   ),
                 ],

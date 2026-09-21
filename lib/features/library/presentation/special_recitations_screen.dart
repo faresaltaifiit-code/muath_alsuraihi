@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/models/surah_model.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../providers/recitations_provider.dart';
 import '../../player/presentation/player_screen.dart';
 
@@ -37,7 +38,11 @@ class _SpecialCard extends StatelessWidget {
           contentPadding: const EdgeInsetsDirectional.fromSTEB(18, 12, 10, 12),
           leading: const CircleAvatar(child: Icon(Icons.auto_awesome_rounded)),
           title: Text(item.name, style: Theme.of(context).textTheme.titleMedium),
-          subtitle: Text(item.reciterName),
+          subtitle: const Text(
+            kReciterName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           trailing: IconButton.filledTonal(
             tooltip: 'تشغيل',
             icon: const Icon(Icons.play_arrow_rounded),

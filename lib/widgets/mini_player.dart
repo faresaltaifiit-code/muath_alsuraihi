@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
 import '../features/player/presentation/player_screen.dart';
 import '../providers/player_provider.dart';
 
@@ -49,7 +50,17 @@ class MiniPlayer extends StatelessWidget {
                           gradient: LinearGradient(colors: [AppColors.emerald, AppColors.forestGreen]),
                           borderRadius: BorderRadius.circular(13),
                         ),
-                        child: const Icon(Icons.play_arrow_rounded, color: AppColors.softGold, size: 22),
+                        child: Center(
+                          child: Text(
+                            '${surah.number}',
+                            style: const TextStyle(
+                              color: AppColors.softGold,
+                              fontFamily: 'Amiri',
+                              fontSize: 21,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -67,7 +78,7 @@ class MiniPlayer extends StatelessWidget {
                                   ),
                             ),
                             Text(
-                              surah.reciterName,
+                              kReciterName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodySmall,

@@ -12,13 +12,17 @@ class JuzScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentNumber = context.watch<PlayerProvider>().currentSurah?.number;
+    final player = context.watch<PlayerProvider>();
+    final currentNumber = player.currentSurah?.number;
+    final showMiniPlayer =
+        player.currentSurah != null && player.hasPlaybackInSession;
     return Scaffold(
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(20, 8, 20, 112),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(20, 8, 20, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -59,7 +63,11 @@ class JuzScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const PositionedDirectional(start: 12, end: 12, bottom: 12, child: MiniPlayer()),
+            if (showMiniPlayer)
+              const Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(12, 8, 12, 8),
+                child: MiniPlayer(),
+              ),
           ],
         ),
       ),

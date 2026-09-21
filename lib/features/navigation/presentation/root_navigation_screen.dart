@@ -29,11 +29,14 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final recitations = context.watch<RecitationsProvider>();
+    final player = context.watch<PlayerProvider>();
+    final showMiniPlayer =
+        player.currentSurah != null && player.hasPlaybackInSession;
     context.read<PlayerProvider>().setPlaylist(recitations.surahs);
     return Scaffold(
-        body: Stack(
+        body: Column(
           children: [
-            Positioned.fill(
+            Expanded(
               child: IndexedStack(
                 index: _index,
                 children: [
@@ -44,12 +47,11 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
                 ],
               ),
             ),
-            const PositionedDirectional(
-              start: 12,
-              end: 12,
-              bottom: 12,
-              child: MiniPlayer(),
-            ),
+            if (showMiniPlayer)
+              const Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(12, 8, 12, 8),
+                child: MiniPlayer(),
+              ),
           ],
         ),
         bottomNavigationBar: DecoratedBox(
