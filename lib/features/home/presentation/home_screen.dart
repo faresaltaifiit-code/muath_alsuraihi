@@ -11,6 +11,7 @@ import '../../../providers/recitations_provider.dart';
 import '../../../widgets/app_design_widgets.dart';
 import '../../library/presentation/juz_screen.dart';
 import '../../library/presentation/library_screens.dart';
+import '../../library/presentation/special_recitations_screen.dart';
 import '../../player/presentation/player_screen.dart';
 import '../../surahs/presentation/surahs_screen.dart';
 
@@ -635,25 +636,49 @@ class _ComingSoonRow extends StatelessWidget {
   const _ComingSoonRow();
   @override
   Widget build(BuildContext context) => Row(
-        children: const [
+        children: [
           Expanded(
-              child:
-                  _SoonChip(icon: Icons.star_border_rounded, label: 'مختارة')),
-          SizedBox(width: 10),
-          Expanded(
-              child: _SoonChip(
-                  icon: Icons.person_outline_rounded, label: 'عن الشيخ')),
+            child: _SoonChip(
+              icon: Icons.star_border_rounded,
+              label: 'مختارة',
+              comingSoon: false,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const SpecialRecitationsScreen(),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: _SoonChip(
+              icon: Icons.person_outline_rounded,
+              label: 'عن الشيخ',
+            ),
+          ),
         ],
       );
 }
 
 class _SoonChip extends StatelessWidget {
-  const _SoonChip({required this.icon, required this.label});
+  const _SoonChip({
+    required this.icon,
+    required this.label,
+    this.comingSoon = true,
+    this.onTap,
+  });
   final IconData icon;
   final String label;
+  final bool comingSoon;
+  final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: CustomPaint(
         painter: _DashedRoundedBorder(
           color: Theme.of(context).dividerColor,
           radius: 18,
@@ -667,17 +692,23 @@ class _SoonChip extends StatelessWidget {
               const SizedBox(width: 8),
               Text(label, style: Theme.of(context).textTheme.bodyMedium),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.darkSecondarySurface
-                        : AppColors.lightSecondarySurface,
-                    borderRadius: BorderRadius.circular(99)),
-                child: const Text('قريبًا',
-                    style: TextStyle(color: AppColors.goldAccent, fontSize: 11)),
-              ),
+              if (comingSoon)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.darkSecondarySurface
+                          : AppColors.lightSecondarySurface,
+                      borderRadius: BorderRadius.circular(99)),
+                  child: const Text('قريبًا',
+                      style: TextStyle(color: AppColors.goldAccent, fontSize: 11)),
+                )
+              else
+                const Icon(Icons.chevron_left_rounded,
+                    color: AppColors.goldAccent),
             ],
+          ),
+        ),
           ),
         ),
       );
