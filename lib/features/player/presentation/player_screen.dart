@@ -67,9 +67,10 @@ class _PlayerScreenState extends State<PlayerScreen>
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final artworkSize = math.min(250.0, math.max(190.0, constraints.maxHeight * .31));
+            // Keep the complete controls comfortably reachable on smaller iPhones.
+            final artworkSize = math.min(205.0, math.max(170.0, constraints.maxHeight * .24));
             return SingleChildScrollView(
-              padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
+              padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 48),
               child: Column(
                 children: [
                   _TopBar(
@@ -77,14 +78,14 @@ class _PlayerScreenState extends State<PlayerScreen>
                     onDismiss: () => Navigator.of(context).maybePop(),
                     onFavorite: () => favorites.toggle(surah),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 12),
                   _Artwork(
                     number: surah.number,
                     size: artworkSize,
                     pulse: _pulseController,
                     animate: shouldPulse,
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 16),
                   Text(
                     surah.number > 0 ? 'سورة ${surah.name}' : surah.name,
                     textAlign: TextAlign.center,
@@ -118,7 +119,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                       label: const Text('إعادة المحاولة'),
                     ),
                   ],
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 18),
                   _ProgressControl(
                     position: position,
                     duration: duration,
@@ -143,7 +144,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                   ),
                   const SizedBox(height: 12),
                   _TransportControls(player: player),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 16),
                   _OptionsGrid(
                     player: player,
                     onSpeed: () => _chooseSpeed(context, player),
@@ -576,7 +577,7 @@ class _OptionsGrid extends StatelessWidget {
         crossAxisCount: 3,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-        mainAxisExtent: 74,
+        mainAxisExtent: 68,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         children: [
