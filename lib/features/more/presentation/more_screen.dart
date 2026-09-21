@@ -7,6 +7,7 @@ import '../../../data/models/surah_model.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../providers/downloads_provider.dart';
 import '../../../providers/recitations_provider.dart';
+import 'about_privacy_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -159,6 +160,15 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 22),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text('عن التطبيق والخصوصية'),
+            trailing: const Icon(Icons.chevron_left_rounded),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const AboutPrivacyScreen()),
+            ),
+          ),
+          const SizedBox(height: 12),
           Center(child: Text('${AppStrings.appName} · الإصدار 1.1.0', style: Theme.of(context).textTheme.bodyMedium)),
         ],
       ),
