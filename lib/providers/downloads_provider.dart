@@ -58,10 +58,27 @@ class DownloadsProvider extends ChangeNotifier {
         _progress[surah.id] = _DownloadProgress(received, total);
         notifyListeners();
       });
+      final savedFile = await AudioDownloadService.localFileFor(surah.id);
+      if (savedFile == null) {
+        throw StateError('The downloaded file was not found after completion.');
+      }
       _downloadedIds = {..._downloadedIds, surah.id};
       _storageBytes = await AudioDownloadService.storageUsageBytes();
     } catch (_) {
-      _error = 'تعذر تنزيل سورة ${surah.name}. تحقق من الاتصال ثم أعد المحاولة.';
+      // The platform can report a late filesystem error after the final rename.
+      // Reconcile with disk so a completed download is shown immediately.
+      final savedFile = await AudioDownloadService.localFileFor(surah.id);
+      if (savedFile != null) {
+        _downloadedIds = {..._downloadedIds, surah.id};
+        try {
+          _storageBytes = await AudioDownloadService.storageUsageBytes();
+        } catch (_) {
+          // The downloaded state is still correct; refresh storage next launch.
+        }
+        _error = null;
+      } else {
+        _error = 'تعذر تنزيل سورة ${surah.name}. تحقق من الاتصال ثم أعد المحاولة.';
+      }
     } finally {
       _progress.remove(surah.id);
       notifyListeners();
