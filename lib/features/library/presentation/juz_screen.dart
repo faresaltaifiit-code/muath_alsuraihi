@@ -62,6 +62,7 @@ class JuzScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              ),
             ),
             if (showMiniPlayer)
               const Padding(
