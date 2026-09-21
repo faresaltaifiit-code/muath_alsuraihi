@@ -46,6 +46,15 @@ class HomeScreen extends StatelessWidget {
                 const SliverToBoxAdapter(child: SizedBox(height: 14)),
                 const SliverToBoxAdapter(child: _FridayCard()),
               ],
+              if (_isFriday() && _findKahf(recitations.surahs) != null) ...[
+                const SliverToBoxAdapter(child: SizedBox(height: 14)),
+                SliverToBoxAdapter(
+                  child: _FridayKahfCard(
+                    surah: _findKahf(recitations.surahs)!,
+                    onPlay: () => _playSurah(context, _findKahf(recitations.surahs)!),
+                  ),
+                ),
+              ],
               if (recent.isNotEmpty) ...[
                 const SliverToBoxAdapter(child: SizedBox(height: 26)),
                 SliverToBoxAdapter(
@@ -116,6 +125,13 @@ class HomeScreen extends StatelessWidget {
 
   static bool _isFriday() => DateTime.now().weekday == DateTime.friday;
 
+  static SurahModel? _findKahf(List<SurahModel> items) {
+    for (final item in items) {
+      if (item.number == 18 && item.available) return item;
+    }
+    return null;
+  }
+
   void _openSurahs(BuildContext context, {bool focusSearch = false}) {
     if (onOpenSurahs != null) {
       onOpenSurahs!(focusSearch: focusSearch);
@@ -133,6 +149,14 @@ class HomeScreen extends StatelessWidget {
     if (!context.mounted) return;
     Navigator.of(context).push(
         MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: selected)));
+  }
+
+  Future<void> _playSurah(BuildContext context, SurahModel surah) async {
+    await context.read<PlayerProvider>().prepareSurah(surah, autoplay: true);
+    if (!context.mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: surah)),
+    );
   }
 }
 
@@ -342,6 +366,67 @@ class _FridayCard extends StatelessWidget {
   const _FridayCard();
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();
+}
+
+class _FridayKahfCard extends StatelessWidget {
+  const _FridayKahfCard({required this.surah, required this.onPlay});
+
+  final SurahModel surah;
+  final VoidCallback onPlay;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: InkWell(
+          onTap: onPlay,
+          borderRadius: BorderRadius.circular(22),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 12, 14),
+            child: Row(
+              children: [
+                const TintedIconTile(
+                  icon: Icons.auto_awesome_rounded,
+                  color: AppColors.goldAccent,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'سورة الكهف',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontFamily: 'Amiri',
+                              fontSize: 21,
+                            ),
+                      ),
+                      Text(
+                        'اختصار لتلاوة يوم الجمعة',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                Semantics(
+                  button: true,
+                  label: 'تشغيل سورة الكهف',
+                  child: IconButton.filled(
+                    onPressed: onPlay,
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size(42, 42),
+                      backgroundColor: AppColors.goldAccent,
+                      foregroundColor: const Color(0xFF0F3A2E),
+                    ),
+                    icon: const Icon(Icons.play_arrow_rounded),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 }
 
 class _SectionHeader extends StatelessWidget {
