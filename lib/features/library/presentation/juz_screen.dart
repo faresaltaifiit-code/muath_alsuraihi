@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/player_provider.dart';
+import '../../../providers/downloads_provider.dart';
+import '../../../providers/recitations_provider.dart';
+import '../../../data/models/surah_model.dart';
 import '../../../widgets/app_design_widgets.dart';
 import '../../../widgets/mini_player.dart';
 import '../../surahs/presentation/surahs_screen.dart';
@@ -13,6 +16,8 @@ class JuzScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final player = context.watch<PlayerProvider>();
+    final downloads = context.watch<DownloadsProvider>();
+    final recitations = context.watch<RecitationsProvider>();
     final currentNumber = player.currentSurah?.number;
     final showMiniPlayer =
         player.currentSurah != null && player.hasPlaybackInSession;
@@ -50,12 +55,17 @@ class JuzScreen extends StatelessWidget {
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, index) {
                         final number = index + 1;
+                        final items = recitations.surahs
+                            .where((item) => item.available && _contains(_juzRanges[index], item.number))
+                            .toList();
                         return _JuzRow(
                           number: number,
                           name: _juzNames[index],
                           range: _juzRanges[index],
                           nowPlaying: currentNumber != null && _contains(_juzRanges[index], currentNumber),
                           onTap: () => _openJuz(context, number),
+                          onDownload: () => _showJuzDownload(context, number, _juzNames[index], items),
+                          downloaded: items.isNotEmpty && items.every(downloads.isDownloaded),
                         );
                       },
                     ),
@@ -77,6 +87,14 @@ class JuzScreen extends StatelessWidget {
 
   void _openJuz(BuildContext context, int number) {
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => SurahsScreen(juzNumber: number)));
+  }
+
+  void _showJuzDownload(BuildContext context, int number, String name, List<SurahModel> items) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => _JuzDownloadSheet(number: number, name: name, items: items),
+    );
   }
 }
 
@@ -114,12 +132,14 @@ class _Shortcuts extends StatelessWidget {
 }
 
 class _JuzRow extends StatelessWidget {
-  const _JuzRow({required this.number, required this.name, required this.range, required this.nowPlaying, required this.onTap});
+  const _JuzRow({required this.number, required this.name, required this.range, required this.nowPlaying, required this.onTap, required this.onDownload, required this.downloaded});
   final int number;
   final String name;
   final (int, int) range;
   final bool nowPlaying;
   final VoidCallback onTap;
+  final VoidCallback onDownload;
+  final bool downloaded;
 
   @override
   Widget build(BuildContext context) {
@@ -157,11 +177,59 @@ class _JuzRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (nowPlaying) const _Equalizer() else Icon(Icons.chevron_left_rounded, color: theme.textTheme.bodyMedium?.color),
+                if (nowPlaying) const _Equalizer() else ...[
+                  IconButton(
+                    tooltip: 'تنزيل الجزء',
+                    onPressed: onDownload,
+                    icon: Icon(downloaded ? Icons.check_circle_rounded : Icons.download_rounded, color: downloaded ? AppColors.emerald : null),
+                  ),
+                  Icon(Icons.chevron_left_rounded, color: theme.textTheme.bodyMedium?.color),
+                ],
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _JuzDownloadSheet extends StatelessWidget {
+  const _JuzDownloadSheet({required this.number, required this.name, required this.items});
+  final int number;
+  final String name;
+  final List<SurahModel> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final downloads = context.watch<DownloadsProvider>();
+    final done = items.where(downloads.isDownloaded).length;
+    final totalSize = items.fold<int>(0, (value, item) => value + item.fileSizeBytes);
+    final downloading = downloads.isDownloadingAll;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text('تنزيل جزء $name', style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 4),
+          Text('الجزء $number · ${items.length} سورة'),
+          const SizedBox(height: 20),
+          Text('محمل منه $done · المتبقي ${items.length - done} سورة'),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(value: items.isEmpty ? 0 : done / items.length),
+          const SizedBox(height: 12),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('التحميل عبر Wi-Fi فقط'),
+            value: downloads.wifiOnly,
+            onChanged: downloads.setWifiOnly,
+          ),
+          FilledButton.icon(
+            onPressed: downloading || done == items.length ? null : () => downloads.downloadAll(items),
+            icon: downloading ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.download_rounded),
+            label: Text(downloading ? 'جار التنزيل…' : 'تنزيل الجزء (${(totalSize / (1024 * 1024)).toStringAsFixed(1)} MB)'),
+          ),
+        ]),
       ),
     );
   }
