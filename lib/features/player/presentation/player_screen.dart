@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
@@ -153,10 +157,10 @@ class _PlayerScreenState extends State<PlayerScreen>
                     player: player,
                     onSpeed: () => _chooseSpeed(context, player),
                     onSleep: () => _chooseSleepTimer(context, player),
-                    onShare: () => Share.share(
-                      'استمع إلى سورة ${surah.name} بصوت $kReciterName عبر تطبيق معاذ السريحي',
-                    ),
+                    onShare: () => _showShareCard(context, surah),
                   ),
+                  const SizedBox(height: 12),
+                  _UpcomingQueue(player: player, current: surah),
                 ],
               ),
             );
@@ -253,6 +257,125 @@ class _PlayerScreenState extends State<PlayerScreen>
     );
     controller.dispose();
     if (label != null) await bookmarks.rename(item, label);
+  }
+
+  Future<void> _showShareCard(BuildContext context, SurahModel surah) async {
+    final key = GlobalKey();
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          RepaintBoundary(key: key, child: _ShareCard(surah: surah)),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: () async {
+              final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+              if (boundary == null) return;
+              final image = await boundary.toImage(pixelRatio: 3);
+              final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+              if (bytes == null) return;
+              final directory = await getTemporaryDirectory();
+              final file = File('${directory.path}/surah_${surah.id}_share.png');
+              await file.writeAsBytes(bytes.buffer.asUint8List());
+              await Share.shareXFiles([XFile(file.path)]);
+            },
+            icon: const Icon(Icons.share_rounded),
+            label: const Text('مشاركة الصورة'),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _ShareCard extends StatelessWidget {
+  const _ShareCard({required this.surah});
+  final SurahModel surah;
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 290,
+        height: 362,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(26),
+          gradient: const LinearGradient(colors: [AppColors.emerald, AppColors.forestGreen], begin: Alignment.topRight, end: Alignment.bottomLeft),
+        ),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          StarNumberBadge(number: surah.number, inverted: true),
+          const SizedBox(height: 20),
+          Text('سورة ${surah.name}', textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Amiri', fontSize: 38, fontWeight: FontWeight.w700, color: AppColors.softGold)),
+          const SizedBox(height: 8),
+          Text(kReciterName, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.softGold)),
+          const Spacer(),
+          const Text('مجاني · بدون إعلانات ولا تتبع', style: TextStyle(color: AppColors.softGold, fontSize: 12)),
+        ]),
+      );
+}
+
+class _UpcomingQueue extends StatelessWidget {
+  const _UpcomingQueue({required this.player, required this.current});
+  final PlayerProvider player;
+  final SurahModel current;
+
+  @override
+  Widget build(BuildContext context) {
+    final upcoming = player.upcomingSurahs;
+    final nextName = upcoming.isEmpty ? 'لا توجد سورة تالية' : 'التالي: سورة ${upcoming.first.name}';
+    return OutlinedButton.icon(
+      onPressed: upcoming.isEmpty
+          ? null
+          : () => showModalBottomSheet<void>(
+                context: context,
+                showDragHandle: true,
+                builder: (_) => _QueueSheet(player: player, current: current),
+              ),
+      icon: const Icon(Icons.queue_music_rounded),
+      label: Text(nextName),
+    );
+  }
+}
+
+class _QueueSheet extends StatelessWidget {
+  const _QueueSheet({required this.player, required this.current});
+  final PlayerProvider player;
+  final SurahModel current;
+  @override
+  Widget build(BuildContext context) {
+    final upcoming = player.upcomingSurahs;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text('التالي', style: Theme.of(context).textTheme.headlineSmall),
+          ListTile(
+            leading: StarNumberBadge(number: current.number, inverted: true),
+            title: Text('سورة ${current.name}'),
+            subtitle: const Text('قيد التشغيل'),
+          ),
+          const Divider(),
+          Flexible(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: upcoming.length,
+              itemBuilder: (context, index) {
+                final item = upcoming[index];
+                return ListTile(
+                  leading: StarNumberBadge(number: item.number),
+                  title: Text('سورة ${item.name}'),
+                  subtitle: Text(_format(Duration(seconds: item.durationSeconds))),
+                  onTap: () async {
+                    await player.playFromQueue(item);
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                );
+              },
+            ),
+          ),
+        ]),
+      ),
+    );
   }
 }
 

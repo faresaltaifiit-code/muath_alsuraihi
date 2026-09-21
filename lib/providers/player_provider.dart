@@ -58,6 +58,18 @@ class PlayerProvider extends ChangeNotifier {
   AudioServiceRepeatMode get repeatMode => _repeatMode;
   bool get hasSleepTimer => _sleepTimer?.isActive ?? false;
   String? get error => _error;
+  List<SurahModel> get upcomingSurahs {
+    final current = _currentSurah;
+    if (current == null) return const [];
+    final index = _playlist.indexWhere((item) => item.audioPath == current.audioPath);
+    if (index < 0) return const [];
+    if (_shuffleEnabled) {
+      return _playlist.where((item) => item.audioPath != current.audioPath).toList();
+    }
+    return _playlist.skip(index + 1).toList();
+  }
+
+  Future<void> playFromQueue(SurahModel surah) => prepareSurah(surah, autoplay: true);
 
   Future<void> initialize() async {
     if (_handler != null) return;
