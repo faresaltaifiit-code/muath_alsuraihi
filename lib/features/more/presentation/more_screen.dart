@@ -59,10 +59,16 @@ class MoreScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              LinearProgressIndicator(value: downloads.downloadAllProgress),
+                              LinearProgressIndicator(
+                                value: downloads.downloadAllExpectedBytes == 0
+                                    ? null
+                                    : downloads.downloadAllProgress,
+                              ),
                               const SizedBox(height: 7),
                               Text(
-                                'يتم تنزيل ${downloads.downloadAllCompleted + 1} من ${downloads.downloadAllTotal} · ${(100 * (downloads.downloadAllProgress ?? 0)).round()}٪',
+                                downloads.downloadAllExpectedBytes == 0
+                                    ? 'جار تجهيز التنزيلات…'
+                                    : 'يتم تنزيل ${downloads.downloadAllCompleted + 1} من ${downloads.downloadAllTotal} · ${(100 * (downloads.downloadAllProgress ?? 0)).round()}٪',
                               ),
                             ],
                           ),
@@ -96,6 +102,14 @@ class MoreScreen extends StatelessWidget {
                       ? null
                       : () => _confirmDeleteAll(context, downloads),
                 ),
+                if (downloads.error != null)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 16),
+                    child: Text(
+                      downloads.error!,
+                      style: const TextStyle(color: Colors.redAccent),
+                    ),
+                  ),
               ],
             ),
           ),

@@ -58,6 +58,7 @@ class DownloadsProvider extends ChangeNotifier {
     if (_wifiOnly) {
       final networks = await Connectivity().checkConnectivity();
       if (!networks.contains(ConnectivityResult.wifi)) {
+        _isDownloadingAll = false;
         _error = 'فعّل شبكة Wi-Fi للتحميل أو ألغِ خيار Wi-Fi فقط من الإعدادات.';
         notifyListeners();
         return;
@@ -121,7 +122,21 @@ class DownloadsProvider extends ChangeNotifier {
             item.remoteAudioUrl?.isNotEmpty == true &&
             !isDownloaded(item))
         .toList();
-    if (pending.isEmpty) return;
+    if (pending.isEmpty) {
+      _error = 'All available recitations are already downloaded.';
+      notifyListeners();
+      return;
+    }
+
+    // Give immediate feedback while checking Wi-Fi and free device storage.
+    _error = null;
+    _isDownloadingAll = true;
+    _downloadAllTotal = pending.length;
+    _downloadAllCompleted = 0;
+    _downloadAllExpectedBytes = 0;
+    _downloadAllCurrentReceived = 0;
+    _downloadAllCurrentTotal = null;
+    notifyListeners();
 
     if (_wifiOnly) {
       final networks = await Connectivity().checkConnectivity();
@@ -139,6 +154,7 @@ class DownloadsProvider extends ChangeNotifier {
       (total, item) => total + item.fileSizeBytes,
     );
     if (availableBytes != null && availableBytes < requiredBytes) {
+      _isDownloadingAll = false;
       _error = 'لا تتوفر مساحة كافية لتنزيل جميع التلاوات.';
       notifyListeners();
       return;
