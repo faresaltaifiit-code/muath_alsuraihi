@@ -27,6 +27,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
   List<SurahModel> _playlist = const [];
   bool _autoPlayNext = true;
   bool _shuffleEnabled = false;
+  bool _stopAtEnd = false;
   int _activePlaylistIndex = 0;
   bool _isAutoAdvancing = false;
   Uri? _artworkUri;
@@ -111,6 +112,11 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     if (state != ProcessingState.completed || _isAutoAdvancing) {
       return;
     }
+    if (_stopAtEnd) {
+      _stopAtEnd = false;
+      unawaited(_player.pause());
+      return;
+    }
     if (!_autoPlayNext) {
       unawaited(_player.pause());
       return;
@@ -190,6 +196,7 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
     _autoPlayNext = enabled;
     await _player.setLoopMode(LoopMode.off);
   }
+  Future<void> setStopAtEnd(bool enabled) async => _stopAtEnd = enabled;
   @override Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async { await _player.setLoopMode(repeatMode == AudioServiceRepeatMode.one ? LoopMode.one : LoopMode.off); }
   @override Future<void> skipToNext() async {
     if (_shuffleEnabled) {

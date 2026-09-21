@@ -229,6 +229,12 @@ class _JuzDownloadSheet extends StatelessWidget {
             icon: downloading ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.download_rounded),
             label: Text(downloading ? 'جار التنزيل…' : 'تنزيل الجزء (${(totalSize / (1024 * 1024)).toStringAsFixed(1)} MB)'),
           ),
+          if (downloading)
+            TextButton.icon(
+              onPressed: downloads.cancelDownloadAll,
+              icon: const Icon(Icons.cancel_outlined),
+              label: const Text('إلغاء التنزيل'),
+            ),
         ]),
       ),
     );

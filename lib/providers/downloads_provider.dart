@@ -13,6 +13,7 @@ class DownloadsProvider extends ChangeNotifier {
   int _storageBytes = 0;
   bool _wifiOnly = false;
   bool _isDownloadingAll = false;
+  bool _cancelDownloadAll = false;
   int _downloadAllTotal = 0;
   int _downloadAllCompleted = 0;
   int _downloadAllExpectedBytes = 0;
@@ -37,6 +38,10 @@ class DownloadsProvider extends ChangeNotifier {
   int get downloadAllTotal => _downloadAllTotal;
   int get downloadAllCompleted => _downloadAllCompleted;
   int get downloadAllExpectedBytes => _downloadAllExpectedBytes;
+  void cancelDownloadAll() {
+    _cancelDownloadAll = true;
+    notifyListeners();
+  }
   bool isDownloaded(SurahModel surah) => _downloadedIds.contains(surah.id);
   bool isDownloading(SurahModel surah) => _progress.containsKey(surah.id);
   double? progressFor(SurahModel surah) => _progress[surah.id]?.fraction;
@@ -65,6 +70,7 @@ class DownloadsProvider extends ChangeNotifier {
       }
     }
     _error = null;
+    _cancelDownloadAll = false;
     _progress[surah.id] = const _DownloadProgress(0, null);
     notifyListeners();
     try {
@@ -168,12 +174,14 @@ class DownloadsProvider extends ChangeNotifier {
     notifyListeners();
     try {
       for (final item in pending) {
+        if (_cancelDownloadAll) break;
         _downloadAllCurrentReceived = 0;
         _downloadAllCurrentTotal = null;
         notifyListeners();
         await download(
           item,
           onProgress: (received, total) {
+            if (_cancelDownloadAll) throw StateError('Bulk download cancelled.');
             _downloadAllCurrentReceived = received;
             _downloadAllCurrentTotal = total;
           },
@@ -183,6 +191,7 @@ class DownloadsProvider extends ChangeNotifier {
       }
     } finally {
       _isDownloadingAll = false;
+      _cancelDownloadAll = false;
       _downloadAllCurrentReceived = 0;
       _downloadAllCurrentTotal = null;
       notifyListeners();

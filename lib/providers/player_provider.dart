@@ -33,6 +33,7 @@ class PlayerProvider extends ChangeNotifier {
   bool _isReady = false;
   bool _autoPlayNext = true;
   bool _shuffleEnabled = false;
+  bool _sleepAtEnd = false;
   double _speed = 1;
   AudioServiceRepeatMode _repeatMode = AudioServiceRepeatMode.none;
   String? _error;
@@ -57,6 +58,7 @@ class PlayerProvider extends ChangeNotifier {
   double get speed => _speed;
   AudioServiceRepeatMode get repeatMode => _repeatMode;
   bool get hasSleepTimer => _sleepTimer?.isActive ?? false;
+  bool get sleepAtEnd => _sleepAtEnd;
   String? get error => _error;
   List<SurahModel> get upcomingSurahs {
     final current = _currentSurah;
@@ -240,6 +242,8 @@ class PlayerProvider extends ChangeNotifier {
 
   void setSleepTimer(Duration duration, {bool fadeOut = true}) {
     _sleepTimer?.cancel();
+    _sleepAtEnd = false;
+    unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(false) ?? Future.value());
     _sleepTimer = Timer(duration, () async {
       if (fadeOut) {
         await _fadeAndPause();
@@ -274,8 +278,17 @@ class PlayerProvider extends ChangeNotifier {
     _sleepTimer?.cancel();
     _fadeTimer?.cancel();
     _sleepTimer = null;
+    _sleepAtEnd = false;
+    unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(false) ?? Future.value());
     // A cancelled fade must not leave the next playback quiet.
     unawaited((_handler as MuathAudioHandler?)?.setVolume(1) ?? Future.value());
+    notifyListeners();
+  }
+
+  void setSleepAtEnd() {
+    _sleepTimer?.cancel();
+    _sleepAtEnd = true;
+    unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(true) ?? Future.value());
     notifyListeners();
   }
 

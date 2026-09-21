@@ -198,11 +198,15 @@ class _PlayerScreenState extends State<PlayerScreen>
       showDragHandle: true,
       builder: (context) => _OptionsSheet(
         title: 'إيقاف التشغيل بعد',
-        options: const [5, 10, 15, 30, 45, 60],
-        label: (value) => '$value دقيقة',
+        options: const [-1, 5, 10, 15, 30, 45, 60],
+        label: (value) => value == -1 ? 'عند نهاية السورة' : '$value دقيقة',
       ),
     );
-    if (result != null) player.setSleepTimer(Duration(minutes: result));
+    if (result == -1) {
+      player.setSleepAtEnd();
+    } else if (result != null) {
+      player.setSleepTimer(Duration(minutes: result));
+    }
   }
 
   Future<void> _showBookmarks(BuildContext context, String surahId, String name, PlayerProvider player) async {
