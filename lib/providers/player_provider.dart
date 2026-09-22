@@ -22,6 +22,8 @@ class PlayerProvider extends ChangeNotifier {
   Timer? _saveTimer;
 
   List<SurahModel> _playlist = const [];
+  List<SurahModel> _catalogPlaylist = const [];
+  bool _usesCustomPlaylist = false;
   SurahModel? _currentSurah;
   SurahModel? _lastSurah;
   List<ListeningHistoryEntry> _recentHistory = const [];
@@ -71,7 +73,8 @@ class PlayerProvider extends ChangeNotifier {
     return _playlist.skip(index + 1).toList();
   }
 
-  Future<void> playFromQueue(SurahModel surah) => prepareSurah(surah, autoplay: true);
+  Future<void> playFromQueue(SurahModel surah) =>
+      prepareSurah(surah, autoplay: true, keepCurrentPlaylist: true);
 
   Future<void> initialize() async {
     if (_handler != null) return;
@@ -109,25 +112,56 @@ class PlayerProvider extends ChangeNotifier {
   void setPlaylist(List<SurahModel> value) {
     final available = value.where((item) => item.available).toList();
     final sameSources = listEquals(
-      _playlist.map((item) => item.remoteAudioUrl).toList(),
+      _catalogPlaylist.map((item) => item.remoteAudioUrl).toList(),
       available.map((item) => item.remoteAudioUrl).toList(),
     );
     final sameBundledState = listEquals(
-      _playlist.map((item) => item.isBundled).toList(),
+      _catalogPlaylist.map((item) => item.isBundled).toList(),
       available.map((item) => item.isBundled).toList(),
     );
     if (sameSources && sameBundledState) {
       return;
     }
+    _catalogPlaylist = available;
+    if (!_usesCustomPlaylist) _playlist = available;
+  }
+
+  /// Starts an explicit user playlist, such as the Favorites collection.
+  /// The audio handler receives this queue, so next/previous stay inside it.
+  Future<void> playPlaylist(
+    List<SurahModel> items, {
+    SurahModel? initialSurah,
+    bool shuffled = false,
+  }) async {
+    final available = items.where((item) => item.available).toList();
+    if (available.isEmpty) return;
+    _usesCustomPlaylist = true;
     _playlist = available;
+    _shuffleEnabled = shuffled;
+    final selected = initialSurah != null &&
+            available.any((item) => item.audioPath == initialSurah.audioPath)
+        ? initialSurah
+        : (shuffled
+            ? available[Random().nextInt(available.length)]
+            : available.first);
+    await prepareSurah(
+      selected,
+      autoplay: true,
+      keepCurrentPlaylist: true,
+    );
   }
 
   Future<void> prepareSurah(
     SurahModel surah, {
     bool autoplay = false,
     Duration? initialPosition,
+    bool keepCurrentPlaylist = false,
   }) async {
     await initialize();
+    if (!keepCurrentPlaylist) {
+      _usesCustomPlaylist = false;
+      if (_catalogPlaylist.isNotEmpty) _playlist = _catalogPlaylist;
+    }
     _error = null;
     if (!surah.available) {
       _error = 'تلاوة سورة ${surah.name} غير متوفرة حاليًا.';
@@ -167,7 +201,7 @@ class PlayerProvider extends ChangeNotifier {
   Future<void> retryCurrent() async {
     final surah = _currentSurah;
     if (surah == null) return;
-    await prepareSurah(surah, autoplay: true);
+    await prepareSurah(surah, autoplay: true, keepCurrentPlaylist: true);
   }
 
   Future<void> resumeLast() async {
@@ -223,6 +257,7 @@ class PlayerProvider extends ChangeNotifier {
         current,
         autoplay: _isPlaying,
         initialPosition: _position,
+        keepCurrentPlaylist: true,
       );
     }
   }
@@ -236,6 +271,7 @@ class PlayerProvider extends ChangeNotifier {
         current,
         autoplay: _isPlaying,
         initialPosition: _position,
+        keepCurrentPlaylist: true,
       );
     }
   }
