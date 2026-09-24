@@ -19,7 +19,7 @@ class SurahModel {
         id: json['id'] as String? ?? 'surah_${(json['number'] as num?)?.toInt() ?? 0}',
         number: (json['number'] as num?)?.toInt() ?? 0,
         name: json['name'] as String? ?? json['title'] as String? ?? '',
-        reciterName: json['reciter_name'] as String? ?? 'الشيخ معاذ بن ماجد السريحي',
+        reciterName: json['reciter_name'] as String? ?? 'القارئ معاذ بن ماجد السريحي',
         durationSeconds: (json['duration_seconds'] as num?)?.toInt() ?? 0,
         durationText: json['duration_text'] as String? ?? '',
         audioPath: json['audio_path'] as String? ?? '',

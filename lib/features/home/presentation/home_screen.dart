@@ -197,7 +197,7 @@ class _Header extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('الشيخ',
+                Text('القارئ',
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -207,7 +207,7 @@ class _Header extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         )),
                 Text(
-                  AppStrings.reciterName.replaceFirst('الشيخ ', ''),
+                  AppStrings.reciterName.replaceFirst('القارئ ', ''),
                   style: Theme.of(context)
                       .textTheme
                       .displaySmall

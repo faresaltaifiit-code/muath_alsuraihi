@@ -4,7 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 
 const kRecitationsRightsText =
-    'التلاوات للشيخ معاذ بن ماجد السريحي، وتُقدَّم كما هي بجودتها الأصلية دون تعديل أو ضغط.';
+    'التلاوات للقارئ معاذ بن ماجد السريحي، وتُقدَّم كما هي بجودتها الأصلية دون تعديل أو ضغط.';
 
 class AboutPrivacyScreen extends StatelessWidget {
   const AboutPrivacyScreen({super.key});

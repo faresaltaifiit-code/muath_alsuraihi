@@ -139,7 +139,7 @@ class MoreScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    'يقدّم التطبيق تلاوات الشيخ معاذ بن ماجد السريحي.',
+                    'يقدّم التطبيق تلاوات القارئ معاذ بن ماجد السريحي.',
                     style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
