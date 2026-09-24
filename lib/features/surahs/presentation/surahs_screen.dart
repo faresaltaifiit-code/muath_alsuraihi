@@ -350,6 +350,7 @@ class _SurahResults extends StatelessWidget {
             downloads: downloads,
             favorites: favorites,
             player: player,
+            playlist: results,
           ),
         ),
       ),
@@ -363,12 +364,14 @@ class _SurahRow extends StatelessWidget {
     required this.downloads,
     required this.favorites,
     required this.player,
+    required this.playlist,
   });
 
   final SurahModel surah;
   final DownloadsProvider downloads;
   final FavoritesProvider favorites;
   final PlayerProvider player;
+  final List<SurahModel> playlist;
 
   @override
   Widget build(BuildContext context) {
@@ -464,13 +467,15 @@ class _SurahRow extends StatelessWidget {
     );
   }
 
-  void _openPlayer(BuildContext context) {
+  Future<void> _openPlayer(BuildContext context) async {
     if (!surah.available) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('هذه السورة غير متاحة حاليًا.')),
       );
       return;
     }
+    await player.playPlaylist(playlist, initialSurah: surah);
+    if (!context.mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: surah)),
     );
