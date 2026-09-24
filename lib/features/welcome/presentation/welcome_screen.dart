@@ -97,7 +97,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeOut,
                           ),
-                  icon: Icon(isLast ? Icons.play_arrow_rounded : Icons.arrow_back_rounded),
+                  // PageView advances toward the left in RTL. Keep the next
+                  // arrow pointing left instead of mirroring it to the right.
+                  icon: Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: Icon(
+                      isLast
+                          ? Icons.play_arrow_rounded
+                          : Icons.arrow_back_rounded,
+                    ),
+                  ),
                   label: Text(isLast
                       ? '\u0627\u0628\u062f\u0623 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0639'
                       : '\u0627\u0644\u062a\u0627\u0644\u064a'),
