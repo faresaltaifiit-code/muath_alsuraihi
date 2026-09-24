@@ -44,7 +44,7 @@ jobs:
           cp tooling/ios/AppDelegate.swift ios/Runner/AppDelegate.swift
           rm -rf ios/Runner/Assets.xcassets/AppIcon.appiconset
           cp -R tooling/ios/AppIcon.appiconset ios/Runner/Assets.xcassets/AppIcon.appiconset
-          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName معاذ السريحي" ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName تلاوات معاذ السريحي" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes: string audio" ios/Runner/Info.plist || true
 
