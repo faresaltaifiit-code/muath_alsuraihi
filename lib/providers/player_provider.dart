@@ -175,7 +175,13 @@ class PlayerProvider extends ChangeNotifier {
         : Duration.zero;
     notifyListeners();
     try {
-      final sourceList = surah.number > 0 && _playlist.isNotEmpty
+      // Special recitations use number 0, but they can still be part of a
+      // user playlist such as Favorites. Keep that explicit queue whenever it
+      // contains the item; otherwise a stand-alone special recitation stays
+      // as a one-item queue.
+      final sourceList = _playlist.any(
+        (item) => item.audioPath == surah.audioPath,
+      )
           ? _playlist
           : <SurahModel>[surah];
       await (_handler! as MuathAudioHandler).loadSurah(
