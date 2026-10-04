@@ -28,13 +28,15 @@ class DownloadsProvider extends ChangeNotifier {
   bool get isDownloadingAll => _isDownloadingAll;
   double? get downloadAllProgress {
     if (_downloadAllTotal == 0) return null;
-    final currentFraction = _downloadAllCurrentTotal == null || _downloadAllCurrentTotal == 0
-        ? 0.0
-        : _downloadAllCurrentReceived / _downloadAllCurrentTotal!;
+    final currentFraction =
+        _downloadAllCurrentTotal == null || _downloadAllCurrentTotal == 0
+            ? 0.0
+            : _downloadAllCurrentReceived / _downloadAllCurrentTotal!;
     return ((_downloadAllCompleted + currentFraction) / _downloadAllTotal)
         .clamp(0.0, 1.0)
         .toDouble();
   }
+
   int get downloadAllTotal => _downloadAllTotal;
   int get downloadAllCompleted => _downloadAllCompleted;
   int get downloadAllExpectedBytes => _downloadAllExpectedBytes;
@@ -42,6 +44,7 @@ class DownloadsProvider extends ChangeNotifier {
     _cancelDownloadAll = true;
     notifyListeners();
   }
+
   bool isDownloaded(SurahModel surah) => _downloadedIds.contains(surah.id);
   bool isDownloading(SurahModel surah) => _progress.containsKey(surah.id);
   double? progressFor(SurahModel surah) => _progress[surah.id]?.fraction;
@@ -98,7 +101,8 @@ class DownloadsProvider extends ChangeNotifier {
         }
         _error = null;
       } else {
-        _error = 'تعذر تنزيل سورة ${surah.name}. تحقق من الاتصال ثم أعد المحاولة.';
+        _error =
+            'تعذر تنزيل سورة ${surah.name}. تحقق من الاتصال ثم أعد المحاولة.';
       }
     } finally {
       _progress.remove(surah.id);
@@ -147,7 +151,7 @@ class DownloadsProvider extends ChangeNotifier {
     if (_wifiOnly) {
       final networks = await Connectivity().checkConnectivity();
       if (!networks.contains(ConnectivityResult.wifi)) {
-        _error = 'ÙØ¹Ù‘Ù„ Ø´Ø¨ÙƒØ© Wi-Fi Ù„Ù„ØªØ­Ù…ÙŠÙ„ Ø£Ùˆ Ø£Ù„ØºÙ Ø®ÙŠØ§Ø± Wi-Fi ÙÙ‚Ø· Ù…Ù† Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª.';
+        _error = 'فعّل شبكة Wi-Fi للتحميل أو ألغِ خيار Wi-Fi فقط من الإعدادات.';
         notifyListeners();
         return;
       }
@@ -181,7 +185,8 @@ class DownloadsProvider extends ChangeNotifier {
         await download(
           item,
           onProgress: (received, total) {
-            if (_cancelDownloadAll) throw StateError('Bulk download cancelled.');
+            if (_cancelDownloadAll)
+              throw StateError('Bulk download cancelled.');
             _downloadAllCurrentReceived = received;
             _downloadAllCurrentTotal = total;
           },
@@ -210,5 +215,6 @@ class _DownloadProgress {
   const _DownloadProgress(this.received, this.total);
   final int received;
   final int? total;
-  double? get fraction => total == null || total == 0 ? null : received / total!;
+  double? get fraction =>
+      total == null || total == 0 ? null : received / total!;
 }

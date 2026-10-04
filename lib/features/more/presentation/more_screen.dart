@@ -126,8 +126,11 @@ class MoreScreen extends StatelessWidget {
                           'حفظ جميع التلاوات للاستماع دون إنترنت · ${_formatBytes(downloads.downloadAllExpectedBytes)}',
                         ),
                   trailing: downloads.isDownloadingAll
-                      ? Text(
-                          '${(100 * (downloads.downloadAllProgress ?? 0)).round()}%')
+                      ? IconButton(
+                          tooltip: 'إلغاء تنزيل الكل',
+                          onPressed: downloads.cancelDownloadAll,
+                          icon: const Icon(Icons.close_rounded),
+                        )
                       : const Icon(Icons.chevron_left_rounded),
                   onTap: downloads.isDownloadingAll
                       ? null
