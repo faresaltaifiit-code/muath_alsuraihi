@@ -12,6 +12,7 @@ import '../../../widgets/app_design_widgets.dart';
 import '../../library/presentation/juz_screen.dart';
 import '../../library/presentation/library_screens.dart';
 import '../../library/presentation/special_recitations_screen.dart';
+import '../../more/presentation/listening_features_screens.dart';
 import '../../player/presentation/player_screen.dart';
 import '../../surahs/presentation/surahs_screen.dart';
 
@@ -43,6 +44,8 @@ class HomeScreen extends StatelessWidget {
                 const SliverToBoxAdapter(child: SizedBox(height: 20)),
                 SliverToBoxAdapter(child: _ContinueCard(player: player)),
               ],
+              const SliverToBoxAdapter(child: SizedBox(height: 14)),
+              const SliverToBoxAdapter(child: DailyWirdCard()),
               if (_showFridaySermon && _isFriday()) ...[
                 const SliverToBoxAdapter(child: SizedBox(height: 14)),
                 const SliverToBoxAdapter(child: _FridayCard()),
@@ -52,7 +55,8 @@ class HomeScreen extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: _FridayKahfCard(
                     surah: _findKahf(recitations.surahs)!,
-                    onPlay: () => _playSurah(context, _findKahf(recitations.surahs)!),
+                    onPlay: () =>
+                        _playSurah(context, _findKahf(recitations.surahs)!),
                   ),
                 ),
               ],
@@ -138,8 +142,8 @@ class HomeScreen extends StatelessWidget {
       onOpenSurahs!(focusSearch: focusSearch);
       return;
     }
-    Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (_) => SurahsScreen(focusSearch: focusSearch)));
+    Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => SurahsScreen(focusSearch: focusSearch)));
   }
 
   Future<void> _playRandom(BuildContext context, List<SurahModel> items) async {
@@ -198,10 +202,7 @@ class _Header extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('القارئ',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.goldAccent,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -395,10 +396,11 @@ class _FridayKahfCard extends StatelessWidget {
                     children: [
                       Text(
                         'سورة الكهف',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontFamily: 'Amiri',
-                              fontSize: 21,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontFamily: 'Amiri',
+                                  fontSize: 21,
+                                ),
                       ),
                       Text(
                         'اختصار لتلاوة يوم الجمعة',
@@ -679,36 +681,39 @@ class _SoonChip extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(18),
           child: CustomPaint(
-        painter: _DashedRoundedBorder(
-          color: Theme.of(context).dividerColor,
-          radius: 18,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              Icon(icon,
-                  size: 18, color: Theme.of(context).textTheme.bodyMedium?.color),
-              const SizedBox(width: 8),
-              Text(label, style: Theme.of(context).textTheme.bodyMedium),
-              const Spacer(),
-              if (comingSoon)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppColors.darkSecondarySurface
-                          : AppColors.lightSecondarySurface,
-                      borderRadius: BorderRadius.circular(99)),
-                  child: const Text('قريبًا',
-                      style: TextStyle(color: AppColors.goldAccent, fontSize: 11)),
-                )
-              else
-                const Icon(Icons.chevron_left_rounded,
-                    color: AppColors.goldAccent),
-            ],
-          ),
-        ),
+            painter: _DashedRoundedBorder(
+              color: Theme.of(context).dividerColor,
+              radius: 18,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Icon(icon,
+                      size: 18,
+                      color: Theme.of(context).textTheme.bodyMedium?.color),
+                  const SizedBox(width: 8),
+                  Text(label, style: Theme.of(context).textTheme.bodyMedium),
+                  const Spacer(),
+                  if (comingSoon)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppColors.darkSecondarySurface
+                              : AppColors.lightSecondarySurface,
+                          borderRadius: BorderRadius.circular(99)),
+                      child: const Text('قريبًا',
+                          style: TextStyle(
+                              color: AppColors.goldAccent, fontSize: 11)),
+                    )
+                  else
+                    const Icon(Icons.chevron_left_rounded,
+                        color: AppColors.goldAccent),
+                ],
+              ),
+            ),
           ),
         ),
       );

@@ -7,7 +7,9 @@ import '../../../data/models/surah_model.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../providers/downloads_provider.dart';
 import '../../../providers/recitations_provider.dart';
+import '../../../providers/listening_stats_provider.dart';
 import 'about_privacy_screen.dart';
+import 'listening_features_screens.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -17,6 +19,7 @@ class MoreScreen extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final downloads = context.watch<DownloadsProvider>();
     final recitations = context.watch<RecitationsProvider>();
+    final listeningStats = context.watch<ListeningStatsProvider>();
     return Scaffold(
       appBar: AppBar(title: const Text('المزيد')),
       body: ListView(
@@ -29,13 +32,58 @@ class MoreScreen extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: SegmentedButton<ThemeMode>(
                 segments: const [
-                  ButtonSegment(value: ThemeMode.system, label: Text('تلقائي'), icon: Icon(Icons.brightness_auto_rounded)),
-                  ButtonSegment(value: ThemeMode.light, label: Text('فاتح'), icon: Icon(Icons.light_mode_rounded)),
-                  ButtonSegment(value: ThemeMode.dark, label: Text('ليلي'), icon: Icon(Icons.dark_mode_rounded)),
+                  ButtonSegment(
+                      value: ThemeMode.system,
+                      label: Text('تلقائي'),
+                      icon: Icon(Icons.brightness_auto_rounded)),
+                  ButtonSegment(
+                      value: ThemeMode.light,
+                      label: Text('فاتح'),
+                      icon: Icon(Icons.light_mode_rounded)),
+                  ButtonSegment(
+                      value: ThemeMode.dark,
+                      label: Text('ليلي'),
+                      icon: Icon(Icons.dark_mode_rounded)),
                 ],
                 selected: {settings.themeMode},
-                onSelectionChanged: (values) => settings.setThemeMode(values.first),
+                onSelectionChanged: (values) =>
+                    settings.setThemeMode(values.first),
               ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.bar_chart_rounded),
+                  title: const Text('إحصاءاتي'),
+                  subtitle: const Text('محفوظة على جهازك فقط'),
+                  trailing: const Icon(Icons.chevron_left_rounded),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                        builder: (_) => const ListeningStatsScreen()),
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.track_changes_rounded),
+                  title: const Text('الورد اليومي'),
+                  trailing: const Icon(Icons.chevron_left_rounded),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                        builder: (_) => const DailyWirdScreen()),
+                  ),
+                ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.privacy_tip_outlined),
+                  title: const Text('تسجيل الإحصاءات المحلية'),
+                  subtitle:
+                      const Text('إيقافه لا يؤثر على التشغيل أو التنزيلات.'),
+                  value: listeningStats.enabled,
+                  onChanged: listeningStats.setEnabled,
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 28),
@@ -78,20 +126,25 @@ class MoreScreen extends StatelessWidget {
                           'حفظ جميع التلاوات للاستماع دون إنترنت · ${_formatBytes(downloads.downloadAllExpectedBytes)}',
                         ),
                   trailing: downloads.isDownloadingAll
-                      ? Text('${(100 * (downloads.downloadAllProgress ?? 0)).round()}%')
+                      ? Text(
+                          '${(100 * (downloads.downloadAllProgress ?? 0)).round()}%')
                       : const Icon(Icons.chevron_left_rounded),
                   onTap: downloads.isDownloadingAll
                       ? null
                       : () => _confirmDownloadAll(
                             context,
                             downloads,
-                            [...recitations.surahs, ...recitations.specialRecitations],
+                            [
+                              ...recitations.surahs,
+                              ...recitations.specialRecitations
+                            ],
                           ),
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.wifi_rounded),
                   title: const Text('التحميل عبر Wi-Fi فقط'),
-                  subtitle: const Text('عند إيقافه، يمكنك التحميل عبر أي شبكة.'),
+                  subtitle:
+                      const Text('عند إيقافه، يمكنك التحميل عبر أي شبكة.'),
                   value: downloads.wifiOnly,
                   onChanged: downloads.setWifiOnly,
                 ),
@@ -105,7 +158,8 @@ class MoreScreen extends StatelessWidget {
                 ),
                 if (downloads.error != null)
                   Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 16),
+                    padding:
+                        const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 16),
                     child: Text(
                       downloads.error!,
                       style: const TextStyle(color: Colors.redAccent),
@@ -127,7 +181,8 @@ class MoreScreen extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 38,
                       backgroundColor: AppColors.softGold,
-                      child: Icon(Icons.person_rounded, size: 42, color: AppColors.forestGreen),
+                      child: Icon(Icons.person_rounded,
+                          size: 42, color: AppColors.forestGreen),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -165,11 +220,14 @@ class MoreScreen extends StatelessWidget {
             title: const Text('عن التطبيق والخصوصية'),
             trailing: const Icon(Icons.chevron_left_rounded),
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const AboutPrivacyScreen()),
+              MaterialPageRoute<void>(
+                  builder: (_) => const AboutPrivacyScreen()),
             ),
           ),
           const SizedBox(height: 12),
-          Center(child: Text('${AppStrings.appName} · الإصدار 1.1.0', style: Theme.of(context).textTheme.bodyMedium)),
+          Center(
+              child: Text('${AppStrings.appName} · الإصدار 1.1.0',
+                  style: Theme.of(context).textTheme.bodyMedium)),
         ],
       ),
     );
@@ -188,7 +246,8 @@ class MoreScreen extends StatelessWidget {
     final approved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('\u062a\u0646\u0632\u064a\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a\u061f'),
+        title: const Text(
+            '\u062a\u0646\u0632\u064a\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0644\u0627\u0648\u0627\u062a\u061f'),
         content: const Text(
           '\u0633\u064a\u0633\u062a\u062e\u062f\u0645 \u0647\u0630\u0627 \u0645\u0633\u0627\u062d\u0629 \u0645\u0646 \u0627\u0644\u062c\u0647\u0627\u0632\u060c \u0648\u064a\u0645\u0643\u0646 \u062d\u0630\u0641 \u0627\u0644\u062a\u0646\u0632\u064a\u0644\u0627\u062a \u0644\u0627\u062d\u0642\u064b\u0627.',
         ),
@@ -209,19 +268,24 @@ class MoreScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _confirmDeleteAll(BuildContext context, DownloadsProvider downloads) async {
+  Future<void> _confirmDeleteAll(
+      BuildContext context, DownloadsProvider downloads) async {
     final approved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('حذف كل التنزيلات؟'),
-        content: const Text('سيُحذف الصوت المحفوظ على هذا الجهاز فقط، ويمكن تنزيله لاحقًا.'),
+        content: const Text(
+            'سيُحذف الصوت المحفوظ على هذا الجهاز فقط، ويمكن تنزيله لاحقًا.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('حذف')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('إلغاء')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('حذف')),
         ],
       ),
     );
     if (approved == true) await downloads.deleteAll();
   }
 }
-

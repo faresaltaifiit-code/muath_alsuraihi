@@ -11,6 +11,7 @@ import 'providers/player_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/downloads_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/listening_stats_provider.dart';
 
 class MuathAlsuraihiApp extends StatelessWidget {
   const MuathAlsuraihiApp({super.key});
@@ -19,8 +20,14 @@ class MuathAlsuraihiApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => RecitationsProvider()..loadSurahs()),
-        ChangeNotifierProvider(create: (_) => PlayerProvider()..initialize()),
+        ChangeNotifierProvider(
+            create: (_) => RecitationsProvider()..loadSurahs()),
+        ChangeNotifierProvider(create: (_) => ListeningStatsProvider()..load()),
+        ChangeNotifierProvider(
+          create: (context) => PlayerProvider(
+            listeningStats: context.read<ListeningStatsProvider>(),
+          )..initialize(),
+        ),
         ChangeNotifierProvider(create: (_) => FavoritesProvider()..load()),
         ChangeNotifierProvider(create: (_) => DownloadsProvider()..load()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..load()),
@@ -48,4 +55,3 @@ class MuathAlsuraihiApp extends StatelessWidget {
     );
   }
 }
-
