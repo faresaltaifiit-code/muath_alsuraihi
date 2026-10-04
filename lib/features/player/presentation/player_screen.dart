@@ -59,7 +59,8 @@ class _PlayerScreenState extends State<PlayerScreen>
     final duration = player.duration > Duration.zero
         ? player.duration
         : Duration(seconds: surah.durationSeconds);
-    final livePosition = player.position > duration ? duration : player.position;
+    final livePosition =
+        player.position > duration ? duration : player.position;
     final position = _dragPosition ?? livePosition;
     final remaining = duration > position ? duration - position : Duration.zero;
     final animationsAllowed = !MediaQuery.disableAnimationsOf(context);
@@ -72,7 +73,8 @@ class _PlayerScreenState extends State<PlayerScreen>
         child: LayoutBuilder(
           builder: (context, constraints) {
             // Keep the complete controls comfortably reachable on smaller iPhones.
-            final artworkSize = math.min(205.0, math.max(170.0, constraints.maxHeight * .24));
+            final artworkSize =
+                math.min(205.0, math.max(170.0, constraints.maxHeight * .24));
             return SingleChildScrollView(
               padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 48),
               child: Column(
@@ -130,17 +132,20 @@ class _PlayerScreenState extends State<PlayerScreen>
                     remaining: remaining,
                     onStart: duration > Duration.zero
                         ? (value) => setState(
-                              () => _dragPosition = Duration(milliseconds: value.round()),
+                              () => _dragPosition =
+                                  Duration(milliseconds: value.round()),
                             )
                         : null,
                     onChanged: duration > Duration.zero
                         ? (value) => setState(
-                              () => _dragPosition = Duration(milliseconds: value.round()),
+                              () => _dragPosition =
+                                  Duration(milliseconds: value.round()),
                             )
                         : null,
                     onEnd: duration > Duration.zero
                         ? (value) async {
-                            final target = Duration(milliseconds: value.round());
+                            final target =
+                                Duration(milliseconds: value.round());
                             setState(() => _dragPosition = null);
                             await player.seek(target);
                           }
@@ -188,14 +193,16 @@ class _PlayerScreenState extends State<PlayerScreen>
     if (result != null) await player.changeSpeed(result);
   }
 
-  Future<void> _chooseSleepTimer(BuildContext context, PlayerProvider player) async {
+  Future<void> _chooseSleepTimer(
+      BuildContext context, PlayerProvider player) async {
     final result = await showModalBottomSheet<int>(
       context: context,
       showDragHandle: true,
       builder: (context) => _OptionsSheet(
         title: 'إيقاف التشغيل بعد',
         options: const [-1, 5, 10, 15, 30, 45, 60],
-        label: (value) => value == -1 ? 'عند نهاية السورة' : '$value دقيقة',
+        label: (value) =>
+            value == -1 ? 'عند نهاية السورة · مع تلاشي' : '$value دقيقة',
       ),
     );
     if (result == -1) {
@@ -217,13 +224,16 @@ class _PlayerScreenState extends State<PlayerScreen>
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: () async {
-              final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+              final boundary = key.currentContext?.findRenderObject()
+                  as RenderRepaintBoundary?;
               if (boundary == null) return;
               final image = await boundary.toImage(pixelRatio: 3);
-              final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+              final bytes =
+                  await image.toByteData(format: ui.ImageByteFormat.png);
               if (bytes == null) return;
               final directory = await getTemporaryDirectory();
-              final file = File('${directory.path}/surah_${surah.id}_share.png');
+              final file =
+                  File('${directory.path}/surah_${surah.id}_share.png');
               await file.writeAsBytes(bytes.buffer.asUint8List());
               await Share.shareXFiles([XFile(file.path)]);
             },
@@ -246,16 +256,28 @@ class _ShareCard extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(26),
-          gradient: const LinearGradient(colors: [AppColors.emerald, AppColors.forestGreen], begin: Alignment.topRight, end: Alignment.bottomLeft),
+          gradient: const LinearGradient(
+              colors: [AppColors.emerald, AppColors.forestGreen],
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft),
         ),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           StarNumberBadge(number: surah.number, inverted: true),
           const SizedBox(height: 20),
-          Text('سورة ${surah.name}', textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Amiri', fontSize: 38, fontWeight: FontWeight.w700, color: AppColors.softGold)),
+          Text('سورة ${surah.name}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontFamily: 'Amiri',
+                  fontSize: 38,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.softGold)),
           const SizedBox(height: 8),
-          Text(kReciterName, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.softGold)),
+          Text(kReciterName,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.softGold)),
           const Spacer(),
-          const Text('مجاني · بدون إعلانات ولا تتبع', style: TextStyle(color: AppColors.softGold, fontSize: 12)),
+          const Text('مجاني · بدون إعلانات ولا تتبع',
+              style: TextStyle(color: AppColors.softGold, fontSize: 12)),
         ]),
       );
 }
@@ -268,7 +290,9 @@ class _UpcomingQueue extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final upcoming = player.upcomingSurahs;
-    final nextName = upcoming.isEmpty ? 'لا توجد سورة تالية' : 'التالي: سورة ${upcoming.first.name}';
+    final nextName = upcoming.isEmpty
+        ? 'لا توجد سورة تالية'
+        : 'التالي: سورة ${upcoming.first.name}';
     return OutlinedButton.icon(
       onPressed: upcoming.isEmpty
           ? null
@@ -310,7 +334,8 @@ class _QueueSheet extends StatelessWidget {
                 return ListTile(
                   leading: StarNumberBadge(number: item.number),
                   title: Text('سورة ${item.name}'),
-                  subtitle: Text(_format(Duration(seconds: item.durationSeconds))),
+                  subtitle:
+                      Text(_format(Duration(seconds: item.durationSeconds))),
                   onTap: () async {
                     await player.playFromQueue(item);
                     if (context.mounted) Navigator.pop(context);
@@ -326,7 +351,10 @@ class _QueueSheet extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.favorite, required this.onDismiss, required this.onFavorite});
+  const _TopBar(
+      {required this.favorite,
+      required this.onDismiss,
+      required this.onFavorite});
   final bool favorite;
   final VoidCallback onDismiss;
   final VoidCallback onFavorite;
@@ -342,13 +370,20 @@ class _TopBar extends StatelessWidget {
               icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 28),
             ),
             const Expanded(
-              child: Center(child: Text('قيد التشغيل', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700))),
+              child: Center(
+                  child: Text('قيد التشغيل',
+                      style: TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.w700))),
             ),
             IconButton(
               tooltip: favorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة',
               onPressed: onFavorite,
               color: favorite ? AppColors.favoriteRed : null,
-              icon: Icon(favorite ? Icons.favorite_rounded : Icons.favorite_border_rounded, size: 24),
+              icon: Icon(
+                  favorite
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  size: 24),
             ),
           ],
         ),
@@ -381,13 +416,18 @@ class _Artwork extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [AppColors.emerald.withValues(alpha: .35), Colors.transparent],
+                  colors: [
+                    AppColors.emerald.withValues(alpha: .35),
+                    Colors.transparent
+                  ],
                 ),
               ),
             ),
             if (animate) ...[
               _PulseRing(animation: pulse),
-              _PulseRing(animation: CurvedAnimation(parent: pulse, curve: const Interval(.5, 1))),
+              _PulseRing(
+                  animation: CurvedAnimation(
+                      parent: pulse, curve: const Interval(.5, 1))),
             ],
             Container(
               width: size,
@@ -453,7 +493,8 @@ class _ArtworkPatternPainter extends CustomPainter {
     for (var index = 0; index < 16; index++) {
       final angle = -math.pi / 2 + index * math.pi / 8;
       final radius = size.width * (index.isEven ? .49 : .32);
-      final point = Offset(center.dx + math.cos(angle) * radius, center.dy + math.sin(angle) * radius);
+      final point = Offset(center.dx + math.cos(angle) * radius,
+          center.dy + math.sin(angle) * radius);
       if (index == 0) {
         path.moveTo(point.dx, point.dy);
       } else {
@@ -509,7 +550,8 @@ class _DownloadedChip extends StatelessWidget {
           children: [
             Icon(Icons.check_rounded, size: 14, color: AppColors.emerald),
             SizedBox(width: 6),
-            Text('محمّلة · تعمل بدون إنترنت', style: TextStyle(fontSize: 12.5, color: AppColors.emerald)),
+            Text('محمّلة · تعمل بدون إنترنت',
+                style: TextStyle(fontSize: 12.5, color: AppColors.emerald)),
           ],
         ),
       );
@@ -549,7 +591,9 @@ class _ProgressControl extends StatelessWidget {
               ),
               child: Slider(
                 value: position.inMilliseconds.toDouble(),
-                max: duration.inMilliseconds > 0 ? duration.inMilliseconds.toDouble() : 1,
+                max: duration.inMilliseconds > 0
+                    ? duration.inMilliseconds.toDouble()
+                    : 1,
                 onChangeStart: onStart,
                 onChanged: onChanged,
                 onChangeEnd: onEnd,
@@ -578,9 +622,9 @@ class _TimeText extends StatelessWidget {
   Widget build(BuildContext context) => Text(
         value,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontSize: 13,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
+          fontSize: 13,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
       );
 }
 
@@ -681,7 +725,8 @@ class _PlayButton extends StatelessWidget {
             onPressed: onPressed,
             color: const Color(0xFF0F3A2E),
             iconSize: 40,
-            icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+            icon:
+                Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
           ),
         ),
       );
@@ -729,14 +774,21 @@ class _OptionsGrid extends StatelessWidget {
             onTap: () => player.setAutoPlayNext(!player.autoPlayNext),
           ),
           _OptionTile(
-            label: 'السرعة ×${player.speed.toStringAsFixed(player.speed == player.speed.roundToDouble() ? 0 : 2)}',
+            label:
+                'السرعة ×${player.speed.toStringAsFixed(player.speed == player.speed.roundToDouble() ? 0 : 2)}',
             icon: Icons.speed_rounded,
             onTap: onSpeed,
           ),
           _OptionTile(
-            label: player.hasSleepTimer ? 'مؤقت النوم ✓' : 'مؤقت النوم',
-            icon: player.hasSleepTimer ? Icons.bedtime_rounded : Icons.bedtime_outlined,
-            enabled: player.hasSleepTimer,
+            label: player.sleepAtEnd
+                ? 'نهاية السورة ✓'
+                : player.hasSleepTimer
+                    ? 'مؤقت النوم ✓'
+                    : 'مؤقت النوم',
+            icon: player.sleepAtEnd || player.hasSleepTimer
+                ? Icons.bedtime_rounded
+                : Icons.bedtime_outlined,
+            enabled: player.sleepAtEnd || player.hasSleepTimer,
             onTap: onSleep,
           ),
           _OptionTile(
@@ -771,7 +823,9 @@ class _OptionTile extends StatelessWidget {
                 : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: enabled ? AppColors.goldAccent : Theme.of(context).dividerColor,
+              color: enabled
+                  ? AppColors.goldAccent
+                  : Theme.of(context).dividerColor,
             ),
           ),
           child: InkWell(

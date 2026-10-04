@@ -44,6 +44,7 @@ class PlayerProvider extends ChangeNotifier {
   bool _autoPlayNext = true;
   bool _shuffleEnabled = false;
   bool _sleepAtEnd = false;
+  bool _sleepEndFadeStarted = false;
   double _speed = 1;
   AudioServiceRepeatMode _repeatMode = AudioServiceRepeatMode.none;
   String? _error;
@@ -108,6 +109,7 @@ class PlayerProvider extends ChangeNotifier {
       _isPlaying = state.playing;
       _speed = state.speed;
       _repeatMode = state.repeatMode;
+      _beginEndSleepFadeIfNeeded();
       _scheduleSave();
       _recordStatistics(state, previousPosition);
       notifyListeners();
@@ -336,6 +338,7 @@ class PlayerProvider extends ChangeNotifier {
   void setSleepTimer(Duration duration, {bool fadeOut = true}) {
     _sleepTimer?.cancel();
     _sleepAtEnd = false;
+    _sleepEndFadeStarted = false;
     unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(false) ??
         Future.value());
     _sleepTimer = Timer(duration, () async {
@@ -374,6 +377,7 @@ class PlayerProvider extends ChangeNotifier {
     _fadeTimer?.cancel();
     _sleepTimer = null;
     _sleepAtEnd = false;
+    _sleepEndFadeStarted = false;
     unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(false) ??
         Future.value());
     // A cancelled fade must not leave the next playback quiet.
@@ -384,9 +388,25 @@ class PlayerProvider extends ChangeNotifier {
   void setSleepAtEnd() {
     _sleepTimer?.cancel();
     _sleepAtEnd = true;
+    _sleepEndFadeStarted = false;
     unawaited(
         (_handler as MuathAudioHandler?)?.setStopAtEnd(true) ?? Future.value());
     notifyListeners();
+  }
+
+  void _beginEndSleepFadeIfNeeded() {
+    if (!_sleepAtEnd ||
+        _sleepEndFadeStarted ||
+        !_isPlaying ||
+        _duration <= Duration.zero) {
+      return;
+    }
+    final remaining = _duration - _position;
+    if (remaining <= Duration.zero || remaining > const Duration(seconds: 2)) {
+      return;
+    }
+    _sleepEndFadeStarted = true;
+    unawaited(_fadeAndPause());
   }
 
   void _scheduleSave() {
