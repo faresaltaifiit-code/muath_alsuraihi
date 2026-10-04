@@ -18,7 +18,8 @@ class MiniPlayer extends StatelessWidget {
     }
     final duration = player.duration;
     final progress = duration > Duration.zero
-        ? (player.position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
+        ? (player.position.inMilliseconds / duration.inMilliseconds)
+            .clamp(0.0, 1.0)
         : 0.0;
     final theme = Theme.of(context);
 
@@ -27,91 +28,104 @@ class MiniPlayer extends StatelessWidget {
       borderRadius: BorderRadius.circular(22),
       child: Ink(
         decoration: BoxDecoration(
-          color: theme.brightness == Brightness.dark ? AppColors.darkSecondarySurface : AppColors.lightSecondarySurface,
+          color: theme.brightness == Brightness.dark
+              ? AppColors.darkSecondarySurface
+              : AppColors.lightSecondarySurface,
           border: Border.all(color: theme.dividerColor),
           borderRadius: BorderRadius.circular(22),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(22),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: surah)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 8, 10),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [AppColors.emerald, AppColors.forestGreen]),
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${surah.number}',
-                            style: const TextStyle(
-                              color: AppColors.softGold,
-                              fontFamily: 'Amiri',
-                              fontSize: 21,
-                              fontWeight: FontWeight.w700,
-                            ),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: surah)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 8, 10),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            colors: [AppColors.emerald, AppColors.forestGreen]),
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${surah.number}',
+                          style: const TextStyle(
+                            color: AppColors.softGold,
+                            fontFamily: 'Amiri',
+                            fontSize: 21,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              surah.number > 0 ? 'سورة ${surah.name}' : surah.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    fontFamily: 'Amiri',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 19,
-                                  ),
-                            ),
-                            Text(
-                              kReciterName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            surah.number > 0
+                                ? 'سورة ${surah.name}'
+                                : surah.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  fontFamily: 'Amiri',
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 19,
+                                ),
+                          ),
+                          Text(
+                            kReciterName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        tooltip: player.isPlaying ? 'إيقاف مؤقت' : 'تشغيل',
-                        onPressed: player.togglePlayPause,
-                        style: IconButton.styleFrom(
-                          backgroundColor: AppColors.goldAccent,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(42, 42),
-                        ),
-                        icon: Icon(player.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                    ),
+                    IconButton(
+                      tooltip: player.isPlaying ? 'إيقاف مؤقت' : 'تشغيل',
+                      onPressed: player.togglePlayPause,
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.goldAccent,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(42, 42),
+                        maximumSize: const Size(42, 42),
+                        padding: EdgeInsets.zero,
+                        shape: const CircleBorder(),
                       ),
-                    ],
-                  ),
+                      icon: Icon(player.isPlaying
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded),
+                    ),
+                  ],
                 ),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 3,
-                    color: AppColors.goldAccent,
-                    backgroundColor: theme.dividerColor,
-                  ),
+              ),
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 3,
+                  color: AppColors.goldAccent,
+                  backgroundColor: theme.dividerColor,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }

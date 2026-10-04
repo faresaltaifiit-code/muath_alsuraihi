@@ -37,10 +37,12 @@ class StarNumberBadge extends StatelessWidget {
                 Text(
                   '$number',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: inverted ? AppColors.softGold : AppColors.goldAccent,
+                        color: inverted
+                            ? AppColors.softGold
+                            : AppColors.goldAccent,
                         fontWeight: FontWeight.w700,
-                        fontFamily: numberFontFamily,
-                        fontSize: numberFontSize,
+                        fontFamily: numberFontFamily ?? 'Amiri',
+                        fontSize: numberFontSize ?? 15,
                       ),
                 ),
           ),
@@ -49,7 +51,12 @@ class StarNumberBadge extends StatelessWidget {
 }
 
 class TintedIconTile extends StatelessWidget {
-  const TintedIconTile({super.key, required this.icon, required this.color, this.size = 46, this.radius});
+  const TintedIconTile(
+      {super.key,
+      required this.icon,
+      required this.color,
+      this.size = 46,
+      this.radius});
 
   final IconData icon;
   final Color color;
@@ -62,14 +69,19 @@ class TintedIconTile extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           color: color.withValues(alpha: .22),
-          borderRadius: BorderRadius.circular(radius ?? (size == 46 ? 15 : size * .33)),
+          borderRadius:
+              BorderRadius.circular(radius ?? (size == 46 ? 15 : size * .33)),
         ),
         child: Icon(icon, color: color, size: size * .56),
       );
 }
 
 class AppFilterChip extends StatelessWidget {
-  const AppFilterChip({super.key, required this.label, required this.selected, required this.onSelected});
+  const AppFilterChip(
+      {super.key,
+      required this.label,
+      required this.selected,
+      required this.onSelected});
 
   final String label;
   final bool selected;
@@ -85,14 +97,21 @@ class AppFilterChip extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: selected ? AppColors.forestGreen : Theme.of(context).colorScheme.surface,
-              border: Border.all(color: selected ? AppColors.forestGreen : Theme.of(context).dividerColor),
+              color: selected
+                  ? AppColors.forestGreen
+                  : Theme.of(context).colorScheme.surface,
+              border: Border.all(
+                  color: selected
+                      ? AppColors.forestGreen
+                      : Theme.of(context).dividerColor),
               borderRadius: BorderRadius.circular(99),
             ),
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: selected ? AppColors.darkText : Theme.of(context).textTheme.bodyMedium?.color,
+                    color: selected
+                        ? AppColors.softGold
+                        : Theme.of(context).textTheme.bodyMedium?.color,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
                   ),
             ),
@@ -109,13 +128,26 @@ class _EightPointStarPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final path = Path();
     const points = <Offset>[
-      Offset(.50, .00), Offset(.62, .20), Offset(.85, .15), Offset(.80, .38),
-      Offset(1.00, .50), Offset(.80, .62), Offset(.85, .85), Offset(.62, .80),
-      Offset(.50, 1.00), Offset(.38, .80), Offset(.15, .85), Offset(.20, .62),
-      Offset(.00, .50), Offset(.20, .38), Offset(.15, .15), Offset(.38, .20),
+      Offset(.50, .00),
+      Offset(.62, .20),
+      Offset(.85, .15),
+      Offset(.80, .38),
+      Offset(1.00, .50),
+      Offset(.80, .62),
+      Offset(.85, .85),
+      Offset(.62, .80),
+      Offset(.50, 1.00),
+      Offset(.38, .80),
+      Offset(.15, .85),
+      Offset(.20, .62),
+      Offset(.00, .50),
+      Offset(.20, .38),
+      Offset(.15, .15),
+      Offset(.38, .20),
     ];
     for (var index = 0; index < points.length; index++) {
-      final point = Offset(points[index].dx * size.width, points[index].dy * size.height);
+      final point =
+          Offset(points[index].dx * size.width, points[index].dy * size.height);
       if (index == 0) {
         path.moveTo(point.dx, point.dy);
       } else {
@@ -127,5 +159,6 @@ class _EightPointStarPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_EightPointStarPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(_EightPointStarPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

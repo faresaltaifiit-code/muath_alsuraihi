@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../library/presentation/library_screens.dart';
 import '../../more/presentation/more_screen.dart';
@@ -34,45 +35,58 @@ class _RootNavigationScreenState extends State<RootNavigationScreen> {
         player.currentSurah != null && player.hasPlaybackInSession;
     context.read<PlayerProvider>().setPlaylist(recitations.surahs);
     return Scaffold(
-        body: Column(
-          children: [
-            Expanded(
-              child: IndexedStack(
-                index: _index,
-                children: [
-                  HomeScreen(onOpenSurahs: _openSurahs),
-                  SurahsScreen(focusSearch: _focusSurahsSearch),
-                  const FavoritesScreen(),
-                  const MoreScreen(),
-                ],
-              ),
+      body: Column(
+        children: [
+          Expanded(
+            child: IndexedStack(
+              index: _index,
+              children: [
+                HomeScreen(onOpenSurahs: _openSurahs),
+                SurahsScreen(focusSearch: _focusSurahsSearch),
+                const FavoritesScreen(),
+                const MoreScreen(),
+              ],
             ),
-            if (showMiniPlayer)
-              const Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(12, 8, 12, 8),
-                child: MiniPlayer(),
-              ),
+          ),
+          if (showMiniPlayer)
+            const Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(12, 8, 12, 8),
+              child: MiniPlayer(),
+            ),
+        ],
+      ),
+      bottomNavigationBar: DecoratedBox(
+        decoration: BoxDecoration(
+          border:
+              Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+        ),
+        child: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: (value) => setState(() {
+            _index = value;
+            _focusSurahsSearch = false;
+          }),
+          destinations: const [
+            NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: _SelectedNavIcon(Icons.home_outlined),
+                label: 'الرئيسية'),
+            NavigationDestination(
+                icon: Icon(Icons.menu_book_outlined),
+                selectedIcon: _SelectedNavIcon(Icons.menu_book_outlined),
+                label: 'السور'),
+            NavigationDestination(
+                icon: Icon(Icons.favorite_border_rounded),
+                selectedIcon: _SelectedNavIcon(Icons.favorite_border_rounded),
+                label: 'المفضلة'),
+            NavigationDestination(
+                icon: Icon(Icons.more_horiz_rounded),
+                selectedIcon: _SelectedNavIcon(Icons.more_horiz_rounded),
+                label: 'المزيد'),
           ],
         ),
-        bottomNavigationBar: DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
-          ),
-          child: NavigationBar(
-            selectedIndex: _index,
-            onDestinationSelected: (value) => setState(() {
-              _index = value;
-              _focusSurahsSearch = false;
-            }),
-            destinations: const [
-              NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: _SelectedNavIcon(Icons.home_outlined), label: 'الرئيسية'),
-              NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: _SelectedNavIcon(Icons.menu_book_outlined), label: 'السور'),
-              NavigationDestination(icon: Icon(Icons.favorite_border_rounded), selectedIcon: _SelectedNavIcon(Icons.favorite_border_rounded), label: 'المفضلة'),
-              NavigationDestination(icon: Icon(Icons.more_horiz_rounded), selectedIcon: _SelectedNavIcon(Icons.more_horiz_rounded), label: 'المزيد'),
-            ],
-          ),
-        ),
-      );
+      ),
+    );
   }
 }
 
@@ -86,10 +100,9 @@ class _SelectedNavIcon extends StatelessWidget {
         height: 30,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary.withValues(alpha: .22),
+          color: AppColors.goldAccent.withValues(alpha: .22),
           borderRadius: BorderRadius.circular(99),
         ),
         child: Icon(icon),
       );
 }
-
