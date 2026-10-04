@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -136,18 +138,32 @@ class DailyWirdScreen extends StatelessWidget {
     final stats = context.watch<ListeningStatsProvider>();
     final player = context.read<PlayerProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('الورد اليومي')),
+      appBar: AppBar(
+        title: const Text('الورد اليومي'),
+        leading: IconButton(
+          tooltip: 'رجوع',
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.chevron_left_rounded),
+        ),
+      ),
       body: ListView(padding: const EdgeInsets.all(20), children: [
         Center(child: _WirdRing(size: 180, stats: stats)),
         const SizedBox(height: 22),
-        Text('اختر هدفك', style: Theme.of(context).textTheme.titleMedium),
+        Text('هدفك اليومي', style: Theme.of(context).textTheme.titleMedium),
+        Text('بالسور أو بالوقت', style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 10),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          _GoalChip(
-              label: 'سور اليوم', type: DailyWirdType.surahs, stats: stats),
-          _GoalChip(
-              label: 'دقائق اليوم', type: DailyWirdType.minutes, stats: stats),
-          _GoalChip(label: 'جزء كامل', type: DailyWirdType.juz, stats: stats),
+        Row(children: [
+          Expanded(
+              child: _GoalChip(
+                  label: 'سور', type: DailyWirdType.surahs, stats: stats)),
+          const SizedBox(width: 8),
+          Expanded(
+              child: _GoalChip(
+                  label: 'دقيقة', type: DailyWirdType.minutes, stats: stats)),
+          const SizedBox(width: 8),
+          Expanded(
+              child: _GoalChip(
+                  label: 'جزء كامل', type: DailyWirdType.juz, stats: stats)),
         ]),
         const SizedBox(height: 16),
         Row(children: [
@@ -167,7 +183,13 @@ class DailyWirdScreen extends StatelessWidget {
         const SizedBox(height: 20),
         FilledButton.icon(
           onPressed: player.lastSurah == null ? null : player.resumeLast,
-          icon: const Icon(Icons.play_arrow_rounded),
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.softGold,
+            foregroundColor: const Color(0xFF0F4A3A),
+            shape: const StadiumBorder(),
+            minimumSize: const Size.fromHeight(52),
+          ),
+          icon: const Icon(Icons.menu_book_outlined),
           label: const Text('تابع الاستماع لإكمال اليوم'),
         ),
       ]),
@@ -214,21 +236,21 @@ class _WirdRing extends StatelessWidget {
       width: size,
       height: size,
       child: Stack(alignment: Alignment.center, children: [
-        SizedBox(
-            width: size,
-            height: size,
-            child: CircularProgressIndicator(
-                value: stats.dailyProgressFraction,
-                strokeWidth: size > 100 ? 12 : 7,
-                strokeCap: StrokeCap.round,
-                color: AppColors.goldAccent,
-                backgroundColor: Theme.of(context).dividerColor)),
+        CustomPaint(
+          size: Size.square(size),
+          painter: _WirdRingPainter(
+            progress: stats.dailyProgressFraction,
+            trackColor: Theme.of(context).dividerColor,
+            strokeWidth: size > 100 ? 12 : 7,
+          ),
+        ),
         Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('${stats.dailyProgress} / ${stats.goal}',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontFamily: 'Amiri')),
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Text('${stats.dailyProgress} / ${stats.goal}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontFamily: 'Amiri', fontSize: size > 100 ? 30 : null)),
+          ),
           Text(_goalLabel(stats.goalType),
               style: Theme.of(context).textTheme.bodySmall),
         ]),
@@ -259,16 +281,87 @@ class _GoalChip extends StatelessWidget {
   final DailyWirdType type;
   final ListeningStatsProvider stats;
   @override
-  Widget build(BuildContext context) => ChoiceChip(
-      label: Text(label),
-      selected: stats.goalType == type,
-      onSelected: (_) => stats.setGoal(
-          type,
-          type == DailyWirdType.minutes
-              ? 15
-              : type == DailyWirdType.juz
-                  ? 1
-                  : 3));
+  Widget build(BuildContext context) {
+    final selected = stats.goalType == type;
+    final defaultGoal = type == DailyWirdType.minutes
+        ? 15
+        : type == DailyWirdType.juz
+            ? 1
+            : 3;
+    final number = type == DailyWirdType.juz
+        ? null
+        : '${selected ? stats.goal : defaultGoal}';
+    return Material(
+      color: selected
+          ? AppColors.goldAccent.withValues(alpha: .16)
+          : Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => stats.setGoal(type, selected ? stats.goal : defaultGoal),
+        child: Container(
+          height: 92,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: selected
+                  ? AppColors.goldAccent
+                  : Theme.of(context).dividerColor,
+              width: selected ? 1.4 : 1,
+            ),
+          ),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            if (number != null)
+              Text(number,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontFamily: 'Amiri', color: AppColors.goldAccent)),
+            Text(label,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+class _WirdRingPainter extends CustomPainter {
+  const _WirdRingPainter(
+      {required this.progress,
+      required this.trackColor,
+      required this.strokeWidth});
+  final double progress;
+  final Color trackColor;
+  final double strokeWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final arcRect = rect.deflate(strokeWidth / 2);
+    final track = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = strokeWidth
+      ..color = trackColor;
+    canvas.drawArc(arcRect, -math.pi / 2, math.pi * 2, false, track);
+    if (progress <= 0) return;
+    final arc = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = strokeWidth
+      ..shader = SweepGradient(
+        startAngle: -math.pi / 2,
+        endAngle: math.pi * 1.5,
+        colors: const [AppColors.emerald, AppColors.goldAccent],
+      ).createShader(rect);
+    canvas.drawArc(arcRect, -math.pi / 2, math.pi * 2 * progress, false, arc);
+  }
+
+  @override
+  bool shouldRepaint(_WirdRingPainter oldDelegate) =>
+      oldDelegate.progress != progress ||
+      oldDelegate.trackColor != trackColor ||
+      oldDelegate.strokeWidth != strokeWidth;
 }
 
 String _goalLabel(DailyWirdType type) => switch (type) {
