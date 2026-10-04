@@ -42,9 +42,11 @@ class PlayerProvider extends ChangeNotifier {
 
   SurahModel? get currentSurah => _currentSurah;
   SurahModel? get lastSurah => _lastSurah;
+
   /// Stored only on this device. Nothing in this list is sent anywhere.
   List<ListeningHistoryEntry> get recentHistory =>
       List.unmodifiable(_recentHistory);
+
   /// Compatibility view for existing callers that only need the surah models.
   List<SurahModel> get recentSurahs =>
       List.unmodifiable(_recentHistory.map((entry) => entry.surah));
@@ -52,6 +54,7 @@ class PlayerProvider extends ChangeNotifier {
   Duration get duration => _duration;
   Duration get lastPosition => _lastPosition;
   bool get isPlaying => _isPlaying;
+
   /// True only after the user starts or resumes playback in this app session.
   bool get hasPlaybackInSession => _hasPlaybackInSession;
   bool get isReady => _isReady;
@@ -65,10 +68,13 @@ class PlayerProvider extends ChangeNotifier {
   List<SurahModel> get upcomingSurahs {
     final current = _currentSurah;
     if (current == null) return const [];
-    final index = _playlist.indexWhere((item) => item.audioPath == current.audioPath);
+    final index =
+        _playlist.indexWhere((item) => item.audioPath == current.audioPath);
     if (index < 0) return const [];
     if (_shuffleEnabled) {
-      return _playlist.where((item) => item.audioPath != current.audioPath).toList();
+      return _playlist
+          .where((item) => item.audioPath != current.audioPath)
+          .toList();
     }
     return _playlist.skip(index + 1).toList();
   }
@@ -184,6 +190,10 @@ class PlayerProvider extends ChangeNotifier {
       )
           ? _playlist
           : <SurahModel>[surah];
+      // A stand-alone special recitation is not part of the surah catalog.
+      // Keep the provider queue aligned with the queue sent to audio_service,
+      // so the "Up next" screen always describes the audio that is playing.
+      _playlist = sourceList;
       await (_handler! as MuathAudioHandler).loadSurah(
         surah,
         playlist: sourceList,
@@ -244,13 +254,16 @@ class PlayerProvider extends ChangeNotifier {
     final target = _position + amount;
     final safeTarget = target < Duration.zero
         ? Duration.zero
-        : (_duration > Duration.zero && target > _duration ? _duration : target);
+        : (_duration > Duration.zero && target > _duration
+            ? _duration
+            : target);
     await seek(safeTarget);
   }
 
   Future<void> next() async {
     await (_handler?.skipToNext() ?? Future.value());
   }
+
   Future<void> previous() => _handler?.skipToPrevious() ?? Future.value();
 
   Future<void> setAutoPlayNext(bool value) async {
@@ -285,7 +298,8 @@ class PlayerProvider extends ChangeNotifier {
   void setSleepTimer(Duration duration, {bool fadeOut = true}) {
     _sleepTimer?.cancel();
     _sleepAtEnd = false;
-    unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(false) ?? Future.value());
+    unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(false) ??
+        Future.value());
     _sleepTimer = Timer(duration, () async {
       if (fadeOut) {
         await _fadeAndPause();
@@ -302,7 +316,8 @@ class PlayerProvider extends ChangeNotifier {
     _fadeTimer?.cancel();
     var step = 10;
     final completer = Completer<void>();
-    _fadeTimer = Timer.periodic(const Duration(milliseconds: 250), (timer) async {
+    _fadeTimer =
+        Timer.periodic(const Duration(milliseconds: 250), (timer) async {
       final volume = step / 10;
       await (_handler as MuathAudioHandler?)?.setVolume(volume);
       step--;
@@ -321,7 +336,8 @@ class PlayerProvider extends ChangeNotifier {
     _fadeTimer?.cancel();
     _sleepTimer = null;
     _sleepAtEnd = false;
-    unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(false) ?? Future.value());
+    unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(false) ??
+        Future.value());
     // A cancelled fade must not leave the next playback quiet.
     unawaited((_handler as MuathAudioHandler?)?.setVolume(1) ?? Future.value());
     notifyListeners();
@@ -330,7 +346,8 @@ class PlayerProvider extends ChangeNotifier {
   void setSleepAtEnd() {
     _sleepTimer?.cancel();
     _sleepAtEnd = true;
-    unawaited((_handler as MuathAudioHandler?)?.setStopAtEnd(true) ?? Future.value());
+    unawaited(
+        (_handler as MuathAudioHandler?)?.setStopAtEnd(true) ?? Future.value());
     notifyListeners();
   }
 
@@ -368,7 +385,8 @@ class PlayerProvider extends ChangeNotifier {
     );
     _recentHistory = <ListeningHistoryEntry>[
       entry,
-      ..._recentHistory.where((item) => item.surah.audioPath != surah.audioPath),
+      ..._recentHistory
+          .where((item) => item.surah.audioPath != surah.audioPath),
     ].take(_recentLimit).toList();
   }
 
@@ -405,7 +423,8 @@ class PlayerProvider extends ChangeNotifier {
     try {
       final json = jsonDecode(value) as Map<String, dynamic>;
       _lastSurah = SurahModel.fromJson(json['surah'] as Map<String, dynamic>);
-      _lastPosition = Duration(milliseconds: (json['position_ms'] as num?)?.toInt() ?? 0);
+      _lastPosition =
+          Duration(milliseconds: (json['position_ms'] as num?)?.toInt() ?? 0);
     } catch (_) {
       await preferences.remove(_lastPlaybackKey);
     }
@@ -429,9 +448,8 @@ SurahModel? pickRandomSurah(
   Random? random,
 }) {
   if (playlist.isEmpty) return null;
-  final candidates = playlist
-      .where((surah) => surah.audioPath != current?.audioPath)
-      .toList();
+  final candidates =
+      playlist.where((surah) => surah.audioPath != current?.audioPath).toList();
   final choices = candidates.isEmpty ? playlist : candidates;
   return choices[(random ?? Random()).nextInt(choices.length)];
 }
@@ -457,7 +475,8 @@ class ListeningHistoryEntry {
   factory ListeningHistoryEntry.fromJson(Map<String, dynamic> json) =>
       ListeningHistoryEntry(
         surah: SurahModel.fromJson(json['surah'] as Map<String, dynamic>),
-        position: Duration(milliseconds: (json['position_ms'] as num?)?.toInt() ?? 0),
+        position:
+            Duration(milliseconds: (json['position_ms'] as num?)?.toInt() ?? 0),
         listenedAt: DateTime.fromMillisecondsSinceEpoch(
           (json['listened_at_ms'] as num?)?.toInt() ?? 0,
         ),
