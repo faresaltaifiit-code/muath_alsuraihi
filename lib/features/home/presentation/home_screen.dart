@@ -172,30 +172,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
         children: [
-          Container(
-            width: 62,
-            height: 62,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [AppColors.emerald, AppColors.forestGreen],
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Center(
-              child: StarNumberBadge(
-                number: 0,
-                size: 38,
-                inverted: true,
-                child: Icon(
-                  Icons.menu_book_outlined,
-                  color: AppColors.softGold,
-                  size: 23,
-                ),
-              ),
-            ),
-          ),
+          const BrandMark(),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
