@@ -10,6 +10,7 @@ import '../../../providers/recitations_provider.dart';
 import '../../../providers/listening_stats_provider.dart';
 import 'about_privacy_screen.dart';
 import 'listening_features_screens.dart';
+import 'unified_search_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -84,6 +85,19 @@ class MoreScreen extends StatelessWidget {
                   onChanged: listeningStats.setEnabled,
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 28),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.search_rounded),
+              title: const Text('البحث'),
+              subtitle: const Text('السور والتلاوات المختارة'),
+              trailing: const Icon(Icons.chevron_left_rounded),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                    builder: (_) => const UnifiedSearchScreen()),
+              ),
             ),
           ),
           const SizedBox(height: 28),
