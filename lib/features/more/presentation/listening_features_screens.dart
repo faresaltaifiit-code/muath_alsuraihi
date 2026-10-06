@@ -203,34 +203,49 @@ class DailyWirdCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final stats = context.watch<ListeningStatsProvider>();
     return Card(
-        child: InkWell(
-      borderRadius: BorderRadius.circular(22),
-      onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => const DailyWirdScreen())),
-      child: Padding(
-          padding: const EdgeInsets.all(14),
+        child: SizedBox(
+      height: 116,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const DailyWirdScreen())),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(children: [
-            _WirdRing(size: 72, stats: stats),
-            const SizedBox(width: 14),
+            _WirdRing(size: 88, stats: stats, compactLabel: true),
+            const SizedBox(width: 18),
             Expanded(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text('الورد اليومي',
-                      style: Theme.of(context).textTheme.titleMedium),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 4),
                   Text('هدفك الشخصي اليوم',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium),
-                ])),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
             const Icon(Icons.chevron_left_rounded),
-          ])),
+          ]),
+        ),
+      ),
     ));
   }
 }
 
 class _WirdRing extends StatelessWidget {
-  const _WirdRing({required this.size, required this.stats});
+  const _WirdRing(
+      {required this.size, required this.stats, this.compactLabel = false});
   final double size;
   final ListeningStatsProvider stats;
+  final bool compactLabel;
   @override
   Widget build(BuildContext context) => SizedBox(
       width: size,
@@ -251,7 +266,12 @@ class _WirdRing extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontFamily: 'Amiri', fontSize: size > 100 ? 30 : null)),
           ),
-          Text(_goalLabel(stats.goalType),
+          Text(
+              compactLabel
+                  ? _shortGoalLabel(stats.goalType)
+                  : _goalLabel(stats.goalType),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall),
         ]),
       ]));
@@ -368,6 +388,11 @@ String _goalLabel(DailyWirdType type) => switch (type) {
       DailyWirdType.surahs => 'سور اليوم',
       DailyWirdType.minutes => 'دقائق اليوم',
       DailyWirdType.juz => 'من الجزء'
+    };
+String _shortGoalLabel(DailyWirdType type) => switch (type) {
+      DailyWirdType.surahs => 'سور',
+      DailyWirdType.minutes => 'دقيقة',
+      DailyWirdType.juz => 'جزء'
     };
 String _dayLabel(DateTime day) =>
     const ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'][day.weekday % 7];
