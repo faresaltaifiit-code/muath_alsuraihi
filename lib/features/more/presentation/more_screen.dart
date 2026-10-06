@@ -11,6 +11,7 @@ import '../../../providers/listening_stats_provider.dart';
 import 'about_privacy_screen.dart';
 import 'listening_features_screens.dart';
 import 'unified_search_screen.dart';
+import '../../prayer_times/presentation/prayer_times_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -49,6 +50,19 @@ class MoreScreen extends StatelessWidget {
                 selected: {settings.themeMode},
                 onSelectionChanged: (values) =>
                     settings.setThemeMode(values.first),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.mosque_outlined),
+              title: const Text('مواقيت الصلاة'),
+              subtitle: const Text('الأذان، الإقامة، والتنبيهات'),
+              trailing: const Icon(Icons.chevron_left_rounded),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                    builder: (_) => const PrayerTimesScreen()),
               ),
             ),
           ),

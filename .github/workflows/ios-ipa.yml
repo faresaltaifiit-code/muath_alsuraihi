@@ -47,6 +47,8 @@ jobs:
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName تلاوات معاذ السريحي" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes: string audio" ios/Runner/Info.plist || true
+          LOCATION_USAGE="$(printf '%s' '2LPZhtiz2KrYrtiv2YUg2YXZiNmC2LnZgyDYo9ir2YbYp9ihINin2LPYqtiu2K/Yp9mFINin2YTYqti32KjZitmCINmE2K3Ys9in2Kgg2YXZiNin2YLZitiqINin2YTYtdmE2KfYqSDZgdmKINmF2K/ZitmG2KrZgy4=' | base64 -D)"
+          /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string $LOCATION_USAGE" ios/Runner/Info.plist || /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription $LOCATION_USAGE" ios/Runner/Info.plist
 
       - name: Run iOS integration test
         run: |
