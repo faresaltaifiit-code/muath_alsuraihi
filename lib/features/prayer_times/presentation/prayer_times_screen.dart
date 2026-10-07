@@ -14,6 +14,159 @@ class PrayerTimesScreen extends StatefulWidget {
   State<PrayerTimesScreen> createState() => _PrayerTimesScreenState();
 }
 
+/// The compact entry on Home. It deliberately uses the gold time-of-day
+/// treatment instead of the emerald playback treatment.
+class PrayerTimesHomeStrip extends StatefulWidget {
+  const PrayerTimesHomeStrip({super.key});
+
+  @override
+  State<PrayerTimesHomeStrip> createState() => _PrayerTimesHomeStripState();
+}
+
+class _PrayerTimesHomeStripState extends State<PrayerTimesHomeStrip> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final prayers = context.read<PrayerTimesProvider>();
+      if (prayers.today == null && !prayers.isRefreshing) {
+        unawaited(prayers.refreshPrayerTimes());
+      }
+    });
+    _ticker = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final prayers = context.watch<PrayerTimesProvider>();
+    final currentIqama = prayers.currentIqamaPrayer;
+    final prayer = currentIqama ?? prayers.nextPrayer;
+    final countdown = currentIqama != null
+        ? prayers.timeUntilIqama
+        : prayers.timeUntilNextPrayer;
+    final label = currentIqama != null ? 'الإقامة' : 'الصلاة القادمة';
+    final title = prayer == null
+        ? (prayers.isRefreshing ? 'جاري تحديث المواقيت' : 'مواقيت الصلاة')
+        : prayer.arabicName;
+
+    return Semantics(
+      button: true,
+      label: 'مواقيت الصلاة. $title',
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(22),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [Color(0xFFC9A24A), Color(0xFFECDCB6)],
+            ),
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(22),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const PrayerTimesScreen(),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 14, 14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F3A2E).withValues(alpha: .14),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.access_time_rounded,
+                        color: Color(0xFF0F3A2E)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$label · ${prayers.locationLabel}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF0F3A2E)
+                                    .withValues(alpha: .75),
+                                fontSize: 11.5,
+                              ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: const Color(0xFF0F3A2E),
+                                      fontFamily: 'Amiri',
+                                      fontSize: 20,
+                                    ),
+                              ),
+                            ),
+                            if (countdown != null && !countdown.isNegative) ...[
+                              const Text(' — ',
+                                  style: TextStyle(color: Color(0xFF0F3A2E))),
+                              Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: Text(
+                                  'بعد ${_formatCompactDuration(countdown)}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: const Color(0xFF0F3A2E),
+                                        fontFeatures: const [
+                                          FontFeature.tabularFigures(),
+                                        ],
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_left_rounded,
+                      color: Color(0xFF0F3A2E)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatCompactDuration(Duration duration) {
+    final hours = duration.inHours.toString().padLeft(2, '0');
+    final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
+    return '$hours:$minutes';
+  }
+}
+
 class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
   Timer? _ticker;
 
