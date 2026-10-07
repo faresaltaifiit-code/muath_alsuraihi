@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/settings_provider.dart';
+import '../../../widgets/app_design_widgets.dart';
 import '../../navigation/presentation/root_navigation_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -70,6 +71,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   itemBuilder: (context, index) => _WelcomePage(
                     data: _pages[index],
                     animate: !reduceMotion && index == _page,
+                    animationsAllowed: !reduceMotion,
                   ),
                 ),
               ),
@@ -122,9 +124,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 }
 
 class _WelcomePage extends StatelessWidget {
-  const _WelcomePage({required this.data, required this.animate});
+  const _WelcomePage({
+    required this.data,
+    required this.animate,
+    required this.animationsAllowed,
+  });
   final _WelcomePageData data;
   final bool animate;
+  final bool animationsAllowed;
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -132,18 +139,10 @@ class _WelcomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedScale(
-              scale: animate ? 1 : .96,
-              duration: const Duration(milliseconds: 450),
-              child: Container(
-                width: 250,
-                height: 250,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(colors: [AppColors.emerald, AppColors.forestGreen]),
-                ),
-                child: Icon(data.icon, size: 64, color: AppColors.softGold),
-              ),
+            _WelcomeHero(
+              icon: data.icon,
+              animate: animate,
+              animationsAllowed: animationsAllowed,
             ),
             const SizedBox(height: 46),
             if (data.line != null) ...[
@@ -155,6 +154,117 @@ class _WelcomePage extends StatelessWidget {
             Text(data.body, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.7)),
           ],
         ),
+      );
+}
+
+class _WelcomeHero extends StatelessWidget {
+  const _WelcomeHero({
+    required this.icon,
+    required this.animate,
+    required this.animationsAllowed,
+  });
+
+  final IconData icon;
+  final bool animate;
+  final bool animationsAllowed;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+        dimension: 276,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (animationsAllowed) ...[
+              _PulseRing(delay: Duration.zero),
+              const _PulseRing(delay: Duration(milliseconds: 1700)),
+            ],
+            AnimatedScale(
+              scale: animate ? 1 : .96,
+              duration: animationsAllowed
+                  ? const Duration(milliseconds: 450)
+                  : Duration.zero,
+              curve: Curves.easeOutCubic,
+              child: Container(
+                width: 250,
+                height: 250,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [AppColors.emerald, AppColors.forestGreen],
+                  ),
+                ),
+                child: Center(
+                  child: StarNumberBadge(
+                    number: 0,
+                    size: 138,
+                    inverted: true,
+                    child: Icon(icon, size: 64, color: AppColors.softGold),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _PulseRing extends StatefulWidget {
+  const _PulseRing({required this.delay});
+  final Duration delay;
+
+  @override
+  State<_PulseRing> createState() => _PulseRingState();
+}
+
+class _PulseRingState extends State<_PulseRing>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 3400),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.delay == Duration.zero) {
+      _controller.repeat();
+    } else {
+      Future<void>.delayed(widget.delay, () {
+        if (mounted) _controller.repeat();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _controller,
+        child: Container(
+          width: 250,
+          height: 250,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.goldAccent),
+          ),
+        ),
+        builder: (context, child) {
+          final progress = Curves.easeOut.transform(_controller.value);
+          final scale = .96 + (.32 * progress);
+          return Transform.scale(
+            scale: scale,
+          child: Opacity(
+              opacity: (1 - progress) * .5,
+            child: child,
+          ),
+          );
+        },
       );
 }
 
