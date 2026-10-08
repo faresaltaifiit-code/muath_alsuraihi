@@ -1,8 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'prayer_times_service.dart';
+
+enum PrayerNotificationAction { openAdhan }
+
+/// Bridges an iOS notification tap to the app shell without coupling the
+/// notification plugin to a particular screen.
+class PrayerNotificationEvents {
+  PrayerNotificationEvents._();
+
+  static final _controller = StreamController<PrayerNotificationAction>.broadcast();
+
+  static Stream<PrayerNotificationAction> get actions => _controller.stream;
+
+  static void handle(NotificationResponse response) {
+    if (response.payload == 'open_adhan') {
+      _controller.add(PrayerNotificationAction.openAdhan);
+    }
+  }
+}
 
 class PrayerNotificationsService {
   PrayerNotificationsService();
@@ -32,8 +52,17 @@ class PrayerNotificationsService {
         defaultPresentList: true,
       ),
     );
-    await _plugin.initialize(settings: settings);
+    await _plugin.initialize(
+      settings: settings,
+      onDidReceiveNotificationResponse: PrayerNotificationEvents.handle,
+    );
     _initialized = true;
+    final launchDetails = await _plugin.getNotificationAppLaunchDetails();
+    final response = launchDetails?.notificationResponse;
+    if (launchDetails?.didNotificationLaunchApp == true && response != null) {
+      // Allow the widget tree to subscribe before sending the launch action.
+      scheduleMicrotask(() => PrayerNotificationEvents.handle(response));
+    }
   }
 
   Future<bool> requestPermission() async {
@@ -82,6 +111,7 @@ class PrayerNotificationsService {
         presentBanner: true,
         presentList: true,
         threadIdentifier: 'prayer-times',
+        sound: 'adhan_notification.caf',
       ),
     );
     await _plugin.cancel(id: testId);
@@ -91,6 +121,7 @@ class PrayerNotificationsService {
       body: 'التنبيهات مفعّلة وستصلك عند الأذان والإقامة.',
       scheduledDate: scheduledAt,
       notificationDetails: details,
+      payload: 'open_adhan',
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
     return scheduledAt;
@@ -100,7 +131,17 @@ class PrayerNotificationsService {
     await cancelPrayerNotifications();
     var id = _notificationIdBase;
     final now = DateTime.now();
-    const details = NotificationDetails(
+    const adhanDetails = NotificationDetails(
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentSound: true,
+        presentBanner: true,
+        presentList: true,
+        threadIdentifier: 'prayer-times',
+        sound: 'adhan_notification.caf',
+      ),
+    );
+    const iqamaDetails = NotificationDetails(
       iOS: DarwinNotificationDetails(
         presentAlert: true,
         presentSound: true,
@@ -119,7 +160,8 @@ class PrayerNotificationsService {
             title: 'حان الآن موعد صلاة ${prayer.arabicName}',
             body: 'تقبل الله طاعتكم.',
             time: adhan,
-            details: details,
+            details: adhanDetails,
+            payload: 'open_adhan',
           );
         }
         if (iqama.isAfter(now) &&
@@ -129,7 +171,7 @@ class PrayerNotificationsService {
             title: 'إقامة صلاة ${prayer.arabicName}',
             body: 'هذا وقت إقامة تقريبي حسب إعداداتك.',
             time: iqama,
-            details: details,
+            details: iqamaDetails,
           );
         }
       }
@@ -142,6 +184,7 @@ class PrayerNotificationsService {
     required String body,
     required DateTime time,
     required NotificationDetails details,
+    String? payload,
   }) =>
       _plugin.zonedSchedule(
         id: id,
@@ -149,6 +192,7 @@ class PrayerNotificationsService {
         body: body,
         scheduledDate: tz.TZDateTime.from(time, tz.local),
         notificationDetails: details,
+        payload: payload,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
 }

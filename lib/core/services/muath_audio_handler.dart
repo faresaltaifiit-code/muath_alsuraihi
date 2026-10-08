@@ -179,9 +179,9 @@ class MuathAudioHandler extends BaseAudioHandler with SeekHandler {
 
   MediaItem _mediaItem(SurahModel item) => MediaItem(
         id: item.audioPath,
-        title: 'سورة ${item.name}',
-        artist: AppStrings.reciterName,
-        album: 'قرآن وتلاوات',
+        title: item.number > 0 ? 'سورة ${item.name}' : item.name,
+        artist: item.number > 0 ? AppStrings.reciterName : item.reciterName,
+        album: item.number > 0 ? 'قرآن وتلاوات' : 'مواقيت الصلاة',
         artUri: _artworkUri,
         duration: item.durationSeconds > 0 ? Duration(seconds: item.durationSeconds) : null,
       );

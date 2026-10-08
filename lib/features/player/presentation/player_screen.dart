@@ -102,7 +102,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    kReciterName,
+                    surah.number > 0 ? kReciterName : surah.reciterName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyLarge,

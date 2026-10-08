@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/services/muath_audio_handler.dart';
+import '../core/constants/adhan_content.dart';
 import '../data/models/surah_model.dart';
 import 'listening_stats_provider.dart';
 
@@ -90,6 +91,9 @@ class PlayerProvider extends ChangeNotifier {
 
   Future<void> playFromQueue(SurahModel surah) =>
       prepareSurah(surah, autoplay: true, keepCurrentPlaylist: true);
+
+  /// Plays the complete adhan after a person opens a prayer notification.
+  Future<void> playAdhan() => prepareSurah(kAdhanAudio, autoplay: true);
 
   Future<void> initialize() async {
     if (_handler != null) return;
