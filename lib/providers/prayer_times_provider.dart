@@ -135,6 +135,21 @@ class PrayerTimesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> sendTestNotification() async {
+    if (!_alertsEnabled) {
+      _error = 'فعّل تنبيهات الأذان والإقامة أولًا.';
+      notifyListeners();
+      return;
+    }
+    try {
+      _error = null;
+      await _notificationsService.showTestNotification();
+    } catch (_) {
+      _error = 'تعذّر إرسال التنبيه التجريبي. تحقّق من أذونات الإشعارات في إعدادات iPhone.';
+    }
+    notifyListeners();
+  }
+
   Future<void> _scheduleUpcomingAlerts() async {
     final days = <PrayerDay>[];
     for (var offset = 0; offset < 6; offset++) {

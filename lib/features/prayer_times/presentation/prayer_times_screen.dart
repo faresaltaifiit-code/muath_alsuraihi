@@ -320,6 +320,17 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                     ),
                     const Divider(height: 1),
                     ListTile(
+                      leading: const Icon(Icons.notifications_outlined),
+                      title: const Text('إرسال تنبيه تجريبي'),
+                      subtitle: const Text('تأكد الآن من وصول التنبيه على هذا الجهاز.'),
+                      trailing: const Icon(Icons.chevron_left_rounded),
+                      enabled: prayers.alertsEnabled,
+                      onTap: prayers.alertsEnabled
+                          ? prayers.sendTestNotification
+                          : null,
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
                       leading: const Icon(Icons.my_location_rounded),
                       title: const Text('استخدام موقعي الحالي'),
                       subtitle:

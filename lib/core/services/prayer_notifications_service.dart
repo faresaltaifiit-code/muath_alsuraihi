@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'prayer_times_service.dart';
@@ -14,6 +15,11 @@ class PrayerNotificationsService {
 
   Future<void> initialize() async {
     if (_initialized) return;
+    // Prayer times are currently provided for Saudi Arabia. Initializing the
+    // database before making a TZDateTime is required for reliable iOS
+    // scheduling; without it tz.local falls back to UTC.
+    tz_data.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Riyadh'));
     const settings = InitializationSettings(
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
@@ -44,6 +50,25 @@ class PrayerNotificationsService {
     for (var index = 0; index < _notificationCount; index++) {
       await _plugin.cancel(id: _notificationIdBase + index);
     }
+  }
+
+  Future<void> showTestNotification() async {
+    await initialize();
+    const details = NotificationDetails(
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentSound: true,
+        presentBanner: true,
+        presentList: true,
+        threadIdentifier: 'prayer-times',
+      ),
+    );
+    await _plugin.show(
+      id: _notificationIdBase + _notificationCount,
+      title: 'تنبيه تجريبي لمواقيت الصلاة',
+      body: 'التنبيهات مفعّلة وستصلك عند الأذان والإقامة.',
+      notificationDetails: details,
+    );
   }
 
   Future<void> schedule({required List<PrayerDay> days}) async {
