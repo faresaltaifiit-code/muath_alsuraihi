@@ -31,6 +31,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   double _latitude = PrayerTimesService.jeddahLatitude;
   double _longitude = PrayerTimesService.jeddahLongitude;
   String? _error;
+  DateTime? _testNotificationScheduledAt;
 
   PrayerDay? get today => _today;
   bool get isLoaded => _isLoaded;
@@ -38,6 +39,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   bool get alertsEnabled => _alertsEnabled;
   String get locationLabel => _locationLabel;
   String? get error => _error;
+  DateTime? get testNotificationScheduledAt => _testNotificationScheduledAt;
 
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
@@ -149,8 +151,10 @@ class PrayerTimesProvider extends ChangeNotifier {
     }
     try {
       _error = null;
-      await _notificationsService.showTestNotification();
+      _testNotificationScheduledAt =
+          await _notificationsService.scheduleTestNotification();
     } catch (_) {
+      _testNotificationScheduledAt = null;
       _error = 'تعذّر إرسال التنبيه التجريبي. تحقّق من أذونات الإشعارات في إعدادات iPhone.';
     }
     notifyListeners();

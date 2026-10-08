@@ -325,8 +325,10 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.notifications_outlined),
-                      title: const Text('إرسال تنبيه تجريبي'),
-                      subtitle: const Text('تأكد الآن من وصول التنبيه على هذا الجهاز.'),
+                      title: const Text('اختبار إشعار بعد 10 ثوانٍ'),
+                      subtitle: Text(prayers.testNotificationScheduledAt == null
+                          ? 'اقفل الشاشة بعد الضغط للتحقق من وصوله.'
+                          : 'تمت الجدولة — اقفل الشاشة الآن وانتظر 10 ثوانٍ.'),
                       trailing: const Icon(Icons.chevron_left_rounded),
                       enabled: prayers.alertsEnabled,
                       onTap: prayers.alertsEnabled

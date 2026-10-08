@@ -67,11 +67,14 @@ class PrayerNotificationsService {
     }
   }
 
-  Future<void> showTestNotification() async {
+  Future<DateTime> scheduleTestNotification() async {
     await initialize();
     if (!await notificationsAreEnabled()) {
       throw StateError('الإشعارات محجوبة من إعدادات iPhone.');
     }
+    const testId = _notificationIdBase + _notificationCount;
+    final scheduledAt =
+        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 10));
     const details = NotificationDetails(
       iOS: DarwinNotificationDetails(
         presentAlert: true,
@@ -81,12 +84,16 @@ class PrayerNotificationsService {
         threadIdentifier: 'prayer-times',
       ),
     );
-    await _plugin.show(
-      id: _notificationIdBase + _notificationCount,
+    await _plugin.cancel(id: testId);
+    await _plugin.zonedSchedule(
+      id: testId,
       title: 'تنبيه تجريبي لمواقيت الصلاة',
       body: 'التنبيهات مفعّلة وستصلك عند الأذان والإقامة.',
+      scheduledDate: scheduledAt,
       notificationDetails: details,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
+    return scheduledAt;
   }
 
   Future<void> schedule({required List<PrayerDay> days}) async {
