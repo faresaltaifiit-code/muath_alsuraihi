@@ -35,7 +35,7 @@ class _PrayerTimesHomeStripState extends State<PrayerTimesHomeStrip> {
         unawaited(prayers.refreshPrayerTimes());
       }
     });
-    _ticker = Timer.periodic(const Duration(seconds: 30), (_) {
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
   }
@@ -161,9 +161,13 @@ class _PrayerTimesHomeStripState extends State<PrayerTimesHomeStrip> {
   }
 
   String _formatCompactDuration(Duration duration) {
-    final hours = duration.inHours.toString().padLeft(2, '0');
+    final days = duration.inDays;
+    final hours = (duration.inHours % 24).toString().padLeft(2, '0');
     final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
-    return '$hours:$minutes';
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return days > 0
+        ? '$days يوم $hours:$minutes:$seconds'
+        : '$hours:$minutes:$seconds';
   }
 }
 
@@ -179,7 +183,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
         unawaited(prayers.refreshPrayerTimes());
       }
     });
-    _ticker = Timer.periodic(const Duration(seconds: 30), (_) {
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
   }
@@ -331,6 +335,14 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                     ),
                     const Divider(height: 1),
                     ListTile(
+                      leading: const Icon(Icons.settings_outlined),
+                      title: const Text('فتح إعدادات إشعارات iPhone'),
+                      subtitle: const Text('استخدمه إذا لم يصل التنبيه التجريبي.'),
+                      trailing: const Icon(Icons.open_in_new_rounded),
+                      onTap: prayers.openNotificationSettings,
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
                       leading: const Icon(Icons.my_location_rounded),
                       title: const Text('استخدام موقعي الحالي'),
                       subtitle:
@@ -359,9 +371,13 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
 
   String _formatDuration(Duration? duration) {
     if (duration == null || duration.isNegative) return '--:--';
-    final hours = duration.inHours.toString().padLeft(2, '0');
+    final days = duration.inDays;
+    final hours = (duration.inHours % 24).toString().padLeft(2, '0');
     final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
-    return '$hours:$minutes';
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return days > 0
+        ? '$days يوم $hours:$minutes:$seconds'
+        : '$hours:$minutes:$seconds';
   }
 }
 

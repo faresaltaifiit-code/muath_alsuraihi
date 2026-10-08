@@ -45,6 +45,21 @@ class PrayerNotificationsService {
         false;
   }
 
+  Future<bool> notificationsAreEnabled() async {
+    await initialize();
+    final ios = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+    final permissions = await ios?.checkPermissions();
+    return permissions?.isEnabled == true && permissions?.isAlertEnabled == true;
+  }
+
+  Future<void> openNotificationSettings() async {
+    await initialize();
+    final ios = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+    await ios?.openAppNotificationSettings();
+  }
+
   Future<void> cancelPrayerNotifications() async {
     await initialize();
     for (var index = 0; index < _notificationCount; index++) {
@@ -54,6 +69,9 @@ class PrayerNotificationsService {
 
   Future<void> showTestNotification() async {
     await initialize();
+    if (!await notificationsAreEnabled()) {
+      throw StateError('الإشعارات محجوبة من إعدادات iPhone.');
+    }
     const details = NotificationDetails(
       iOS: DarwinNotificationDetails(
         presentAlert: true,

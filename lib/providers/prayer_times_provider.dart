@@ -23,6 +23,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   final PrayerTimesService _prayerTimesService;
   final PrayerNotificationsService _notificationsService;
   PrayerDay? _today;
+  PrayerDay? _tomorrow;
   bool _isLoaded = false;
   bool _isRefreshing = false;
   bool _alertsEnabled = false;
@@ -55,6 +56,11 @@ class PrayerTimesProvider extends ChangeNotifier {
     try {
       _today = await _prayerTimesService.fetchDay(
         date: DateTime.now(),
+        latitude: _latitude,
+        longitude: _longitude,
+      );
+      _tomorrow = await _prayerTimesService.fetchDay(
+        date: DateTime.now().add(const Duration(days: 1)),
         latitude: _latitude,
         longitude: _longitude,
       );
@@ -150,6 +156,10 @@ class PrayerTimesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> openNotificationSettings() async {
+    await _notificationsService.openNotificationSettings();
+  }
+
   Future<void> _scheduleUpcomingAlerts() async {
     final days = <PrayerDay>[];
     for (var offset = 0; offset < 6; offset++) {
@@ -170,13 +180,16 @@ class PrayerTimesProvider extends ChangeNotifier {
     for (final prayer in PrayerName.values) {
       if (day.timeFor(prayer).isAfter(now)) return prayer;
     }
-    return null;
+    return _tomorrow == null ? null : PrayerName.fajr;
   }
 
   Duration? get timeUntilNextPrayer {
     final prayer = nextPrayer;
     if (prayer == null || _today == null) return null;
-    return _today!.timeFor(prayer).difference(DateTime.now());
+    final todayHasUpcomingPrayer = PrayerName.values
+        .any((item) => _today!.timeFor(item).isAfter(DateTime.now()));
+    final day = todayHasUpcomingPrayer ? _today : _tomorrow;
+    return day?.timeFor(prayer).difference(DateTime.now());
   }
 
   PrayerName? get currentIqamaPrayer {
