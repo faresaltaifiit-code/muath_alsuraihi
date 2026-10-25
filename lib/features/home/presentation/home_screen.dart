@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -395,11 +397,9 @@ class _FridayKahfCard extends StatelessWidget {
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(
-      {required this.title, this.action, this.onAction, this.icon});
+  const _SectionHeader({required this.title, this.action, this.onAction});
   final String title;
   final String? action;
-  final IconData? icon;
   final VoidCallback? onAction;
 
   @override
@@ -408,20 +408,8 @@ class _SectionHeader extends StatelessWidget {
           Expanded(
               child:
                   Text(title, style: Theme.of(context).textTheme.titleLarge)),
-          if (action != null && onAction != null && icon == null)
+          if (action != null && onAction != null)
             TextButton(onPressed: onAction, child: Text(action!))
-          else if (action != null && onAction != null)
-            OutlinedButton.icon(
-              onPressed: onAction,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.goldAccent,
-                side: BorderSide(color: Theme.of(context).dividerColor),
-                padding: const EdgeInsetsDirectional.fromSTEB(12, 6, 12, 6),
-                shape: const StadiumBorder(),
-              ),
-              icon: Icon(icon, size: 16),
-              label: Text(action!),
-            ),
         ],
       );
 }
