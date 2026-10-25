@@ -16,7 +16,6 @@ import 'providers/player_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/downloads_provider.dart';
 import 'providers/settings_provider.dart';
-import 'providers/listening_stats_provider.dart';
 import 'providers/prayer_times_provider.dart';
 
 class MuathAlsuraihiApp extends StatefulWidget {
@@ -66,12 +65,7 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
       providers: [
         ChangeNotifierProvider(
             create: (_) => RecitationsProvider()..loadSurahs()),
-        ChangeNotifierProvider(create: (_) => ListeningStatsProvider()..load()),
-        ChangeNotifierProvider(
-          create: (context) => PlayerProvider(
-            listeningStats: context.read<ListeningStatsProvider>(),
-          )..initialize(),
-        ),
+        ChangeNotifierProvider(create: (_) => PlayerProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => FavoritesProvider()..load()),
         ChangeNotifierProvider(create: (_) => DownloadsProvider()..load()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..load()),

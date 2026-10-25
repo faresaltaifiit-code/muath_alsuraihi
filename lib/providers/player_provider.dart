@@ -10,25 +10,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/services/muath_audio_handler.dart';
 import '../core/constants/adhan_content.dart';
 import '../data/models/surah_model.dart';
-import 'listening_stats_provider.dart';
 
 class PlayerProvider extends ChangeNotifier {
   static const _lastPlaybackKey = 'last_playback';
   static const _recentPlaybackKey = 'recent_playback';
+  static const _retiredStatsKey = 'local_listening_stats_v1';
+  static const _retiredStatsEnabledKey = 'local_listening_stats_enabled';
   static const _recentLimit = 10;
-  PlayerProvider({ListeningStatsProvider? listeningStats})
-      : _listeningStats = listeningStats;
-
-  final ListeningStatsProvider? _listeningStats;
+  PlayerProvider();
   AudioHandler? _handler;
   StreamSubscription<PlaybackState>? _playbackSubscription;
   StreamSubscription<MediaItem?>? _mediaItemSubscription;
   Timer? _sleepTimer;
   Timer? _fadeTimer;
   Timer? _saveTimer;
-  Duration _lastStatsPosition = Duration.zero;
-  String? _lastStatsAudioPath;
-  String? _completedStatsAudioPath;
 
   List<SurahModel> _playlist = const [];
   List<SurahModel> _catalogPlaylist = const [];
@@ -108,14 +103,12 @@ class PlayerProvider extends ChangeNotifier {
       ),
     );
     _playbackSubscription = _handler!.playbackState.listen((state) {
-      final previousPosition = _position;
       _position = state.updatePosition;
       _isPlaying = state.playing;
       _speed = state.speed;
       _repeatMode = state.repeatMode;
       _beginEndSleepFadeIfNeeded();
       _scheduleSave();
-      _recordStatistics(state, previousPosition);
       notifyListeners();
     });
     _mediaItemSubscription = _handler!.mediaItem.listen((item) {
@@ -126,9 +119,16 @@ class PlayerProvider extends ChangeNotifier {
       notifyListeners();
     });
     _isReady = true;
+    await _removeRetiredListeningStats();
     await _restoreLastPlayback();
     await _restoreRecentPlayback();
     notifyListeners();
+  }
+
+  Future<void> _removeRetiredListeningStats() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove(_retiredStatsKey);
+    await preferences.remove(_retiredStatsEnabledKey);
   }
 
   void setPlaylist(List<SurahModel> value) {
@@ -192,9 +192,6 @@ class PlayerProvider extends ChangeNotifier {
     }
     _currentSurah = surah;
     _position = Duration.zero;
-    _lastStatsPosition = Duration.zero;
-    _lastStatsAudioPath = surah.audioPath;
-    _completedStatsAudioPath = null;
     _duration = surah.durationSeconds > 0
         ? Duration(seconds: surah.durationSeconds)
         : Duration.zero;
@@ -224,37 +221,12 @@ class PlayerProvider extends ChangeNotifier {
       _hasPlaybackInSession = true;
       _lastSurah = surah;
       _lastPosition = initialPosition ?? Duration.zero;
-      if (autoplay)
-        unawaited(_listeningStats?.recordPlay(surah) ?? Future.value());
       await _savePlayback();
     } catch (_) {
       _error = surah.remoteAudioUrl?.isNotEmpty == true
           ? 'تعذر تشغيل البث. تأكد من اتصال الإنترنت ثم أعد المحاولة.'
           : 'تعذر تشغيل ملف التلاوة المحلي.';
       notifyListeners();
-    }
-  }
-
-  void _recordStatistics(PlaybackState state, Duration previousPosition) {
-    final surah = _currentSurah;
-    if (surah == null) return;
-    if (_lastStatsAudioPath != surah.audioPath) {
-      _lastStatsAudioPath = surah.audioPath;
-      _lastStatsPosition = previousPosition;
-      _completedStatsAudioPath = null;
-    }
-    final delta = _position - _lastStatsPosition;
-    if (state.playing &&
-        delta > Duration.zero &&
-        delta <= const Duration(seconds: 15)) {
-      unawaited(
-          _listeningStats?.recordListening(surah, delta) ?? Future.value());
-    }
-    _lastStatsPosition = _position;
-    if (state.processingState == AudioProcessingState.completed &&
-        _completedStatsAudioPath != surah.audioPath) {
-      _completedStatsAudioPath = surah.audioPath;
-      unawaited(_listeningStats?.recordCompleted(surah) ?? Future.value());
     }
   }
 

@@ -7,9 +7,7 @@ import '../../../data/models/surah_model.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../providers/downloads_provider.dart';
 import '../../../providers/recitations_provider.dart';
-import '../../../providers/listening_stats_provider.dart';
 import 'about_privacy_screen.dart';
-import 'listening_features_screens.dart';
 import 'unified_search_screen.dart';
 
 class MoreScreen extends StatelessWidget {
@@ -20,7 +18,6 @@ class MoreScreen extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final downloads = context.watch<DownloadsProvider>();
     final recitations = context.watch<RecitationsProvider>();
-    final listeningStats = context.watch<ListeningStatsProvider>();
     return Scaffold(
       appBar: AppBar(title: const Text('المزيد')),
       body: ListView(
@@ -53,31 +50,6 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.bar_chart_rounded),
-                  title: const Text('إحصاءاتي'),
-                  subtitle: const Text('محفوظة على جهازك فقط'),
-                  trailing: const Icon(Icons.chevron_left_rounded),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                        builder: (_) => const ListeningStatsScreen()),
-                  ),
-                ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.privacy_tip_outlined),
-                  title: const Text('تسجيل الإحصاءات المحلية'),
-                  subtitle:
-                      const Text('إيقافه لا يؤثر على التشغيل أو التنزيلات.'),
-                  value: listeningStats.enabled,
-                  onChanged: listeningStats.setEnabled,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 28),
           Card(
             child: ListTile(
               leading: const Icon(Icons.search_rounded),
