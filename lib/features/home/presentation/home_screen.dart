@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -76,9 +74,6 @@ class HomeScreen extends StatelessWidget {
               SliverToBoxAdapter(
                 child: _SectionHeader(
                   title: 'استكشف التلاوات',
-                  action: 'فاجئني',
-                  icon: Icons.shuffle_rounded,
-                  onAction: () => _playRandom(context, recitations.surahs),
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 12)),
@@ -144,16 +139,6 @@ class HomeScreen extends StatelessWidget {
     }
     Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (_) => SurahsScreen(focusSearch: focusSearch)));
-  }
-
-  Future<void> _playRandom(BuildContext context, List<SurahModel> items) async {
-    final available = items.where((item) => item.available).toList();
-    if (available.isEmpty) return;
-    final selected = available[math.Random().nextInt(available.length)];
-    await context.read<PlayerProvider>().prepareSurah(selected, autoplay: true);
-    if (!context.mounted) return;
-    Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => PlayerScreen(surah: selected)));
   }
 
   Future<void> _playSurah(BuildContext context, SurahModel surah) async {
@@ -411,14 +396,11 @@ class _FridayKahfCard extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader(
-      {required this.title,
-      required this.action,
-      required this.onAction,
-      this.icon});
+      {required this.title, this.action, this.onAction, this.icon});
   final String title;
-  final String action;
+  final String? action;
   final IconData? icon;
-  final VoidCallback onAction;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -426,9 +408,9 @@ class _SectionHeader extends StatelessWidget {
           Expanded(
               child:
                   Text(title, style: Theme.of(context).textTheme.titleLarge)),
-          if (icon == null)
-            TextButton(onPressed: onAction, child: Text(action))
-          else
+          if (action != null && onAction != null && icon == null)
+            TextButton(onPressed: onAction, child: Text(action!))
+          else if (action != null && onAction != null)
             OutlinedButton.icon(
               onPressed: onAction,
               style: OutlinedButton.styleFrom(
@@ -438,7 +420,7 @@ class _SectionHeader extends StatelessWidget {
                 shape: const StadiumBorder(),
               ),
               icon: Icon(icon, size: 16),
-              label: Text(action),
+              label: Text(action!),
             ),
         ],
       );
