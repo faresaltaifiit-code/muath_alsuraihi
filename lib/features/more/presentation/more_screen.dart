@@ -66,16 +66,6 @@ class MoreScreen extends StatelessWidget {
                         builder: (_) => const ListeningStatsScreen()),
                   ),
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.track_changes_rounded),
-                  title: const Text('الورد اليومي'),
-                  trailing: const Icon(Icons.chevron_left_rounded),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                        builder: (_) => const DailyWirdScreen()),
-                  ),
-                ),
                 SwitchListTile(
                   secondary: const Icon(Icons.privacy_tip_outlined),
                   title: const Text('تسجيل الإحصاءات المحلية'),

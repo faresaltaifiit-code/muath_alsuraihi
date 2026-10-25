@@ -195,17 +195,24 @@ class _PlayerScreenState extends State<PlayerScreen>
 
   Future<void> _chooseSleepTimer(
       BuildContext context, PlayerProvider player) async {
+    final hasActiveTimer = player.hasSleepTimer || player.sleepAtEnd;
     final result = await showModalBottomSheet<int>(
       context: context,
       showDragHandle: true,
       builder: (context) => _OptionsSheet(
         title: 'إيقاف التشغيل بعد',
-        options: const [-1, 5, 10, 15, 30, 45, 60],
+        options: [if (hasActiveTimer) -2, -1, 5, 10, 15, 30, 45, 60],
         label: (value) =>
-            value == -1 ? 'عند نهاية السورة · مع تلاشي' : '$value دقيقة',
+            switch (value) {
+              -2 => 'إلغاء مؤقت النوم',
+              -1 => 'عند نهاية السورة · مع تلاشي',
+              _ => '$value دقيقة',
+            },
       ),
     );
-    if (result == -1) {
+    if (result == -2) {
+      player.cancelSleepTimer();
+    } else if (result == -1) {
       player.setSleepAtEnd();
     } else if (result != null) {
       player.setSleepTimer(Duration(minutes: result));

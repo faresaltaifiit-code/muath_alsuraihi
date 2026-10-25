@@ -12,7 +12,6 @@ import '../../../widgets/app_design_widgets.dart';
 import '../../library/presentation/juz_screen.dart';
 import '../../library/presentation/library_screens.dart';
 import '../../library/presentation/special_recitations_screen.dart';
-import '../../more/presentation/listening_features_screens.dart';
 import '../../player/presentation/player_screen.dart';
 import '../../prayer_times/presentation/prayer_times_screen.dart';
 import '../../surahs/presentation/surahs_screen.dart';
@@ -47,8 +46,6 @@ class HomeScreen extends StatelessWidget {
               ],
               const SliverToBoxAdapter(child: SizedBox(height: 14)),
               const SliverToBoxAdapter(child: PrayerTimesHomeStrip()),
-              const SliverToBoxAdapter(child: SizedBox(height: 14)),
-              const SliverToBoxAdapter(child: DailyWirdCard()),
               if (_showFridaySermon && _isFriday()) ...[
                 const SliverToBoxAdapter(child: SizedBox(height: 14)),
                 const SliverToBoxAdapter(child: _FridayCard()),

@@ -5,13 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/models/surah_model.dart';
 
-enum DailyWirdType { surahs, minutes, juz }
-
 class ListeningStatsProvider extends ChangeNotifier {
   static const _key = 'local_listening_stats_v1';
   static const _enabledKey = 'local_listening_stats_enabled';
-  static const _goalTypeKey = 'daily_wird_type';
-  static const _goalKey = 'daily_wird_goal';
 
   bool _enabled = true;
   int _totalMilliseconds = 0;
@@ -19,8 +15,6 @@ class ListeningStatsProvider extends ChangeNotifier {
   final Map<String, int> _playCounts = <String, int>{};
   final Map<String, int> _completedCounts = <String, int>{};
   final Map<String, _StatRecitation> _recitations = <String, _StatRecitation>{};
-  DailyWirdType _goalType = DailyWirdType.surahs;
-  int _goal = 3;
   bool _loaded = false;
 
   bool get enabled => _enabled;
@@ -28,23 +22,14 @@ class ListeningStatsProvider extends ChangeNotifier {
   int get totalListeningMinutes =>
       _totalMilliseconds ~/ Duration.millisecondsPerMinute;
   int get completedSurahs => _completedCounts.values.fold(0, (a, b) => a + b);
-  DailyWirdType get goalType => _goalType;
-  int get goal => _goal;
 
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
     _enabled = preferences.getBool(_enabledKey) ?? true;
-    _goalType = switch (preferences.getString(_goalTypeKey)) {
-      'minutes' => DailyWirdType.minutes,
-      'juz' => DailyWirdType.juz,
-      _ => DailyWirdType.surahs,
-    };
-    _goal = preferences.getInt(_goalKey) ??
-        (_goalType == DailyWirdType.minutes
-            ? 15
-            : _goalType == DailyWirdType.juz
-                ? 1
-                : 3);
+    // Remove the retired daily-wird preferences once, without touching the
+    // user's listening statistics.
+    await preferences.remove('daily_wird_type');
+    await preferences.remove('daily_wird_goal');
     final stored = preferences.getString(_key);
     if (stored != null) {
       try {
@@ -74,15 +59,6 @@ class ListeningStatsProvider extends ChangeNotifier {
     notifyListeners();
     final preferences = await SharedPreferences.getInstance();
     await preferences.setBool(_enabledKey, value);
-  }
-
-  Future<void> setGoal(DailyWirdType type, int value) async {
-    _goalType = type;
-    _goal = value.clamp(1, 120);
-    notifyListeners();
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setString(_goalTypeKey, type.name);
-    await preferences.setInt(_goalKey, _goal);
   }
 
   Future<void> recordPlay(SurahModel surah) async {
@@ -119,23 +95,6 @@ class ListeningStatsProvider extends ChangeNotifier {
 
   int dayMinutes(DateTime day) =>
       (_dayMilliseconds[_dayKey(day)] ?? 0) ~/ Duration.millisecondsPerMinute;
-
-  int get todayMinutes => dayMinutes(DateTime.now());
-
-  int get todayCompleted => _completedCounts.entries
-      .where((entry) =>
-          _recitations[entry.key]?.playedAt != null &&
-          _sameDay(_recitations[entry.key]!.playedAt, DateTime.now()))
-      .fold(0, (sum, entry) => sum + entry.value);
-
-  int get dailyProgress => switch (_goalType) {
-        DailyWirdType.surahs => todayCompleted,
-        DailyWirdType.minutes => todayMinutes,
-        DailyWirdType.juz => todayMinutes ~/ 30,
-      };
-
-  double get dailyProgressFraction =>
-      (dailyProgress / _goal).clamp(0, 1).toDouble();
 
   List<DailyListeningTotal> get lastSevenDays {
     final today = DateTime.now();
@@ -195,8 +154,6 @@ class ListeningStatsProvider extends ChangeNotifier {
 
   static String _dayKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  static bool _sameDay(DateTime one, DateTime two) =>
-      one.year == two.year && one.month == two.month && one.day == two.day;
 }
 
 class DailyListeningTotal {
