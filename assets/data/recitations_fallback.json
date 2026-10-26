@@ -177,37 +177,37 @@
       "number": 15,
       "name": "الحجر",
       "reciter_name": "معاذ بن ماجد السريحي",
-      "duration_seconds": 0,
-      "duration_text": "",
+      "duration_seconds": 726,
+      "duration_text": "12:06",
       "audio_path": "assets/audio/015_الحجر.mp3",
       "available": true,
-      "file_size_bytes": 0,
-      "file_size_text": "",
-      "bundled": false
+      "file_size_bytes": 14514232,
+      "file_size_text": "13.8 MB",
+      "bundled": true
     },
     {
       "number": 16,
       "name": "النحل",
       "reciter_name": "معاذ بن ماجد السريحي",
-      "duration_seconds": 0,
-      "duration_text": "",
+      "duration_seconds": 1793,
+      "duration_text": "29:53",
       "audio_path": "assets/audio/016_النحل.mp3",
       "available": true,
-      "file_size_bytes": 0,
-      "file_size_text": "",
-      "bundled": false
+      "file_size_bytes": 35854705,
+      "file_size_text": "34.2 MB",
+      "bundled": true
     },
     {
       "number": 17,
       "name": "الإسراء",
       "reciter_name": "معاذ بن ماجد السريحي",
-      "duration_seconds": 0,
-      "duration_text": "",
+      "duration_seconds": 1545,
+      "duration_text": "25:45",
       "audio_path": "assets/audio/017_الإسراء.mp3",
       "available": true,
-      "file_size_bytes": 0,
-      "file_size_text": "",
-      "bundled": false
+      "file_size_bytes": 30903979,
+      "file_size_text": "29.5 MB",
+      "bundled": true
     },
     {
       "number": 18,
@@ -261,13 +261,13 @@
       "number": 22,
       "name": "الحج",
       "reciter_name": "معاذ بن ماجد السريحي",
-      "duration_seconds": 0,
-      "duration_text": "",
+      "duration_seconds": 1367,
+      "duration_text": "22:47",
       "audio_path": "assets/audio/022_الحج.mp3",
       "available": true,
-      "file_size_bytes": 0,
-      "file_size_text": "",
-      "bundled": false
+      "file_size_bytes": 27339832,
+      "file_size_text": "26.1 MB",
+      "bundled": true
     },
     {
       "number": 23,
