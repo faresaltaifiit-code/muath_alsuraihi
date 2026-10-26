@@ -6,7 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'prayer_times_service.dart';
 
-enum PrayerNotificationAction { openAdhan }
+enum PrayerNotificationAction { openAdhan, openIqama }
 
 /// Bridges an iOS notification tap to the app shell without coupling the
 /// notification plugin to a particular screen.
@@ -18,9 +18,12 @@ class PrayerNotificationEvents {
   static Stream<PrayerNotificationAction> get actions => _controller.stream;
 
   static void handle(NotificationResponse response) {
-    if (response.payload == 'open_adhan') {
-      _controller.add(PrayerNotificationAction.openAdhan);
-    }
+    final action = switch (response.payload) {
+      'open_adhan' => PrayerNotificationAction.openAdhan,
+      'open_iqama' => PrayerNotificationAction.openIqama,
+      _ => null,
+    };
+    if (action != null) _controller.add(action);
   }
 }
 
@@ -148,6 +151,7 @@ class PrayerNotificationsService {
         presentBanner: true,
         presentList: true,
         threadIdentifier: 'prayer-times',
+        sound: 'iqama_notification.caf',
       ),
     );
     for (final day in days) {
@@ -172,6 +176,7 @@ class PrayerNotificationsService {
             body: 'هذا وقت إقامة تقريبي حسب إعداداتك.',
             time: iqama,
             details: iqamaDetails,
+            payload: 'open_iqama',
           );
         }
       }

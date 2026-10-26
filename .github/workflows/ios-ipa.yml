@@ -60,10 +60,12 @@ jobs:
       - name: Build unsigned iOS app
         run: flutter build ios --release --no-codesign
 
-      - name: Add adhan notification sound to iOS bundle
+      - name: Add prayer notification sounds to iOS bundle
         run: |
           cp assets/audio/adhan_notification.caf build/ios/iphoneos/Runner.app/adhan_notification.caf
+          cp assets/audio/iqama_notification.caf build/ios/iphoneos/Runner.app/iqama_notification.caf
           test -s build/ios/iphoneos/Runner.app/adhan_notification.caf
+          test -s build/ios/iphoneos/Runner.app/iqama_notification.caf
 
       - name: Package IPA for AltStore or Sideloadly
         run: |
@@ -76,6 +78,7 @@ jobs:
         run: |
           test -s build/ios/iphoneos/Runner.app/Runner
           test -s build/ios/iphoneos/Runner.app/adhan_notification.caf
+          test -s build/ios/iphoneos/Runner.app/iqama_notification.caf
           plutil -lint build/ios/iphoneos/Runner.app/Info.plist
           xcrun lipo build/ios/iphoneos/Runner.app/Runner -verify_arch arm64
           unzip -tq build/ios/ipa/MuathAlsuraihi-unsigned.ipa

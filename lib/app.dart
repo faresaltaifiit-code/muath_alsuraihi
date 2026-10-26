@@ -27,6 +27,7 @@ class MuathAlsuraihiApp extends StatefulWidget {
 
 class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
+  final _prayerNotifications = PrayerNotificationsService();
   StreamSubscription<PrayerNotificationAction>? _notificationSubscription;
 
   @override
@@ -35,20 +36,30 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
     _notificationSubscription = PrayerNotificationEvents.actions.listen(
       _handlePrayerNotification,
     );
+    // Keep notification taps available even before the prayer screen is built.
+    unawaited(_prayerNotifications.initialize());
   }
 
   Future<void> _handlePrayerNotification(PrayerNotificationAction action) async {
-    if (action != PrayerNotificationAction.openAdhan) return;
     // The notification can launch a cold app, so wait until Navigator exists.
     await Future<void>.delayed(Duration.zero);
     final navigator = _navigatorKey.currentState;
     final context = navigator?.context;
     if (navigator == null || context == null) return;
-    await context.read<PlayerProvider>().playAdhan();
+    final audio = switch (action) {
+      PrayerNotificationAction.openAdhan => kAdhanAudio,
+      PrayerNotificationAction.openIqama => kIqamaAudio,
+    };
+    final player = context.read<PlayerProvider>();
+    if (action == PrayerNotificationAction.openAdhan) {
+      await player.playAdhan();
+    } else {
+      await player.playIqama();
+    }
     if (!mounted) return;
     await navigator.push(
       MaterialPageRoute<void>(
-        builder: (_) => const PlayerScreen(surah: kAdhanAudio),
+        builder: (_) => PlayerScreen(surah: audio),
       ),
     );
   }
@@ -69,7 +80,11 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
         ChangeNotifierProvider(create: (_) => FavoritesProvider()..load()),
         ChangeNotifierProvider(create: (_) => DownloadsProvider()..load()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..load()),
-        ChangeNotifierProvider(create: (_) => PrayerTimesProvider()..load()),
+        ChangeNotifierProvider(
+          create: (_) => PrayerTimesProvider(
+            notificationsService: _prayerNotifications,
+          )..load(),
+        ),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) => MaterialApp(

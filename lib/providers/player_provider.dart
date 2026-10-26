@@ -90,6 +90,9 @@ class PlayerProvider extends ChangeNotifier {
   /// Plays the complete adhan after a person opens a prayer notification.
   Future<void> playAdhan() => prepareSurah(kAdhanAudio, autoplay: true);
 
+  /// Plays the complete iqama after a person opens an iqama notification.
+  Future<void> playIqama() => prepareSurah(kIqamaAudio, autoplay: true);
+
   Future<void> initialize() async {
     if (_handler != null) return;
     final audioSession = await AudioSession.instance;
