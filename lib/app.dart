@@ -40,6 +40,8 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
     );
     // Keep notification taps available even before the prayer screen is built.
     unawaited(_prayerNotifications.initialize());
+    final launchAction = PrayerNotificationEvents.takePendingAction();
+    if (launchAction != null) _queuePrayerNotification(launchAction);
   }
 
   void _queuePrayerNotification(PrayerNotificationAction action) {
@@ -88,18 +90,23 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
       PrayerNotificationAction.openIqama => kIqamaAudio,
     };
     final player = context.read<PlayerProvider>();
+    // Show the destination before requesting playback. On a notification tap
+    // iOS is still returning the app to the foreground; waiting briefly after
+    // the route transition makes the audio session reliable on cold launches.
+    unawaited(
+      navigator.push(
+        MaterialPageRoute<void>(
+          builder: (_) => PlayerScreen(surah: audio),
+        ),
+      ).then<void>((_) {}),
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 350));
     await player.initialize();
     if (action == PrayerNotificationAction.openAdhan) {
       await player.playAdhan();
     } else {
       await player.playIqama();
     }
-    if (!mounted) return;
-    await navigator.push(
-      MaterialPageRoute<void>(
-        builder: (_) => PlayerScreen(surah: audio),
-      ),
-    );
   }
 
   @override

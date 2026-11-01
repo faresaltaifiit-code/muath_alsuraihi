@@ -14,8 +14,18 @@ class PrayerNotificationEvents {
   PrayerNotificationEvents._();
 
   static final _controller = StreamController<PrayerNotificationAction>.broadcast();
+  // iOS can deliver a notification tap while Flutter is still constructing the
+  // widget tree. Keep the last action as well as broadcasting it, so a cold
+  // launch cannot lose the tap before the app shell starts listening.
+  static PrayerNotificationAction? _pendingAction;
 
   static Stream<PrayerNotificationAction> get actions => _controller.stream;
+
+  static PrayerNotificationAction? takePendingAction() {
+    final action = _pendingAction;
+    _pendingAction = null;
+    return action;
+  }
 
   static void handle(NotificationResponse response) {
     final action = switch (response.payload) {
@@ -23,7 +33,10 @@ class PrayerNotificationEvents {
       'open_iqama' => PrayerNotificationAction.openIqama,
       _ => null,
     };
-    if (action != null) _controller.add(action);
+    if (action != null) {
+      _pendingAction = action;
+      _controller.add(action);
+    }
   }
 }
 
