@@ -11,6 +11,9 @@ import UserNotifications
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // Required by flutter_local_notifications on iOS so notification taps are
+    // delivered to the app delegate (and can open the complete prayer audio).
+    UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     if let controller = window?.rootViewController as? FlutterViewController {
       let downloadsChannel = FlutterMethodChannel(
         name: "com.faresaltaifi.muath_alsuraihi/downloads",
