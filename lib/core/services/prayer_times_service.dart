@@ -13,7 +13,9 @@ extension PrayerNameText on PrayerName {
         PrayerName.isha => 'العشاء',
       };
 
-  Duration get iqamaDelay => switch (this) {
+  /// The approximate defaults shown until the listener chooses the timings
+  /// used by their own mosque.
+  Duration get defaultIqamaDelay => switch (this) {
         PrayerName.fajr => const Duration(minutes: 25),
         PrayerName.dhuhr ||
         PrayerName.asr ||
@@ -21,6 +23,9 @@ extension PrayerNameText on PrayerName {
           const Duration(minutes: 20),
         PrayerName.maghrib => const Duration(minutes: 10),
       };
+
+  /// Kept for callers that need the app-wide approximate defaults.
+  Duration get iqamaDelay => defaultIqamaDelay;
 }
 
 class PrayerDay {

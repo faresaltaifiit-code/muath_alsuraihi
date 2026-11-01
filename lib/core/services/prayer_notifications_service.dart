@@ -160,7 +160,10 @@ class PrayerNotificationsService {
     return scheduledAt;
   }
 
-  Future<void> schedule({required List<PrayerDay> days}) async {
+  Future<void> schedule({
+    required List<PrayerDay> days,
+    Map<PrayerName, Duration> iqamaDelays = const {},
+  }) async {
     await cancelPrayerNotifications();
     var id = _notificationIdBase;
     final now = DateTime.now();
@@ -187,7 +190,9 @@ class PrayerNotificationsService {
     for (final day in days) {
       for (final prayer in PrayerName.values) {
         final adhan = day.timeFor(prayer);
-        final iqama = adhan.add(prayer.iqamaDelay);
+        final iqama = adhan.add(
+          iqamaDelays[prayer] ?? prayer.defaultIqamaDelay,
+        );
         if (adhan.isAfter(now)) {
           await _schedule(
             id: id++,

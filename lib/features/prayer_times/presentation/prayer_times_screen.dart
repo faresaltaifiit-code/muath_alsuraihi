@@ -299,6 +299,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                         child: _PrayerRow(
                           prayer: prayer,
                           time: prayers.today!.timeFor(prayer),
+                          iqamaDelay: prayers.iqamaDelayFor(prayer),
                           highlighted: prayer == highlightedPrayer,
                         ),
                       )),
@@ -358,6 +359,16 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                           ? null
                           : prayers.useCurrentLocation,
                     ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.tune_rounded),
+                      title: const Text('تخصيص أوقات الإقامة'),
+                      subtitle: const Text(
+                        'القيم الحالية تقريبية، ويمكن ضبطها حسب مسجدك.',
+                      ),
+                      trailing: const Icon(Icons.chevron_left_rounded),
+                      onTap: () => _showIqamaDelaysSheet(context, prayers),
+                    ),
                   ]),
                 ),
                 const SizedBox(height: 16),
@@ -381,17 +392,112 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
         ? '$days يوم $hours:$minutes:$seconds'
         : '$hours:$minutes:$seconds';
   }
+
+  Future<void> _showIqamaDelaysSheet(
+    BuildContext context,
+    PrayerTimesProvider prayers,
+  ) async {
+    final values = <PrayerName, int>{
+      for (final prayer in PrayerName.values)
+        prayer: prayers.iqamaDelayMinutesFor(prayer),
+    };
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          final theme = Theme.of(context);
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'تخصيص أوقات الإقامة',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'اضبط عدد الدقائق بعد الأذان حسب مسجدك. القيم الأصلية تقريبية.',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  ...PrayerName.values.map(
+                    (prayer) => ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text('إقامة ${prayer.arabicName}'),
+                      subtitle: Text('بعد ${values[prayer]} دقيقة من الأذان'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            tooltip: 'تقليل دقيقة',
+                            onPressed: values[prayer]! == 0
+                                ? null
+                                : () => setSheetState(() {
+                                      values[prayer] = values[prayer]! - 1;
+                                    }),
+                            icon: const Icon(Icons.remove_circle_outline),
+                          ),
+                          SizedBox(
+                            width: 32,
+                            child: Text(
+                              '${values[prayer]}',
+                              textAlign: TextAlign.center,
+                              textDirection: TextDirection.ltr,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: AppColors.goldAccent,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: 'زيادة دقيقة',
+                            onPressed: values[prayer]! >= 120
+                                ? null
+                                : () => setSheetState(() {
+                                      values[prayer] = values[prayer]! + 1;
+                                    }),
+                            icon: const Icon(Icons.add_circle_outline),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.icon(
+                    onPressed: () async {
+                      await prayers.setIqamaDelays(values);
+                      if (context.mounted) Navigator.of(context).pop();
+                    },
+                    icon: const Icon(Icons.check_rounded),
+                    label: const Text('حفظ الأوقات'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _PrayerRow extends StatelessWidget {
   const _PrayerRow({
     required this.prayer,
     required this.time,
+    required this.iqamaDelay,
     required this.highlighted,
   });
 
   final PrayerName prayer;
   final DateTime time;
+  final Duration iqamaDelay;
   final bool highlighted;
 
   @override
@@ -409,7 +515,7 @@ class _PrayerRow extends StatelessWidget {
           color: highlighted ? AppColors.goldAccent : null,
         ),
         title: Text(prayer.arabicName),
-        subtitle: Text('الإقامة بعد ${prayer.iqamaDelay.inMinutes} دقيقة'),
+        subtitle: Text('الإقامة بعد ${iqamaDelay.inMinutes} دقيقة'),
         trailing: Directionality(
           textDirection: TextDirection.ltr,
           child: Text(_formatTime(time), style: theme.textTheme.titleMedium),

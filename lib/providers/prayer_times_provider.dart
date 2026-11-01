@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,6 +20,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   static const _latitudeKey = 'prayer_latitude';
   static const _longitudeKey = 'prayer_longitude';
   static const _locationLabelKey = 'prayer_location_label';
+  static const _iqamaDelayKeyPrefix = 'prayer_iqama_delay_minutes_';
 
   final PrayerTimesService _prayerTimesService;
   final PrayerNotificationsService _notificationsService;
@@ -32,6 +34,10 @@ class PrayerTimesProvider extends ChangeNotifier {
   double _longitude = PrayerTimesService.jeddahLongitude;
   String? _error;
   DateTime? _testNotificationScheduledAt;
+  final Map<PrayerName, int> _iqamaDelayMinutes = {
+    for (final prayer in PrayerName.values)
+      prayer: prayer.defaultIqamaDelay.inMinutes,
+  };
 
   PrayerDay? get today => _today;
   bool get isLoaded => _isLoaded;
@@ -41,12 +47,24 @@ class PrayerTimesProvider extends ChangeNotifier {
   String? get error => _error;
   DateTime? get testNotificationScheduledAt => _testNotificationScheduledAt;
 
+  int iqamaDelayMinutesFor(PrayerName prayer) =>
+      _iqamaDelayMinutes[prayer] ?? prayer.defaultIqamaDelay.inMinutes;
+
+  Duration iqamaDelayFor(PrayerName prayer) =>
+      Duration(minutes: iqamaDelayMinutesFor(prayer));
+
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
     _alertsEnabled = preferences.getBool(_alertsKey) ?? false;
     _latitude = preferences.getDouble(_latitudeKey) ?? _latitude;
     _longitude = preferences.getDouble(_longitudeKey) ?? _longitude;
     _locationLabel = preferences.getString(_locationLabelKey) ?? _locationLabel;
+    for (final prayer in PrayerName.values) {
+      _iqamaDelayMinutes[prayer] = preferences.getInt(
+            '$_iqamaDelayKeyPrefix${prayer.name}',
+          ) ??
+          prayer.defaultIqamaDelay.inMinutes;
+    }
     _isLoaded = true;
     notifyListeners();
   }
@@ -97,7 +115,7 @@ class PrayerTimesProvider extends ChangeNotifier {
               timeLimit: Duration(seconds: 15)));
       _latitude = position.latitude;
       _longitude = position.longitude;
-      _locationLabel = 'موقعك الحالي';
+      _locationLabel = await _cityNameFor(position) ?? 'موقعك الحالي';
       final preferences = await SharedPreferences.getInstance();
       await preferences.setDouble(_latitudeKey, _latitude);
       await preferences.setDouble(_longitudeKey, _longitude);
@@ -143,6 +161,21 @@ class PrayerTimesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Saves mosque-specific iqama offsets in minutes. The approximate values
+  /// remain the default for listeners who never change this setting.
+  Future<void> setIqamaDelays(Map<PrayerName, int> delays) async {
+    final preferences = await SharedPreferences.getInstance();
+    for (final prayer in PrayerName.values) {
+      final minutes = (delays[prayer] ?? prayer.defaultIqamaDelay.inMinutes)
+          .clamp(0, 120)
+          .toInt();
+      _iqamaDelayMinutes[prayer] = minutes;
+      await preferences.setInt('$_iqamaDelayKeyPrefix${prayer.name}', minutes);
+    }
+    if (_alertsEnabled) await _scheduleUpcomingAlerts();
+    notifyListeners();
+  }
+
   Future<void> sendTestNotification() async {
     if (!_alertsEnabled) {
       _error = 'فعّل تنبيهات الأذان والإقامة أولًا.';
@@ -174,7 +207,12 @@ class PrayerTimesProvider extends ChangeNotifier {
               date: day, latitude: _latitude, longitude: _longitude);
       days.add(prayerDay);
     }
-    await _notificationsService.schedule(days: days);
+    await _notificationsService.schedule(
+      days: days,
+      iqamaDelays: {
+        for (final prayer in PrayerName.values) prayer: iqamaDelayFor(prayer),
+      },
+    );
   }
 
   PrayerName? get nextPrayer {
@@ -202,7 +240,7 @@ class PrayerTimesProvider extends ChangeNotifier {
     final now = DateTime.now();
     for (final prayer in PrayerName.values) {
       final adhan = day.timeFor(prayer);
-      final iqama = adhan.add(prayer.iqamaDelay);
+      final iqama = adhan.add(iqamaDelayFor(prayer));
       if (!now.isBefore(adhan) && now.isBefore(iqama)) return prayer;
     }
     return null;
@@ -213,7 +251,30 @@ class PrayerTimesProvider extends ChangeNotifier {
     if (prayer == null || _today == null) return null;
     return _today!
         .timeFor(prayer)
-        .add(prayer.iqamaDelay)
+        .add(iqamaDelayFor(prayer))
         .difference(DateTime.now());
+  }
+
+  Future<String?> _cityNameFor(Position position) async {
+    try {
+      final places = await geocoding.placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+        localeIdentifier: 'ar_SA',
+      );
+      if (places.isEmpty) return null;
+      final place = places.first;
+      for (final candidate in [
+        place.locality,
+        place.subAdministrativeArea,
+        place.administrativeArea,
+      ]) {
+        final city = candidate?.trim() ?? '';
+        if (city.isNotEmpty) return city;
+      }
+    } catch (_) {
+      // A city label improves the experience, but must not block prayer times.
+    }
+    return null;
   }
 }
