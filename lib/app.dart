@@ -29,28 +29,66 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _prayerNotifications = PrayerNotificationsService();
   StreamSubscription<PrayerNotificationAction>? _notificationSubscription;
+  PrayerNotificationAction? _pendingPrayerNotification;
+  bool _isOpeningPrayerNotification = false;
 
   @override
   void initState() {
     super.initState();
     _notificationSubscription = PrayerNotificationEvents.actions.listen(
-      _handlePrayerNotification,
+      _queuePrayerNotification,
     );
     // Keep notification taps available even before the prayer screen is built.
     unawaited(_prayerNotifications.initialize());
   }
 
-  Future<void> _handlePrayerNotification(PrayerNotificationAction action) async {
-    // The notification can launch a cold app, so wait until Navigator exists.
-    await Future<void>.delayed(Duration.zero);
-    final navigator = _navigatorKey.currentState;
-    final context = navigator?.context;
-    if (navigator == null || context == null) return;
+  void _queuePrayerNotification(PrayerNotificationAction action) {
+    _pendingPrayerNotification = action;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_openPendingPrayerNotification());
+    });
+  }
+
+  Future<void> _openPendingPrayerNotification() async {
+    if (_isOpeningPrayerNotification) return;
+    _isOpeningPrayerNotification = true;
+    try {
+      // A notification can cold-launch the app before its navigator and player
+      // provider exist. Retry for the first few frames instead of dropping the
+      // tap; this makes "open notification → play full adhan" reliable.
+      for (var attempt = 0; attempt < 12; attempt++) {
+        final action = _pendingPrayerNotification;
+        final navigator = _navigatorKey.currentState;
+        final context = navigator?.context;
+        if (!mounted || action == null) return;
+        if (navigator != null && context != null) {
+          _pendingPrayerNotification = null;
+          await _handlePrayerNotification(action, navigator, context);
+          return;
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    } finally {
+      _isOpeningPrayerNotification = false;
+      if (_pendingPrayerNotification != null && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          unawaited(_openPendingPrayerNotification());
+        });
+      }
+    }
+  }
+
+  Future<void> _handlePrayerNotification(
+    PrayerNotificationAction action,
+    NavigatorState navigator,
+    BuildContext context,
+  ) async {
     final audio = switch (action) {
       PrayerNotificationAction.openAdhan => kAdhanAudio,
       PrayerNotificationAction.openIqama => kIqamaAudio,
     };
     final player = context.read<PlayerProvider>();
+    await player.initialize();
     if (action == PrayerNotificationAction.openAdhan) {
       await player.playAdhan();
     } else {

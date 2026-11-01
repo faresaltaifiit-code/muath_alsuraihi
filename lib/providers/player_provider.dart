@@ -19,6 +19,7 @@ class PlayerProvider extends ChangeNotifier {
   static const _recentLimit = 10;
   PlayerProvider();
   AudioHandler? _handler;
+  Future<void>? _initialization;
   StreamSubscription<PlaybackState>? _playbackSubscription;
   StreamSubscription<MediaItem?>? _mediaItemSubscription;
   Timer? _sleepTimer;
@@ -93,7 +94,9 @@ class PlayerProvider extends ChangeNotifier {
   /// Plays the complete iqama after a person opens an iqama notification.
   Future<void> playIqama() => prepareSurah(kIqamaAudio, autoplay: true);
 
-  Future<void> initialize() async {
+  Future<void> initialize() => _initialization ??= _initialize();
+
+  Future<void> _initialize() async {
     if (_handler != null) return;
     final audioSession = await AudioSession.instance;
     await audioSession.configure(AudioSessionConfiguration.music());
