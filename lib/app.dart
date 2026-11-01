@@ -27,7 +27,7 @@ class MuathAlsuraihiApp extends StatefulWidget {
 
 class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
-  final _prayerNotifications = PrayerNotificationsService();
+  final _prayerNotifications = prayerNotificationsService;
   StreamSubscription<PrayerNotificationAction>? _notificationSubscription;
   PrayerNotificationAction? _pendingPrayerNotification;
   bool _isOpeningPrayerNotification = false;

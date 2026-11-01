@@ -8,6 +8,9 @@ import 'prayer_times_service.dart';
 
 enum PrayerNotificationAction { openAdhan, openIqama }
 
+/// The app uses one instance from launch through scheduling and playback.
+final prayerNotificationsService = PrayerNotificationsService();
+
 /// Bridges an iOS notification tap to the app shell without coupling the
 /// notification plugin to a particular screen.
 class PrayerNotificationEvents {
@@ -47,10 +50,11 @@ class PrayerNotificationsService {
   static const _notificationCount = 64;
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
-  bool _initialized = false;
+  Future<void>? _initialization;
 
-  Future<void> initialize() async {
-    if (_initialized) return;
+  Future<void> initialize() => _initialization ??= _initialize();
+
+  Future<void> _initialize() async {
     // Prayer times are currently provided for Saudi Arabia. Initializing the
     // database before making a TZDateTime is required for reliable iOS
     // scheduling; without it tz.local falls back to UTC.
@@ -72,7 +76,6 @@ class PrayerNotificationsService {
       settings: settings,
       onDidReceiveNotificationResponse: PrayerNotificationEvents.handle,
     );
-    _initialized = true;
     final launchDetails = await _plugin.getNotificationAppLaunchDetails();
     final response = launchDetails?.notificationResponse;
     if (launchDetails?.didNotificationLaunchApp == true && response != null) {
