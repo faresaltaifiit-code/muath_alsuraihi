@@ -15,12 +15,19 @@ Future<void> main() async {
       PrayerNotificationEvents.handlePayload(call.arguments as String?);
     }
   });
-  final nativeLaunchPayload = await _prayerNotificationsChannel
-      .invokeMethod<String>('takePendingNotificationPayload');
-  PrayerNotificationEvents.handlePayload(nativeLaunchPayload);
-  // A notification may launch the app before any widget exists. Initialise
-  // first so its payload is retained and the app can open the full audio.
-  await prayerNotificationsService.initialize();
   runApp(const MuathAlsuraihiApp());
+  // Never delay the first screen for a platform response. The callback stores
+  // its action locally, so it is safe to recover it after the app is visible.
+  _restoreNativeNotificationTap();
+}
+
+Future<void> _restoreNativeNotificationTap() async {
+  try {
+    final payload = await _prayerNotificationsChannel
+        .invokeMethod<String>('takePendingNotificationPayload');
+    PrayerNotificationEvents.handlePayload(payload);
+  } catch (_) {
+    // The normal Flutter notification callback remains available as fallback.
+  }
 }
 
