@@ -257,10 +257,10 @@ class PrayerTimesProvider extends ChangeNotifier {
 
   Future<String?> _cityNameFor(Position position) async {
     try {
+      await geocoding.setLocaleIdentifier('ar_SA');
       final places = await geocoding.placemarkFromCoordinates(
         position.latitude,
         position.longitude,
-        localeIdentifier: 'ar_SA',
       );
       if (places.isEmpty) return null;
       final place = places.first;
