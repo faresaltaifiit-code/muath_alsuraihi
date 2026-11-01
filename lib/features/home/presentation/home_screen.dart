@@ -239,7 +239,7 @@ class _ContinueCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text('سورة ${surah.name}',
+                  Text(surah.number > 0 ? 'سورة ${surah.name}' : surah.name,
                       style: Theme.of(context)
                           .textTheme
                           .displaySmall
@@ -466,7 +466,10 @@ class _RecentCard extends StatelessWidget {
                         color: AppColors.softGold, size: 22),
                   ),
                   const SizedBox(height: 10),
-                  Text('سورة ${entry.surah.name}',
+                  Text(
+                      entry.surah.number > 0
+                          ? 'سورة ${entry.surah.name}'
+                          : entry.surah.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context)
