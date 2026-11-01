@@ -21,6 +21,8 @@ class PrayerNotificationEvents {
   // widget tree. Keep the last action as well as broadcasting it, so a cold
   // launch cannot lose the tap before the app shell starts listening.
   static PrayerNotificationAction? _pendingAction;
+  static String? _lastPayload;
+  static DateTime? _lastHandledAt;
 
   static Stream<PrayerNotificationAction> get actions => _controller.stream;
 
@@ -31,12 +33,24 @@ class PrayerNotificationEvents {
   }
 
   static void handle(NotificationResponse response) {
-    final action = switch (response.payload) {
+    handlePayload(response.payload);
+  }
+
+  static void handlePayload(String? payload) {
+    final now = DateTime.now();
+    if (payload == _lastPayload &&
+        _lastHandledAt != null &&
+        now.difference(_lastHandledAt!) < const Duration(seconds: 2)) {
+      return;
+    }
+    final action = switch (payload) {
       'open_adhan' => PrayerNotificationAction.openAdhan,
       'open_iqama' => PrayerNotificationAction.openIqama,
       _ => null,
     };
     if (action != null) {
+      _lastPayload = payload;
+      _lastHandledAt = now;
       _pendingAction = action;
       _controller.add(action);
     }

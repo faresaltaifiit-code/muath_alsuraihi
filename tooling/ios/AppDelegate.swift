@@ -1,8 +1,12 @@
 import Flutter
 import UIKit
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
+  private let pendingPrayerNotificationKey = "pending_prayer_notification_payload"
+  private var prayerNotificationsChannel: FlutterMethodChannel?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -49,9 +53,43 @@ import UIKit
           ))
         }
       }
+
+      let prayerNotificationsChannel = FlutterMethodChannel(
+        name: "com.faresaltaifi.muath_alsuraihi/prayer_notifications",
+        binaryMessenger: controller.binaryMessenger
+      )
+      prayerNotificationsChannel.setMethodCallHandler { [weak self] call, result in
+        guard call.method == "takePendingNotificationPayload" else {
+          result(FlutterMethodNotImplemented)
+          return
+        }
+        let payload = UserDefaults.standard.string(forKey: self?.pendingPrayerNotificationKey ?? "")
+        if let key = self?.pendingPrayerNotificationKey {
+          UserDefaults.standard.removeObject(forKey: key)
+        }
+        result(payload)
+      }
+      self.prayerNotificationsChannel = prayerNotificationsChannel
     }
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    let payload = response.notification.request.content.userInfo["payload"] as? String
+    if payload == "open_adhan" || payload == "open_iqama" {
+      UserDefaults.standard.set(payload, forKey: pendingPrayerNotificationKey)
+      prayerNotificationsChannel?.invokeMethod("notificationTapped", arguments: payload)
+    }
+    super.userNotificationCenter(
+      center,
+      didReceive: response,
+      withCompletionHandler: completionHandler
+    )
   }
 }
