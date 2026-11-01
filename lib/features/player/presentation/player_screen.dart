@@ -68,6 +68,16 @@ class _PlayerScreenState extends State<PlayerScreen>
     _syncPulse(shouldPulse);
     final isDownloaded = surah.isBundled || downloads.isDownloaded(surah);
 
+    if (_isPrayerAudio(surah)) {
+      return _buildPrayerPlayer(
+        context: context,
+        player: player,
+        surah: surah,
+        duration: duration,
+        position: position,
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -171,6 +181,111 @@ class _PlayerScreenState extends State<PlayerScreen>
     );
   }
 
+  Widget _buildPrayerPlayer({
+    required BuildContext context,
+    required PlayerProvider player,
+    required SurahModel surah,
+    required Duration duration,
+    required Duration position,
+  }) => Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 44),
+              child: Column(
+                children: [
+                  _PrayerTopBar(
+                    title: surah.name,
+                    onDismiss: () => Navigator.of(context).maybePop(),
+                  ),
+                  SizedBox(height: math.max(20, constraints.maxHeight * .025)),
+                  _PrayerArtwork(isIqama: surah.id == 'prayer_iqama'),
+                  const SizedBox(height: 34),
+                  Text(
+                    surah.name,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                          fontFamily: 'Amiri',
+                          fontSize: 42,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    surah.id == 'prayer_iqama'
+                        ? 'مواقيت الصلاة · الإقامة الكاملة'
+                        : 'مواقيت الصلاة · الأذان الكامل',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 14),
+                  _PrayerNowChip(playing: player.isPlaying),
+                  if (player.error != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      player.error!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.redAccent),
+                    ),
+                  ],
+                  const SizedBox(height: 31),
+                  _ProgressControl(
+                    position: position,
+                    duration: duration,
+                    remaining: duration > position
+                        ? duration - position
+                        : Duration.zero,
+                    showRemaining: false,
+                    onStart: duration > Duration.zero
+                        ? (value) => setState(() => _dragPosition =
+                            Duration(milliseconds: value.round()))
+                        : null,
+                    onChanged: duration > Duration.zero
+                        ? (value) => setState(() => _dragPosition =
+                            Duration(milliseconds: value.round()))
+                        : null,
+                    onEnd: duration > Duration.zero
+                        ? (value) async {
+                            setState(() => _dragPosition = null);
+                            await player.seek(
+                              Duration(milliseconds: value.round()),
+                            );
+                          }
+                        : null,
+                  ),
+                  const SizedBox(height: 18),
+                  _PrayerTransportControls(player: player),
+                  const SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _showShareCard(context, surah),
+                          icon: const Icon(Icons.share_outlined),
+                          label: const Text('مشاركة'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 13,
+                        child: FilledButton.icon(
+                          onPressed: player.isReady
+                              ? player.togglePlayPause
+                              : null,
+                          icon: Icon(player.isPlaying
+                              ? Icons.stop_rounded
+                              : Icons.play_arrow_rounded),
+                          label: Text(
+                              player.isPlaying ? 'إيقاف ${surah.name}' : 'استئناف'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
   void _syncPulse(bool shouldPulse) {
     if (shouldPulse && !_pulseController.isAnimating) {
       _pulseController.repeat();
@@ -271,7 +386,7 @@ class _ShareCard extends StatelessWidget {
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           StarNumberBadge(number: surah.number, inverted: true),
           const SizedBox(height: 20),
-          Text('سورة ${surah.name}',
+          Text(surah.number > 0 ? 'سورة ${surah.name}' : surah.name,
               textAlign: TextAlign.center,
               style: const TextStyle(
                   fontFamily: 'Amiri',
@@ -279,7 +394,7 @@ class _ShareCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: AppColors.softGold)),
           const SizedBox(height: 8),
-          Text(kReciterName,
+          Text(surah.number > 0 ? kReciterName : surah.reciterName,
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.softGold)),
           const Spacer(),
@@ -391,6 +506,120 @@ class _TopBar extends StatelessWidget {
                       ? Icons.favorite_rounded
                       : Icons.favorite_border_rounded,
                   size: 24),
+            ),
+          ],
+        ),
+      );
+}
+
+class _PrayerTopBar extends StatelessWidget {
+  const _PrayerTopBar({required this.title, required this.onDismiss});
+  final String title;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        height: 44,
+        child: Row(
+          children: [
+            IconButton(
+              tooltip: 'إغلاق المشغل',
+              onPressed: onDismiss,
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 28),
+            ),
+            Expanded(
+              child: Center(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+            const SizedBox(width: 48),
+          ],
+        ),
+      );
+}
+
+class _PrayerArtwork extends StatelessWidget {
+  const _PrayerArtwork({required this.isIqama});
+  final bool isIqama;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: 248,
+        height: 248,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 248,
+              height: 248,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.goldAccent.withValues(alpha: .35),
+                ),
+              ),
+            ),
+            Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [AppColors.emerald, AppColors.forestGreen],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.forestGreen.withValues(alpha: .28),
+                    blurRadius: 30,
+                    offset: const Offset(0, 14),
+                  ),
+                ],
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  const Positioned.fill(child: _ArtworkPattern()),
+                  Icon(
+                    isIqama ? Icons.mosque_outlined : Icons.notifications_active_outlined,
+                    size: 66,
+                    color: AppColors.softGold,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _PrayerNowChip extends StatelessWidget {
+  const _PrayerNowChip({required this.playing});
+  final bool playing;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: AppColors.emerald.withValues(alpha: .13),
+          borderRadius: BorderRadius.circular(99),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              playing ? Icons.volume_up_rounded : Icons.pause_circle_outline_rounded,
+              size: 16,
+              color: AppColors.emerald,
+            ),
+            const SizedBox(width: 7),
+            Text(
+              playing ? 'يُشغّل الآن' : 'متوقف مؤقتًا',
+              style: const TextStyle(fontSize: 12.5, color: AppColors.emerald),
             ),
           ],
         ),
@@ -569,6 +798,7 @@ class _ProgressControl extends StatelessWidget {
     required this.position,
     required this.duration,
     required this.remaining,
+    this.showRemaining = true,
     required this.onStart,
     required this.onChanged,
     required this.onEnd,
@@ -577,6 +807,7 @@ class _ProgressControl extends StatelessWidget {
   final Duration position;
   final Duration duration;
   final Duration remaining;
+  final bool showRemaining;
   final ValueChanged<double>? onStart;
   final ValueChanged<double>? onChanged;
   final ValueChanged<double>? onEnd;
@@ -612,7 +843,9 @@ class _ProgressControl extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _TimeText(_format(position)),
-                  _TimeText('-${_format(remaining)}'),
+                  _TimeText(showRemaining
+                      ? '-${_format(remaining)}'
+                      : _format(duration)),
                 ],
               ),
             ),
@@ -666,6 +899,37 @@ class _TransportControls extends StatelessWidget {
               icon: Icons.skip_next_rounded,
               onPressed: player.next,
               iconSize: 32,
+            ),
+            _TransportButton(
+              label: 'تقديم 10 ثوانٍ',
+              icon: Icons.forward_10_rounded,
+              onPressed: () => player.skipBy(const Duration(seconds: 10)),
+              iconSize: 34,
+            ),
+          ],
+        ),
+      );
+}
+
+class _PrayerTransportControls extends StatelessWidget {
+  const _PrayerTransportControls({required this.player});
+  final PlayerProvider player;
+
+  @override
+  Widget build(BuildContext context) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _TransportButton(
+              label: 'رجوع 10 ثوانٍ',
+              icon: Icons.replay_10_rounded,
+              onPressed: () => player.skipBy(const Duration(seconds: -10)),
+              iconSize: 34,
+            ),
+            _PlayButton(
+              playing: player.isPlaying,
+              onPressed: player.isReady ? player.togglePlayPause : null,
             ),
             _TransportButton(
               label: 'تقديم 10 ثوانٍ',
@@ -906,3 +1170,6 @@ String _format(Duration duration) {
       ? '${duration.inHours}:${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:$seconds'
       : '${duration.inMinutes}:$seconds';
 }
+
+bool _isPrayerAudio(SurahModel surah) =>
+    surah.id == 'prayer_adhan' || surah.id == 'prayer_iqama';
