@@ -21,6 +21,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   static const _longitudeKey = 'prayer_longitude';
   static const _locationLabelKey = 'prayer_location_label';
   static const _iqamaDelayKeyPrefix = 'prayer_iqama_delay_minutes_';
+  static const _preAdhanReminderKey = 'prayer_pre_adhan_reminder_minutes';
 
   final PrayerTimesService _prayerTimesService;
   final PrayerNotificationsService _notificationsService;
@@ -34,6 +35,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   double _longitude = PrayerTimesService.jeddahLongitude;
   String? _error;
   DateTime? _testNotificationScheduledAt;
+  int _preAdhanReminderMinutes = 0;
   final Map<PrayerName, int> _iqamaDelayMinutes = {
     for (final prayer in PrayerName.values)
       prayer: prayer.defaultIqamaDelay.inMinutes,
@@ -46,6 +48,8 @@ class PrayerTimesProvider extends ChangeNotifier {
   String get locationLabel => _locationLabel;
   String? get error => _error;
   DateTime? get testNotificationScheduledAt => _testNotificationScheduledAt;
+  int get preAdhanReminderMinutes => _preAdhanReminderMinutes;
+  int get scheduledDaysCount => _preAdhanReminderMinutes > 0 ? 4 : 6;
 
   int iqamaDelayMinutesFor(PrayerName prayer) =>
       _iqamaDelayMinutes[prayer] ?? prayer.defaultIqamaDelay.inMinutes;
@@ -59,6 +63,8 @@ class PrayerTimesProvider extends ChangeNotifier {
     _latitude = preferences.getDouble(_latitudeKey) ?? _latitude;
     _longitude = preferences.getDouble(_longitudeKey) ?? _longitude;
     _locationLabel = preferences.getString(_locationLabelKey) ?? _locationLabel;
+    _preAdhanReminderMinutes =
+        preferences.getInt(_preAdhanReminderKey) ?? _preAdhanReminderMinutes;
     for (final prayer in PrayerName.values) {
       _iqamaDelayMinutes[prayer] = preferences.getInt(
             '$_iqamaDelayKeyPrefix${prayer.name}',
@@ -176,6 +182,14 @@ class PrayerTimesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setPreAdhanReminderMinutes(int minutes) async {
+    _preAdhanReminderMinutes = minutes.clamp(0, 10).toInt();
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setInt(_preAdhanReminderKey, _preAdhanReminderMinutes);
+    if (_alertsEnabled) await _scheduleUpcomingAlerts();
+    notifyListeners();
+  }
+
   Future<void> sendTestNotification() async {
     if (!_alertsEnabled) {
       _error = 'فعّل تنبيهات الأذان والإقامة أولًا.';
@@ -188,7 +202,8 @@ class PrayerTimesProvider extends ChangeNotifier {
           await _notificationsService.scheduleTestNotification();
     } catch (_) {
       _testNotificationScheduledAt = null;
-      _error = 'تعذّر إرسال التنبيه التجريبي. تحقّق من أذونات الإشعارات في إعدادات iPhone.';
+      _error =
+          'تعذّر إرسال التنبيه التجريبي. تحقّق من أذونات الإشعارات في إعدادات iPhone.';
     }
     notifyListeners();
   }
@@ -199,7 +214,7 @@ class PrayerTimesProvider extends ChangeNotifier {
 
   Future<void> _scheduleUpcomingAlerts() async {
     final days = <PrayerDay>[];
-    for (var offset = 0; offset < 6; offset++) {
+    for (var offset = 0; offset < scheduledDaysCount; offset++) {
       final day = DateTime.now().add(Duration(days: offset));
       final prayerDay = offset == 0 && _today != null
           ? _today!
@@ -212,6 +227,7 @@ class PrayerTimesProvider extends ChangeNotifier {
       iqamaDelays: {
         for (final prayer in PrayerName.values) prayer: iqamaDelayFor(prayer),
       },
+      preAdhanReminderMinutes: _preAdhanReminderMinutes,
     );
   }
 

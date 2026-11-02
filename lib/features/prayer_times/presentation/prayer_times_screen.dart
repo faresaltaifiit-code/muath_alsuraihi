@@ -104,11 +104,12 @@ class _PrayerTimesHomeStripState extends State<PrayerTimesHomeStrip> {
                           '$label · ${prayers.locationLabel}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: const Color(0xFF0F3A2E)
-                                    .withValues(alpha: .75),
-                                fontSize: 11.5,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: const Color(0xFF0F3A2E)
+                                        .withValues(alpha: .75),
+                                    fontSize: 11.5,
+                                  ),
                         ),
                         const SizedBox(height: 2),
                         Row(
@@ -118,7 +119,10 @@ class _PrayerTimesHomeStripState extends State<PrayerTimesHomeStrip> {
                                 title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
                                       color: const Color(0xFF0F3A2E),
                                       fontFamily: 'Amiri',
                                       fontSize: 20,
@@ -136,11 +140,11 @@ class _PrayerTimesHomeStripState extends State<PrayerTimesHomeStrip> {
                                       .textTheme
                                       .bodyMedium
                                       ?.copyWith(
-                                        color: const Color(0xFF0F3A2E),
-                                        fontFeatures: const [
-                                          FontFeature.tabularFigures(),
-                                        ],
-                                      ),
+                                    color: const Color(0xFF0F3A2E),
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -318,10 +322,25 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                           const Icon(Icons.notifications_active_outlined),
                       title: const Text('تنبيهات الأذان والإقامة'),
                       subtitle: Text(prayers.alertsEnabled
-                          ? 'مفعّلة للأيام الستة القادمة.'
+                          ? 'مفعّلة للأيام ${prayers.scheduledDaysCount} القادمة.'
                           : 'فعّلها لتصلك تنبيهات الصلاة.'),
                       value: prayers.alertsEnabled,
                       onChanged: prayers.setAlertsEnabled,
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.notifications_none_rounded),
+                      title: const Text('تنبيه إضافي'),
+                      subtitle: Text(
+                        prayers.preAdhanReminderMinutes == 0
+                            ? 'اختياري · عند وقت الأذان'
+                            : 'قبل الأذان بـ ${prayers.preAdhanReminderMinutes} دقائق',
+                      ),
+                      trailing: const Icon(Icons.chevron_left_rounded),
+                      enabled: prayers.alertsEnabled,
+                      onTap: prayers.alertsEnabled
+                          ? () => _showPreAdhanReminderSheet(context, prayers)
+                          : null,
                     ),
                     const Divider(height: 1),
                     ListTile(
@@ -340,7 +359,8 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                     ListTile(
                       leading: const Icon(Icons.settings_outlined),
                       title: const Text('فتح إعدادات إشعارات iPhone'),
-                      subtitle: const Text('استخدمه إذا لم يصل التنبيه التجريبي.'),
+                      subtitle:
+                          const Text('استخدمه إذا لم يصل التنبيه التجريبي.'),
                       trailing: const Icon(Icons.open_in_new_rounded),
                       onTap: prayers.openNotificationSettings,
                     ),
@@ -482,6 +502,67 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Future<void> _showPreAdhanReminderSheet(
+    BuildContext context,
+    PrayerTimesProvider prayers,
+  ) async {
+    var selectedMinutes = prayers.preAdhanReminderMinutes;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('تنبيه إضافي',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge),
+                Text('اختياري',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 10),
+                ...<int>[0, 10, 5].map((minutes) {
+                  final title = minutes == 0
+                      ? 'عند وقت الأذان'
+                      : 'قبل الأذان بـ $minutes دقائق';
+                  final subtitle = minutes == 0
+                      ? 'التنبيه الأساسي'
+                      : 'تذكير هادئ قبل الصلاة';
+                  final selected = selectedMinutes == minutes;
+                  return ListTile(
+                    title: Text(title),
+                    subtitle: Text(subtitle),
+                    trailing: Icon(
+                      selected
+                          ? Icons.radio_button_checked_rounded
+                          : Icons.radio_button_off_rounded,
+                      color: selected ? AppColors.goldAccent : null,
+                    ),
+                    onTap: () => setSheetState(() {
+                      selectedMinutes = minutes;
+                    }),
+                  );
+                }),
+                const SizedBox(height: 8),
+                FilledButton(
+                  onPressed: () async {
+                    await prayers.setPreAdhanReminderMinutes(selectedMinutes);
+                    if (context.mounted) Navigator.of(context).pop();
+                  },
+                  child: const Text('حفظ الاختيارات'),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -16,7 +16,8 @@ final prayerNotificationsService = PrayerNotificationsService();
 class PrayerNotificationEvents {
   PrayerNotificationEvents._();
 
-  static final _controller = StreamController<PrayerNotificationAction>.broadcast();
+  static final _controller =
+      StreamController<PrayerNotificationAction>.broadcast();
   // iOS can deliver a notification tap while Flutter is still constructing the
   // widget tree. Keep the last action as well as broadcasting it, so a cold
   // launch cannot lose the tap before the app shell starts listening.
@@ -112,7 +113,8 @@ class PrayerNotificationsService {
     final ios = _plugin.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
     final permissions = await ios?.checkPermissions();
-    return permissions?.isEnabled == true && permissions?.isAlertEnabled == true;
+    return permissions?.isEnabled == true &&
+        permissions?.isAlertEnabled == true;
   }
 
   Future<void> openNotificationSettings() async {
@@ -163,6 +165,7 @@ class PrayerNotificationsService {
   Future<void> schedule({
     required List<PrayerDay> days,
     Map<PrayerName, Duration> iqamaDelays = const {},
+    int preAdhanReminderMinutes = 0,
   }) async {
     await cancelPrayerNotifications();
     var id = _notificationIdBase;
@@ -187,12 +190,35 @@ class PrayerNotificationsService {
         sound: 'iqama_notification.caf',
       ),
     );
+    const reminderDetails = NotificationDetails(
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentSound: true,
+        presentBanner: true,
+        presentList: true,
+        threadIdentifier: 'prayer-times',
+      ),
+    );
     for (final day in days) {
       for (final prayer in PrayerName.values) {
         final adhan = day.timeFor(prayer);
         final iqama = adhan.add(
           iqamaDelays[prayer] ?? prayer.defaultIqamaDelay,
         );
+        final reminder =
+            adhan.subtract(Duration(minutes: preAdhanReminderMinutes));
+        if (preAdhanReminderMinutes > 0 &&
+            reminder.isAfter(now) &&
+            id < _notificationIdBase + _notificationCount) {
+          await _schedule(
+            id: id++,
+            title:
+                'تذكير: صلاة ${prayer.arabicName} بعد $preAdhanReminderMinutes دقائق',
+            body: 'تهيأ للصلاة، بارك الله فيك.',
+            time: reminder,
+            details: reminderDetails,
+          );
+        }
         if (adhan.isAfter(now)) {
           await _schedule(
             id: id++,
@@ -208,7 +234,7 @@ class PrayerNotificationsService {
           await _schedule(
             id: id++,
             title: 'إقامة صلاة ${prayer.arabicName}',
-            body: 'هذا وقت إقامة تقريبي حسب إعداداتك.',
+            body: 'قد قامت الصلاة',
             time: iqama,
             details: iqamaDetails,
             payload: 'open_iqama',
