@@ -322,7 +322,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                           const Icon(Icons.notifications_active_outlined),
                       title: const Text('تنبيهات الأذان والإقامة'),
                       subtitle: Text(prayers.alertsEnabled
-                          ? 'مفعّلة للأيام ${prayers.scheduledDaysCount} القادمة.'
+                          ? 'التنبيهات مفعّلة'
                           : 'فعّلها لتصلك تنبيهات الصلاة.'),
                       value: prayers.alertsEnabled,
                       onChanged: prayers.setAlertsEnabled,
@@ -490,9 +490,9 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                   ),
                   const SizedBox(height: 8),
                   FilledButton.icon(
-                    onPressed: () async {
-                      await prayers.setIqamaDelays(values);
-                      if (context.mounted) Navigator.of(context).pop();
+                    onPressed: () {
+                      unawaited(prayers.setIqamaDelays(values));
+                      Navigator.of(context).pop();
                     },
                     icon: const Icon(Icons.check_rounded),
                     label: const Text('حفظ الأوقات'),
@@ -553,9 +553,11 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                 }),
                 const SizedBox(height: 8),
                 FilledButton(
-                  onPressed: () async {
-                    await prayers.setPreAdhanReminderMinutes(selectedMinutes);
-                    if (context.mounted) Navigator.of(context).pop();
+                  onPressed: () {
+                    unawaited(
+                      prayers.setPreAdhanReminderMinutes(selectedMinutes),
+                    );
+                    Navigator.of(context).pop();
                   },
                   child: const Text('حفظ الاختيارات'),
                 ),

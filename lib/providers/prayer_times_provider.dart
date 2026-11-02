@@ -170,24 +170,43 @@ class PrayerTimesProvider extends ChangeNotifier {
   /// Saves mosque-specific iqama offsets in minutes. The approximate values
   /// remain the default for listeners who never change this setting.
   Future<void> setIqamaDelays(Map<PrayerName, int> delays) async {
-    final preferences = await SharedPreferences.getInstance();
     for (final prayer in PrayerName.values) {
       final minutes = (delays[prayer] ?? prayer.defaultIqamaDelay.inMinutes)
           .clamp(0, 120)
           .toInt();
       _iqamaDelayMinutes[prayer] = minutes;
-      await preferences.setInt('$_iqamaDelayKeyPrefix${prayer.name}', minutes);
     }
-    if (_alertsEnabled) await _scheduleUpcomingAlerts();
     notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+    for (final prayer in PrayerName.values) {
+      await preferences.setInt(
+        '$_iqamaDelayKeyPrefix${prayer.name}',
+        iqamaDelayMinutesFor(prayer),
+      );
+    }
+    if (_alertsEnabled) _rescheduleAlertsInBackground();
   }
 
   Future<void> setPreAdhanReminderMinutes(int minutes) async {
     _preAdhanReminderMinutes = minutes.clamp(0, 10).toInt();
+    notifyListeners();
     final preferences = await SharedPreferences.getInstance();
     await preferences.setInt(_preAdhanReminderKey, _preAdhanReminderMinutes);
-    if (_alertsEnabled) await _scheduleUpcomingAlerts();
-    notifyListeners();
+    if (_alertsEnabled) _rescheduleAlertsInBackground();
+  }
+
+  void _rescheduleAlertsInBackground() {
+    unawaited(_rescheduleAlertsSafely());
+  }
+
+  Future<void> _rescheduleAlertsSafely() async {
+    try {
+      await _scheduleUpcomingAlerts();
+    } catch (_) {
+      _error = 'تعذر تحديث التنبيهات الآن. حاول مرة أخرى.';
+      notifyListeners();
+    }
   }
 
   Future<void> sendTestNotification() async {
