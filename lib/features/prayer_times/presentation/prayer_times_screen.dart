@@ -529,7 +529,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 10),
-                ...<int>[0, 10, 5].map((minutes) {
+                ...<int>[0, 15, 10, 5].map((minutes) {
                   final title = minutes == 0
                       ? 'عند وقت الأذان'
                       : 'قبل الأذان بـ $minutes دقائق';

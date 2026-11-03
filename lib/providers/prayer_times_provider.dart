@@ -189,7 +189,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   }
 
   Future<void> setPreAdhanReminderMinutes(int minutes) async {
-    _preAdhanReminderMinutes = minutes.clamp(0, 10).toInt();
+    _preAdhanReminderMinutes = minutes.clamp(0, 15).toInt();
     notifyListeners();
     final preferences = await SharedPreferences.getInstance();
     await preferences.setInt(_preAdhanReminderKey, _preAdhanReminderMinutes);
