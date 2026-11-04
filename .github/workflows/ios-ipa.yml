@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build-ios-ipa:
-    runs-on: macos-26
+    runs-on: macos-15-intel
     timeout-minutes: 60
 
     steps:
@@ -29,10 +29,10 @@ jobs:
       - name: List installed Xcode versions
         run: ls /Applications | grep Xcode
 
-      - name: Select Xcode 26.6
+      - name: Select Xcode 16.4
         run: |
-          test -d /Applications/Xcode_26.6.app
-          sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          test -d /Applications/Xcode_16.4.app
+          sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
 
       - name: Verify Xcode and iOS SDK
         run: |
