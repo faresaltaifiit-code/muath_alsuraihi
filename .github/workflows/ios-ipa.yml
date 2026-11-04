@@ -13,8 +13,8 @@ on:
 
 jobs:
   build-ios-ipa:
-    # macos-14 was retired from GitHub Actions; use the supported macOS 15 image.
-    runs-on: macos-15
+      # macos-14 was retired; use the supported Intel macOS 15 pool to avoid the congested ARM runner queue.
+      runs-on: macos-15-intel
     timeout-minutes: 60
 
     steps:
