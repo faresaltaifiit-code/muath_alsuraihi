@@ -129,10 +129,47 @@ jobs:
           printf '%s' "$API_PRIVATE_KEY" > "$RUNNER_TEMP/AuthKey.p8"
           chmod 600 "$RUNNER_TEMP/AuthKey.p8"
 
+      - name: Install TestFlight signing assets
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          PROFILE_BASE64: ${{ secrets.IOS_APP_STORE_PROFILE_BASE64 }}
+          PROFILE_NAME: ${{ secrets.IOS_APP_STORE_PROFILE_NAME }}
+        run: |
+          test -n "$CERTIFICATE_BASE64"
+          test -n "$CERTIFICATE_PASSWORD"
+          test -n "$PROFILE_BASE64"
+          test -n "$PROFILE_NAME"
+
+          CERTIFICATE_PATH="$RUNNER_TEMP/distribution.p12"
+          PROFILE_PATH="$RUNNER_TEMP/profile.mobileprovision"
+          KEYCHAIN_PATH="$RUNNER_TEMP/testflight-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+
+          printf '%s' "$CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH"
+          printf '%s' "$PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db
+          security default-keychain -s "$KEYCHAIN_PATH"
+
+          security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/profile.plist"
+          INSTALLED_PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print Name' "$RUNNER_TEMP/profile.plist")"
+          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print UUID' "$RUNNER_TEMP/profile.plist")"
+          test "$INSTALLED_PROFILE_NAME" = "$PROFILE_NAME"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+
       - name: Configure Runner distribution signing
         if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          PROFILE_NAME: ${{ secrets.IOS_APP_STORE_PROFILE_NAME }}
         run: |
           ruby <<'RUBY'
           require 'xcodeproj'
@@ -142,8 +179,9 @@ jobs:
           configuration = target.build_configurations.find { |item| item.name == 'Release' }
           raise 'Runner Release configuration not found' unless configuration
           configuration.build_settings['DEVELOPMENT_TEAM'] = ENV.fetch('APPLE_TEAM_ID')
-          configuration.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
+          configuration.build_settings['CODE_SIGN_STYLE'] = 'Manual'
           configuration.build_settings['CODE_SIGN_IDENTITY'] = 'Apple Distribution'
+          configuration.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ENV.fetch('PROFILE_NAME')
           project.save
           RUBY
 
@@ -151,12 +189,8 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           test -n "$APPLE_TEAM_ID"
-          test -n "$API_KEY_ID"
-          test -n "$API_ISSUER_ID"
           xcodebuild \
             -workspace ios/Runner.xcworkspace \
             -scheme Runner \
@@ -165,18 +199,13 @@ jobs:
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/MuathAlsuraihi.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
-            -authenticationKeyID "$API_KEY_ID" \
-            -authenticationKeyIssuerID "$API_ISSUER_ID" \
             archive
 
       - name: Export TestFlight IPA
         if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          PROFILE_NAME: ${{ secrets.IOS_APP_STORE_PROFILE_NAME }}
         run: |
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
@@ -186,7 +215,12 @@ jobs:
             <key>destination</key><string>export</string>
             <key>manageAppVersionAndBuildNumber</key><false/>
             <key>method</key><string>app-store-connect</string>
-            <key>signingStyle</key><string>automatic</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.faresaltaifi.muathalsuraihi</key><string>$PROFILE_NAME</string>
+            </dict>
             <key>teamID</key><string>$APPLE_TEAM_ID</string>
             <key>uploadSymbols</key><true/>
           </dict>
@@ -195,11 +229,7 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/MuathAlsuraihi.xcarchive" \
             -exportPath build/ios/testflight \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
-            -authenticationKeyID "$API_KEY_ID" \
-            -authenticationKeyIssuerID "$API_ISSUER_ID"
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist"
           TESTFLIGHT_IPA="$(find build/ios/testflight -maxdepth 1 -type f -name '*.ipa' -print -quit)"
           test -n "$TESTFLIGHT_IPA"
           test -s "$TESTFLIGHT_IPA"
