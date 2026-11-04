@@ -182,7 +182,10 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
             -authenticationKeyID "$API_KEY_ID" \
             -authenticationKeyIssuerID "$API_ISSUER_ID"
-          test -s build/ios/testflight/Runner.ipa
+          TESTFLIGHT_IPA="$(find build/ios/testflight -maxdepth 1 -type f -name '*.ipa' -print -quit)"
+          test -n "$TESTFLIGHT_IPA"
+          test -s "$TESTFLIGHT_IPA"
+          echo "TESTFLIGHT_IPA=$TESTFLIGHT_IPA" >> "$GITHUB_ENV"
 
       - name: Upload signed build to TestFlight
         if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
@@ -193,7 +196,7 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           cp "$RUNNER_TEMP/AuthKey.p8" ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
           xcrun altool --upload-app --type ios \
-            --file build/ios/testflight/Runner.ipa \
+            --file "$TESTFLIGHT_IPA" \
             --apiKey "$API_KEY_ID" \
             --apiIssuer "$API_ISSUER_ID"
 
