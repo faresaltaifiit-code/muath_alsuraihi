@@ -29,7 +29,7 @@ jobs:
       - name: List installed Xcode versions
         run: ls /Applications | grep Xcode
 
-       - name: Select Xcode 26.6
+      - name: Select Xcode 26.6
         run: |
           test -d /Applications/Xcode_26.6.app
           sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
