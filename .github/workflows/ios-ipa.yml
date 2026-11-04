@@ -147,6 +147,8 @@ jobs:
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/MuathAlsuraihi.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
             -authenticationKeyID "$API_KEY_ID" \
