@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: Upload a signed build to TestFlight
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build-ios-ipa:
@@ -50,6 +56,36 @@ jobs:
           LOCATION_USAGE="$(printf '%s' '2LPZhtiz2KrYrtiv2YUg2YXZiNmC2LnZgyDYo9ir2YbYp9ihINin2LPYqtiu2K/Yp9mFINin2YTYqti32KjZitmCINmE2K3Ys9in2Kgg2YXZiNin2YLZitiqINin2YTYtdmE2KfYqSDZgdmKINmF2K/ZitmG2KrZgy4=' | base64 -D)"
           /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string $LOCATION_USAGE" ios/Runner/Info.plist || /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription $LOCATION_USAGE" ios/Runner/Info.plist
 
+      - name: Apply localized iOS display text
+        run: |
+          DISPLAY_NAME="$(printf '%s' '2KrZhNin2YjYp9iqINin2YTZgtin2LHYpiDZhdi52KfYsCDYp9mE2LPYsdmK2K3Zig==' | base64 -D)"
+          LOCATION_USAGE="$(printf '%s' '2YbYs9iq2K7Yr9mFINmF2YjZgti52YMg2KPYq9mG2KfYoSDYp9iz2KrYrtiv2KfZhSDYp9mE2KrYt9io2YrZgiDZhNit2LPYp9ioINmF2YjYp9mC2YrYqiDYp9mE2LXZhNin2Kkg2YHZiiDZhdiv2YrZhtiq2YMu' | base64 -D)"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName $DISPLAY_NAME" ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription $LOCATION_USAGE" ios/Runner/Info.plist
+
+      - name: Bundle prayer notification sounds in every iOS build
+        run: |
+          ruby <<'RUBY'
+          require 'xcodeproj'
+
+          project = Xcodeproj::Project.open('ios/Runner.xcodeproj')
+          target = project.targets.find { |item| item.name == 'Runner' }
+          raise 'Runner target not found' unless target
+
+          phase = target.shell_script_build_phases.find do |item|
+            item.name == 'Copy prayer notification sounds'
+          end
+          phase ||= target.new_shell_script_build_phase('Copy prayer notification sounds')
+          phase.shell_script = <<~'SCRIPT'
+            set -e
+            SOURCE_DIR="$PROJECT_DIR/../../assets/audio"
+            DESTINATION_DIR="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
+            cp "$SOURCE_DIR/adhan_notification.caf" "$DESTINATION_DIR/adhan_notification.caf"
+            cp "$SOURCE_DIR/iqama_notification.caf" "$DESTINATION_DIR/iqama_notification.caf"
+          SCRIPT
+          project.save
+          RUBY
+
       - name: Run iOS integration test
         run: |
           SIMULATOR_ID="$(xcrun simctl list devices available -j | python3 -c "import json,sys; devices=json.load(sys.stdin)['devices']; print(next(device['udid'] for runtime in devices.values() for device in runtime if device['isAvailable'] and device['name'].startswith('iPhone')))" )"
@@ -58,7 +94,7 @@ jobs:
           flutter test integration_test -d "$SIMULATOR_ID" --reporter expanded
 
       - name: Build unsigned iOS app
-        run: flutter build ios --release --no-codesign
+        run: flutter build ios --release --no-codesign --build-number "$GITHUB_RUN_NUMBER"
 
       - name: Add prayer notification sounds to iOS bundle
         run: |
@@ -83,6 +119,83 @@ jobs:
           xcrun lipo build/ios/iphoneos/Runner.app/Runner -verify_arch arm64
           unzip -tq build/ios/ipa/MuathAlsuraihi-unsigned.ipa
           shasum -a 256 build/ios/ipa/MuathAlsuraihi-unsigned.ipa
+
+      - name: Prepare App Store Connect signing key
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
+        env:
+          API_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
+        run: |
+          test -n "$API_PRIVATE_KEY"
+          printf '%s' "$API_PRIVATE_KEY" > "$RUNNER_TEMP/AuthKey.p8"
+          chmod 600 "$RUNNER_TEMP/AuthKey.p8"
+
+      - name: Archive signed TestFlight build
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          test -n "$APPLE_TEAM_ID"
+          test -n "$API_KEY_ID"
+          test -n "$API_ISSUER_ID"
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/MuathAlsuraihi.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$API_KEY_ID" \
+            -authenticationKeyIssuerID "$API_ISSUER_ID" \
+            archive
+
+      - name: Export TestFlight IPA
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>destination</key><string>export</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>method</key><string>app-store-connect</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/MuathAlsuraihi.xcarchive" \
+            -exportPath build/ios/testflight \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$API_KEY_ID" \
+            -authenticationKeyIssuerID "$API_ISSUER_ID"
+          test -s build/ios/testflight/Runner.ipa
+
+      - name: Upload signed build to TestFlight
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
+        env:
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          cp "$RUNNER_TEMP/AuthKey.p8" ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+          xcrun altool --upload-app --type ios \
+            --file build/ios/testflight/Runner.ipa \
+            --apiKey "$API_KEY_ID" \
+            --apiIssuer "$API_ISSUER_ID"
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
