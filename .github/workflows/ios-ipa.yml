@@ -13,7 +13,8 @@ on:
 
 jobs:
   build-ios-ipa:
-    runs-on: macos-14
+    # macos-14 was retired from GitHub Actions; use the supported macOS 15 image.
+    runs-on: macos-15
     timeout-minutes: 60
 
     steps:
