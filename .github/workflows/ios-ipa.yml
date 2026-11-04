@@ -129,6 +129,24 @@ jobs:
           printf '%s' "$API_PRIVATE_KEY" > "$RUNNER_TEMP/AuthKey.p8"
           chmod 600 "$RUNNER_TEMP/AuthKey.p8"
 
+      - name: Configure Runner distribution signing
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          ruby <<'RUBY'
+          require 'xcodeproj'
+          project = Xcodeproj::Project.open('ios/Runner.xcodeproj')
+          target = project.targets.find { |item| item.name == 'Runner' }
+          raise 'Runner target not found' unless target
+          configuration = target.build_configurations.find { |item| item.name == 'Release' }
+          raise 'Runner Release configuration not found' unless configuration
+          configuration.build_settings['DEVELOPMENT_TEAM'] = ENV.fetch('APPLE_TEAM_ID')
+          configuration.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
+          configuration.build_settings['CODE_SIGN_IDENTITY'] = 'Apple Distribution'
+          project.save
+          RUBY
+
       - name: Archive signed TestFlight build
         if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
         env:
@@ -147,8 +165,6 @@ jobs:
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/MuathAlsuraihi.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Automatic \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
             -authenticationKeyID "$API_KEY_ID" \
