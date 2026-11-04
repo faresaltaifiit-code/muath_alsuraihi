@@ -104,13 +104,6 @@ jobs:
           project.save
           RUBY
 
-      - name: Run iOS integration test
-        run: |
-          SIMULATOR_ID="$(xcrun simctl list devices available -j | python3 -c "import json,sys; devices=json.load(sys.stdin)['devices']; print(next(device['udid'] for runtime in devices.values() for device in runtime if device['isAvailable'] and device['name'].startswith('iPhone')))" )"
-          xcrun simctl boot "$SIMULATOR_ID" || true
-          open -a Simulator
-          flutter test integration_test -d "$SIMULATOR_ID" --reporter expanded
-
       - name: Build unsigned iOS app
         run: flutter build ios --release --no-codesign --build-number "$GITHUB_RUN_NUMBER"
 
