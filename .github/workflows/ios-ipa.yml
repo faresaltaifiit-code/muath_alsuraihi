@@ -81,6 +81,11 @@ jobs:
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName $DISPLAY_NAME" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription $LOCATION_USAGE" ios/Runner/Info.plist
 
+      - name: Add Privacy Usage Descriptions
+        run: |
+          /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'يحتاج التطبيق إلى الميكروفون لتسجيل التلاوات أو البحث الصوتي.'" ios/Runner/Info.plist || /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'يحتاج التطبيق إلى الميكروفون لتسجيل التلاوات أو البحث الصوتي.'" ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :NSLocationAlwaysAndWhenInUseUsageDescription string 'يحتاج التطبيق إلى موقعك لحساب أوقات الصلاة واتجاه القبلة بدقة.'" ios/Runner/Info.plist || /usr/libexec/PlistBuddy -c "Set :NSLocationAlwaysAndWhenInUseUsageDescription 'يحتاج التطبيق إلى موقعك لحساب أوقات الصلاة واتجاه القبلة بدقة.'" ios/Runner/Info.plist
+
       - name: Bundle prayer notification sounds in every iOS build
         run: |
           ruby <<'RUBY'
