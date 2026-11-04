@@ -78,7 +78,7 @@ jobs:
           phase ||= target.new_shell_script_build_phase('Copy prayer notification sounds')
           phase.shell_script = <<~'SCRIPT'
             set -e
-            SOURCE_DIR="$PROJECT_DIR/../../assets/audio"
+            SOURCE_DIR="$PROJECT_DIR/../assets/audio"
             DESTINATION_DIR="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
             cp "$SOURCE_DIR/adhan_notification.caf" "$DESTINATION_DIR/adhan_notification.caf"
             cp "$SOURCE_DIR/iqama_notification.caf" "$DESTINATION_DIR/iqama_notification.caf"
