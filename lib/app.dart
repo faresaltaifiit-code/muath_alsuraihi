@@ -52,24 +52,30 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
   Future<void> _requestStartupPermissions() async {
     try {
       // iOS must finish one permission prompt before presenting another.
-      await _prayerNotifications.requestPermission();
+      final notificationsGranted = await _prayerNotifications.requestPermission();
       if (!mounted) return;
       final preferences = await SharedPreferences.getInstance();
       const askedKey = 'startup_location_permission_requested';
-      if (preferences.getBool(askedKey) == true) return;
-      final permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        if (!await Geolocator.isLocationServiceEnabled()) return;
-        final context = _navigatorKey.currentContext;
-        if (!mounted || context == null) return;
-        final prayers = context.read<PrayerTimesProvider>();
-        while (mounted && !prayers.isLoaded) {
-          await Future<void>.delayed(const Duration(milliseconds: 50));
+      final context = _navigatorKey.currentContext;
+      if (!mounted || context == null) return;
+      final prayers = context.read<PrayerTimesProvider>();
+      while (mounted && !prayers.isLoaded) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      }
+      if (!mounted) return;
+      if (preferences.getBool(askedKey) != true) {
+        final permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied &&
+            await Geolocator.isLocationServiceEnabled()) {
+          await prayers.useCurrentLocation();
         }
         if (!mounted) return;
-        await prayers.useCurrentLocation();
+        if (permission != LocationPermission.denied ||
+            await Geolocator.isLocationServiceEnabled()) {
+          await preferences.setBool(askedKey, true);
+        }
       }
-      await preferences.setBool(askedKey, true);
+      if (notificationsGranted) await prayers.enableAlertsIfNotConfigured();
     } catch (_) {
       // Leave the app usable and allow another attempt on a later launch.
     }

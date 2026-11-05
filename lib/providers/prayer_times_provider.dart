@@ -167,6 +167,25 @@ class PrayerTimesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Applies the initial permission choice without overriding a saved choice.
+  Future<void> enableAlertsIfNotConfigured() async {
+    final preferences = await SharedPreferences.getInstance();
+    if (preferences.containsKey(_alertsKey)) return;
+    _alertsEnabled = true;
+    await preferences.setBool(_alertsKey, true);
+    notifyListeners();
+    try {
+      if (_today == null) {
+        await refreshPrayerTimes();
+      } else {
+        await _scheduleUpcomingAlerts();
+      }
+    } catch (_) {
+      _error = 'تعذر تحديث التنبيهات الآن. حاول مرة أخرى.';
+      notifyListeners();
+    }
+  }
+
   /// Saves mosque-specific iqama offsets in minutes. The approximate values
   /// remain the default for listeners who never change this setting.
   Future<void> setIqamaDelays(Map<PrayerName, int> delays) async {
