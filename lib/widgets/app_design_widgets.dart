@@ -2,51 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_colors.dart';
 
-/// الشعار الموحد: نجمة ثمانية وخلفية كريمية خفيفة وكتاب ذهبي.
+/// The same artwork used by the iOS home-screen icon.
 class BrandMark extends StatelessWidget {
   const BrandMark({super.key, this.size = 62});
 
   final double size;
 
   @override
-  Widget build(BuildContext context) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [AppColors.emerald, AppColors.forestGreen],
-          ),
-          borderRadius: BorderRadius.circular(size * .32),
-        ),
-        child: Center(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox.square(
-                dimension: size * .72,
-                child: CustomPaint(
-                  painter: _EightPointStarPainter(
-                    color: Colors.white.withValues(alpha: .18),
-                  ),
-                ),
-              ),
-              Container(
-                width: size * .42,
-                height: size * .42,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.softGold.withValues(alpha: .16),
-                ),
-              ),
-              Icon(
-                Icons.menu_book_outlined,
-                size: size * .40,
-                color: AppColors.softGold,
-              ),
-            ],
-          ),
+  Widget build(BuildContext context) => ClipRRect(
+        borderRadius: BorderRadius.circular(size * .23),
+        child: Image.asset(
+          'assets/images/app-icon.png',
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
         ),
       );
 }

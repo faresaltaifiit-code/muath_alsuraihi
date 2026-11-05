@@ -248,7 +248,10 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                         Text(
                           highlightedPrayer?.arabicName ?? 'مواقيت الغد قريبًا',
                           style: theme.textTheme.displaySmall?.copyWith(
-                              color: AppColors.softGold, fontFamily: 'Amiri'),
+                              color: theme.brightness == Brightness.light
+                                  ? AppColors.forestGreen
+                                  : AppColors.softGold,
+                              fontFamily: 'Amiri'),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -264,7 +267,10 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                           _formatDuration(countdown),
                           textDirection: TextDirection.ltr,
                           style: theme.textTheme.displayMedium?.copyWith(
-                              fontFamily: 'Amiri', color: AppColors.softGold),
+                              fontFamily: 'Amiri',
+                              color: theme.brightness == Brightness.light
+                                  ? AppColors.forestGreen
+                                  : AppColors.softGold),
                         ),
                         const SizedBox(height: 8),
                         const Text('الإقامة توقيت تقريبي قابل للتعديل لاحقًا',
@@ -591,12 +597,7 @@ class _PrayerRow extends StatelessWidget {
           ? AppColors.emerald.withValues(alpha: .14)
           : theme.colorScheme.surface,
       child: ListTile(
-        leading: Icon(
-          prayer == PrayerName.fajr || prayer == PrayerName.isha
-              ? Icons.nightlight_round
-              : Icons.wb_sunny_outlined,
-          color: highlighted ? AppColors.goldAccent : null,
-        ),
+        leading: _PrayerIcon(prayer: prayer, highlighted: highlighted),
         title: Text(prayer.arabicName),
         subtitle: Text('الإقامة بعد ${iqamaDelay.inMinutes} دقيقة'),
         trailing: Directionality(
@@ -611,5 +612,51 @@ class _PrayerRow extends StatelessWidget {
     final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute ${time.hour >= 12 ? 'م' : 'ص'}';
+  }
+}
+
+class _PrayerIcon extends StatelessWidget {
+  const _PrayerIcon({required this.prayer, required this.highlighted});
+
+  final PrayerName prayer;
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final color = dark ? AppColors.softGold : AppColors.forestGreen;
+    final icon = switch (prayer) {
+      PrayerName.fajr => Icons.nights_stay_outlined,
+      PrayerName.dhuhr => Icons.wb_sunny_outlined,
+      PrayerName.asr => Icons.wb_sunny_outlined,
+      PrayerName.maghrib => Icons.wb_twilight_outlined,
+      PrayerName.isha => Icons.nightlight_round,
+    };
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: highlighted
+            ? AppColors.goldAccent.withValues(alpha: dark ? .20 : .27)
+            : Colors.transparent,
+      ),
+      child: Stack(alignment: Alignment.center, children: [
+        Icon(icon, size: 26, color: color),
+        if (prayer == PrayerName.asr)
+          Positioned(
+            right: 2,
+            bottom: 4,
+            child: Icon(Icons.cloud_outlined, size: 18, color: color),
+          ),
+        if (prayer == PrayerName.fajr || prayer == PrayerName.isha)
+          Positioned(
+            right: 4,
+            top: 5,
+            child:
+                Icon(Icons.star_rounded, size: 8, color: AppColors.goldAccent),
+          ),
+      ]),
+    );
   }
 }
