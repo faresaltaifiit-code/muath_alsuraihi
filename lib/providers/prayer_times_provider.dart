@@ -35,6 +35,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   double _longitude = PrayerTimesService.jeddahLongitude;
   String? _error;
   DateTime? _testNotificationScheduledAt;
+  Future<void> _alertScheduleQueue = Future<void>.value();
   int _preAdhanReminderMinutes = 0;
   final Map<PrayerName, int> _iqamaDelayMinutes = {
     for (final prayer in PrayerName.values)
@@ -250,7 +251,14 @@ class PrayerTimesProvider extends ChangeNotifier {
     await _notificationsService.openNotificationSettings();
   }
 
-  Future<void> _scheduleUpcomingAlerts() async {
+  Future<void> _scheduleUpcomingAlerts() {
+    final result = _alertScheduleQueue.then((_) => _performScheduleUpcomingAlerts());
+    _alertScheduleQueue = result.catchError((Object _) {});
+    return result;
+  }
+
+  Future<void> _performScheduleUpcomingAlerts() async {
+    if (!_alertsEnabled) return;
     final days = <PrayerDay>[];
     for (var offset = 0; offset < scheduledDaysCount; offset++) {
       final day = DateTime.now().add(Duration(days: offset));
@@ -260,6 +268,7 @@ class PrayerTimesProvider extends ChangeNotifier {
               date: day, latitude: _latitude, longitude: _longitude);
       days.add(prayerDay);
     }
+    if (!_alertsEnabled) return;
     await _notificationsService.schedule(
       days: days,
       iqamaDelays: {

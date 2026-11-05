@@ -8,6 +8,15 @@ import 'prayer_times_service.dart';
 
 enum PrayerNotificationAction { openAdhan, openIqama }
 
+({String title, String body}) preAdhanReminderText(
+    PrayerName prayer, int minutes) {
+  final unit = minutes == 15 ? 'دقيقة' : 'دقائق';
+  return (
+    title: 'اقترب موعد صلاة ${prayer.arabicName}',
+    body: 'تبقّى على أذان ${prayer.arabicName} $minutes $unit، فتهيّأ للصلاة بقلب مطمئن.',
+  );
+}
+
 /// The app uses one instance from launch through scheduling and playback.
 final prayerNotificationsService = PrayerNotificationsService();
 
@@ -66,6 +75,13 @@ class PrayerNotificationsService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   Future<void>? _initialization;
+  Future<void> _scheduleQueue = Future<void>.value();
+
+  Future<void> _serialize(Future<void> Function() operation) {
+    final result = _scheduleQueue.then((_) => operation());
+    _scheduleQueue = result.catchError((Object _) {});
+    return result;
+  }
 
   Future<void> initialize() => _initialization ??= _initialize();
 
@@ -124,7 +140,9 @@ class PrayerNotificationsService {
     await ios?.openAppNotificationSettings();
   }
 
-  Future<void> cancelPrayerNotifications() async {
+  Future<void> cancelPrayerNotifications() => _serialize(_cancelPrayerNotifications);
+
+  Future<void> _cancelPrayerNotifications() async {
     await initialize();
     for (var index = 0; index < _notificationCount; index++) {
       await _plugin.cancel(id: _notificationIdBase + index);
@@ -166,8 +184,18 @@ class PrayerNotificationsService {
     required List<PrayerDay> days,
     Map<PrayerName, Duration> iqamaDelays = const {},
     int preAdhanReminderMinutes = 0,
+  }) => _serialize(() => _schedulePrayers(
+        days: days,
+        iqamaDelays: iqamaDelays,
+        preAdhanReminderMinutes: preAdhanReminderMinutes,
+      ));
+
+  Future<void> _schedulePrayers({
+    required List<PrayerDay> days,
+    required Map<PrayerName, Duration> iqamaDelays,
+    required int preAdhanReminderMinutes,
   }) async {
-    await cancelPrayerNotifications();
+    await _cancelPrayerNotifications();
     var id = _notificationIdBase;
     final now = DateTime.now();
     const adhanDetails = NotificationDetails(
@@ -210,11 +238,11 @@ class PrayerNotificationsService {
         if (preAdhanReminderMinutes > 0 &&
             reminder.isAfter(now) &&
             id < _notificationIdBase + _notificationCount) {
+          final text = preAdhanReminderText(prayer, preAdhanReminderMinutes);
           await _schedule(
             id: id++,
-            title:
-                'تذكير: صلاة ${prayer.arabicName} بعد $preAdhanReminderMinutes دقائق',
-            body: 'تهيأ للصلاة، بارك الله فيك.',
+            title: text.title,
+            body: text.body,
             time: reminder,
             details: reminderDetails,
           );
