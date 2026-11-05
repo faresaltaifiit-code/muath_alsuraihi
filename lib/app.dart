@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/constants/app_strings.dart';
 import 'core/constants/adhan_content.dart';
@@ -40,8 +42,37 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
     );
     // Keep notification taps available even before the prayer screen is built.
     unawaited(_prayerNotifications.initialize());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_requestStartupPermissions());
+    });
     final launchAction = PrayerNotificationEvents.takePendingAction();
     if (launchAction != null) _queuePrayerNotification(launchAction);
+  }
+
+  Future<void> _requestStartupPermissions() async {
+    try {
+      // iOS must finish one permission prompt before presenting another.
+      await _prayerNotifications.requestPermission();
+      if (!mounted) return;
+      final preferences = await SharedPreferences.getInstance();
+      const askedKey = 'startup_location_permission_requested';
+      if (preferences.getBool(askedKey) == true) return;
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        if (!await Geolocator.isLocationServiceEnabled()) return;
+        final context = _navigatorKey.currentContext;
+        if (!mounted || context == null) return;
+        final prayers = context.read<PrayerTimesProvider>();
+        while (mounted && !prayers.isLoaded) {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+        }
+        if (!mounted) return;
+        await prayers.useCurrentLocation();
+      }
+      await preferences.setBool(askedKey, true);
+    } catch (_) {
+      // Leave the app usable and allow another attempt on a later launch.
+    }
   }
 
   void _queuePrayerNotification(PrayerNotificationAction action) {

@@ -256,16 +256,13 @@ class _PlayerScreenState extends State<PlayerScreen>
                   const SizedBox(height: 30),
                   Row(
                     children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _showShareCard(context, surah),
-                          icon: const Icon(Icons.share_outlined),
-                          label: const Text('مشاركة'),
-                        ),
+                      IconButton.outlined(
+                        onPressed: () => _showShareCard(context, surah),
+                        tooltip: 'مشاركة',
+                        icon: const Icon(Icons.share_outlined),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        flex: 13,
                         child: FilledButton.icon(
                           onPressed: player.isReady
                               ? player.togglePlayPause
