@@ -113,13 +113,19 @@ class MiniPlayer extends StatelessWidget {
                   ],
                 ),
               ),
-              Directionality(
-                textDirection: TextDirection.ltr,
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 3,
-                  color: AppColors.goldAccent,
-                  backgroundColor: theme.dividerColor,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 3,
+                      color: AppColors.goldAccent,
+                      backgroundColor: theme.dividerColor,
+                    ),
+                  ),
                 ),
               ),
             ],
