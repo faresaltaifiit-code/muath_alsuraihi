@@ -43,4 +43,5 @@ runner.add_dependency(widget)
 embed = runner.new_copy_files_build_phase('Embed App Extensions')
 embed.dst_subfolder_spec = '13'
 embed.add_file_reference(widget.product_reference, true)
+runner.build_phases.move(embed, runner.build_phases.index { |phase| phase.display_name == 'Thin Binary' } || runner.build_phases.length - 1)
 project.save
