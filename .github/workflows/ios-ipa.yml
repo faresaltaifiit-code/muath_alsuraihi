@@ -66,6 +66,7 @@ jobs:
           rm -rf ios
           flutter create --platforms=ios --org com.faresaltaifi --project-name muathalsuraihi .
           cp tooling/ios/AppDelegate.swift ios/Runner/AppDelegate.swift
+          ruby tooling/ios/add_prayer_widget.rb
           rm -rf ios/Runner/Assets.xcassets/AppIcon.appiconset
           cp -R tooling/ios/AppIcon.appiconset ios/Runner/Assets.xcassets/AppIcon.appiconset
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName تلاوات معاذ السريحي" ios/Runner/Info.plist
@@ -150,13 +151,18 @@ jobs:
         env:
           CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          WIDGET_PROFILE_BASE64: ${{ secrets.IOS_WIDGET_PROFILE_BASE64 }}
+          WIDGET_PROFILE_NAME: ${{ secrets.IOS_WIDGET_PROFILE_NAME }}
           PROFILE_BASE64: ${{ secrets.IOS_APP_STORE_PROFILE_BASE64 }}
           PROFILE_NAME: ${{ secrets.IOS_APP_STORE_PROFILE_NAME }}
+          WIDGET_PROFILE_NAME: ${{ secrets.IOS_WIDGET_PROFILE_NAME }}
         run: |
           test -n "$CERTIFICATE_BASE64"
           test -n "$CERTIFICATE_PASSWORD"
           test -n "$PROFILE_BASE64"
           test -n "$PROFILE_NAME"
+          test -n "$WIDGET_PROFILE_BASE64"
+          test -n "$WIDGET_PROFILE_NAME"
 
           CERTIFICATE_PATH="$RUNNER_TEMP/distribution.p12"
           PROFILE_PATH="$RUNNER_TEMP/profile.mobileprovision"
@@ -180,12 +186,19 @@ jobs:
           test "$INSTALLED_PROFILE_NAME" = "$PROFILE_NAME"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          WIDGET_PROFILE_PATH="$RUNNER_TEMP/widget.mobileprovision"
+          printf '%s' "$WIDGET_PROFILE_BASE64" | base64 --decode > "$WIDGET_PROFILE_PATH"
+          security cms -D -i "$WIDGET_PROFILE_PATH" > "$RUNNER_TEMP/widget-profile.plist"
+          test "$(/usr/libexec/PlistBuddy -c 'Print Name' "$RUNNER_TEMP/widget-profile.plist")" = "$WIDGET_PROFILE_NAME"
+          WIDGET_PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print UUID' "$RUNNER_TEMP/widget-profile.plist")"
+          cp "$WIDGET_PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$WIDGET_PROFILE_UUID.mobileprovision"
 
       - name: Configure Runner distribution signing
         if: github.event_name == 'workflow_dispatch' && inputs.upload_testflight == true
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           PROFILE_NAME: ${{ secrets.IOS_APP_STORE_PROFILE_NAME }}
+          WIDGET_PROFILE_NAME: ${{ secrets.IOS_WIDGET_PROFILE_NAME }}
         run: |
           ruby <<'RUBY'
           require 'xcodeproj'
@@ -198,6 +211,14 @@ jobs:
           configuration.build_settings['CODE_SIGN_STYLE'] = 'Manual'
           configuration.build_settings['CODE_SIGN_IDENTITY'] = 'Apple Distribution'
           configuration.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ENV.fetch('PROFILE_NAME')
+          widget = project.targets.find { |item| item.name == 'PrayerWidget' }
+          raise 'PrayerWidget target not found' unless widget
+          widget_config = widget.build_configurations.find { |item| item.name == 'Release' }
+          raise 'PrayerWidget Release configuration not found' unless widget_config
+          widget_config.build_settings['DEVELOPMENT_TEAM'] = ENV.fetch('APPLE_TEAM_ID')
+          widget_config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
+          widget_config.build_settings['CODE_SIGN_IDENTITY'] = 'Apple Distribution'
+          widget_config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ENV.fetch('WIDGET_PROFILE_NAME')
           project.save
           RUBY
 
@@ -222,6 +243,7 @@ jobs:
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           PROFILE_NAME: ${{ secrets.IOS_APP_STORE_PROFILE_NAME }}
+          WIDGET_PROFILE_NAME: ${{ secrets.IOS_WIDGET_PROFILE_NAME }}
         run: |
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
@@ -236,6 +258,7 @@ jobs:
             <key>provisioningProfiles</key>
             <dict>
               <key>com.faresaltaifi.muathalsuraihi</key><string>$PROFILE_NAME</string>
+              <key>com.faresaltaifi.muathalsuraihi.PrayerWidget</key><string>$WIDGET_PROFILE_NAME</string>
             </dict>
             <key>teamID</key><string>$APPLE_TEAM_ID</string>
             <key>uploadSymbols</key><true/>
