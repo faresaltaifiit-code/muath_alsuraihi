@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +24,7 @@ class PrayerTimesProvider extends ChangeNotifier {
   static const _locationLabelKey = 'prayer_location_label';
   static const _iqamaDelayKeyPrefix = 'prayer_iqama_delay_minutes_';
   static const _preAdhanReminderKey = 'prayer_pre_adhan_reminder_minutes';
+  static const _widgetChannel = MethodChannel('com.faresaltaifi.muath_alsuraihi/prayer_widget');
 
   final PrayerTimesService _prayerTimesService;
   final PrayerNotificationsService _notificationsService;
@@ -91,6 +94,7 @@ class PrayerTimesProvider extends ChangeNotifier {
         latitude: _latitude,
         longitude: _longitude,
       );
+      await _updatePrayerWidget();
       if (_alertsEnabled) await _scheduleUpcomingAlerts();
     } catch (_) {
       _error = 'تعذر تحديث المواقيت الآن. تحقق من اتصال الإنترنت.';
@@ -205,7 +209,29 @@ class PrayerTimesProvider extends ChangeNotifier {
         iqamaDelayMinutesFor(prayer),
       );
     }
+    await _updatePrayerWidget();
     if (_alertsEnabled) _rescheduleAlertsInBackground();
+  }
+
+  Future<void> _updatePrayerWidget() async {
+    if (!Platform.isIOS || _today == null) return;
+    final days = <PrayerDay>[_today!, if (_tomorrow != null) _tomorrow!];
+    final prayers = <Map<String, Object>>[];
+    for (final day in days) {
+      for (final prayer in PrayerName.values) {
+        final adhan = day.timeFor(prayer);
+        prayers.add({
+          'name': prayer.arabicName,
+          'adhan': adhan.millisecondsSinceEpoch / 1000,
+          'iqama': adhan.add(iqamaDelayFor(prayer)).millisecondsSinceEpoch / 1000,
+        });
+      }
+    }
+    try {
+      await _widgetChannel.invokeMethod<void>('savePrayerSnapshot', {'prayers': prayers});
+    } on PlatformException catch (_) {
+      // The app remains usable if the widget extension is not installed.
+    } on MissingPluginException catch (_) {}
   }
 
   Future<void> setPreAdhanReminderMinutes(int minutes) async {

@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import UserNotifications
+import WidgetKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -15,6 +16,24 @@ import UserNotifications
     // delivered to the app delegate (and can open the complete prayer audio).
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     if let controller = window?.rootViewController as? FlutterViewController {
+      let widgetChannel = FlutterMethodChannel(
+        name: "com.faresaltaifi.muath_alsuraihi/prayer_widget",
+        binaryMessenger: controller.binaryMessenger
+      )
+      widgetChannel.setMethodCallHandler { call, result in
+        guard call.method == "savePrayerSnapshot", let snapshot = call.arguments,
+              JSONSerialization.isValidJSONObject(snapshot),
+              let defaults = UserDefaults(suiteName: "group.com.faresaltaifi.muathalsuraihi.widgets") else {
+          result(FlutterError(code: "widget_snapshot_unavailable", message: nil, details: nil))
+          return
+        }
+        do {
+          let data = try JSONSerialization.data(withJSONObject: snapshot)
+          defaults.set(data, forKey: "prayer_widget_snapshot")
+          WidgetCenter.shared.reloadTimelines(ofKind: "PrayerWidget")
+          result(nil)
+        } catch { result(FlutterError(code: "widget_snapshot_invalid", message: error.localizedDescription, details: nil)) }
+      }
       let downloadsChannel = FlutterMethodChannel(
         name: "com.faresaltaifi.muath_alsuraihi/downloads",
         binaryMessenger: controller.binaryMessenger

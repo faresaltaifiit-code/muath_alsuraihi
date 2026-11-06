@@ -1,0 +1,32 @@
+name: Check prayer widgets
+on:
+  push:
+    branches: [codex/prayer-lock-widgets]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze lib test integration_test
+      - run: flutter test test --reporter expanded
+      - name: Generate iOS project and widget extension
+        run: |
+          rm -rf ios
+          flutter create --platforms=ios --org com.faresaltaifi --project-name muathalsuraihi .
+          cp tooling/ios/AppDelegate.swift ios/Runner/AppDelegate.swift
+          ruby tooling/ios/add_prayer_widget.rb
+      - name: Build unsigned iOS app and extension
+        run: flutter build ios --release --no-codesign --build-number "$GITHUB_RUN_NUMBER"
+      - name: Verify widget is embedded
+        run: test -d build/ios/iphoneos/Runner.app/PlugIns/PrayerWidget.appex

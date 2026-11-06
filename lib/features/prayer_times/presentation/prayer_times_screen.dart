@@ -600,9 +600,18 @@ class _PrayerRow extends StatelessWidget {
         leading: _PrayerIcon(prayer: prayer, highlighted: highlighted),
         title: Text(prayer.arabicName),
         subtitle: Text('الإقامة بعد ${iqamaDelay.inMinutes} دقيقة'),
-        trailing: Directionality(
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
           textDirection: TextDirection.ltr,
-          child: Text(_formatTime(time), style: theme.textTheme.titleMedium),
+          children: [
+            Text(_formatTime(time),
+                textDirection: TextDirection.ltr,
+                style: theme.textTheme.titleMedium),
+            const SizedBox(width: 4),
+            Text(time.hour >= 12 ? 'م' : 'ص',
+                textDirection: TextDirection.rtl,
+                style: theme.textTheme.titleMedium),
+          ],
         ),
       ),
     );
@@ -611,7 +620,7 @@ class _PrayerRow extends StatelessWidget {
   String _formatTime(DateTime time) {
     final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
     final minute = time.minute.toString().padLeft(2, '0');
-    return '$hour:$minute ${time.hour >= 12 ? 'م' : 'ص'}';
+    return '$hour:$minute';
   }
 }
 
