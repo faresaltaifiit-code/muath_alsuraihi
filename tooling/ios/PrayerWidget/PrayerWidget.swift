@@ -94,6 +94,7 @@ private struct HijriProvider: TimelineProvider {
 
 private struct HijriWidgetView: View {
     let entry: HijriEntry
+    @Environment(\.widgetFamily) private var family
     private var day: String {
         let f = DateFormatter(); f.calendar = Calendar(identifier: .islamicUmmAlQura)
         f.locale = Locale(identifier: "ar_SA"); f.dateFormat = "d"
@@ -104,7 +105,16 @@ private struct HijriWidgetView: View {
         f.locale = Locale(identifier: "ar_SA"); f.dateFormat = "MMM"
         return f.string(from: entry.date)
     }
-    var body: some View { VStack(spacing: 0) { Text(day).font(.headline); Text(month).font(.system(size: 9)).lineLimit(1).minimumScaleFactor(0.6) } }
+    var body: some View {
+        if family == .accessoryInline {
+            Text("\(day) \(month)")
+        } else {
+            VStack(spacing: 0) {
+                Text(day).font(.headline)
+                Text(month).font(.system(size: 9)).lineLimit(1).minimumScaleFactor(0.6)
+            }
+        }
+    }
 }
 
 struct PrayerWidget: Widget {
@@ -127,7 +137,7 @@ struct HijriWidget: Widget {
                 HijriWidgetView(entry: entry).containerBackground(.fill.tertiary, for: .widget)
             } else { HijriWidgetView(entry: entry).padding() }
         }.configurationDisplayName("التاريخ الهجري").description("تاريخ أم القرى")
-            .supportedFamilies([.accessoryCircular])
+            .supportedFamilies([.accessoryCircular, .accessoryInline])
     }
 }
 
