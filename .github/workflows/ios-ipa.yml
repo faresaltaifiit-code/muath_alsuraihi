@@ -271,6 +271,13 @@ jobs:
           TESTFLIGHT_IPA="$(find build/ios/testflight -maxdepth 1 -type f -name '*.ipa' -print -quit)"
           test -n "$TESTFLIGHT_IPA"
           test -s "$TESTFLIGHT_IPA"
+          mkdir -p "$RUNNER_TEMP/verify-ipa"
+          unzip -q "$TESTFLIGHT_IPA" -d "$RUNNER_TEMP/verify-ipa"
+          WIDGET="$RUNNER_TEMP/verify-ipa/Payload/Runner.app/PlugIns/PrayerWidget.appex"
+          WIDGET_EXECUTABLE="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$WIDGET/Info.plist")"
+          test -n "$WIDGET_EXECUTABLE"
+          test -x "$WIDGET/$WIDGET_EXECUTABLE"
+          xcrun otool -l "$WIDGET/$WIDGET_EXECUTABLE" | grep -q '__swift5_entry'
           echo "TESTFLIGHT_IPA=$TESTFLIGHT_IPA" >> "$GITHUB_ENV"
 
       - name: Upload signed build to TestFlight
