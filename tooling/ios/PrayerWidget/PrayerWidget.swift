@@ -62,22 +62,57 @@ private struct PrayerProvider: TimelineProvider {
 
 private struct PrayerWidgetView: View {
     let entry: PrayerEntry
+
+    private func symbol(for name: String) -> String {
+        switch name {
+        case "الفجر": return "sunrise.fill"
+        case "الظهر": return "sun.max.fill"
+        case "العصر": return "sun.haze.fill"
+        case "المغرب": return "sunset.fill"
+        case "العشاء": return "moon.stars.fill"
+        default: return "clock"
+        }
+    }
+
+    private func prayerTime(_ timestamp: Double) -> String {
+        let date = Date(timeIntervalSince1970: timestamp)
+        let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+        let hour = components.hour ?? 0
+        let minute = components.minute ?? 0
+        let displayHour = hour % 12 == 0 ? 12 : hour % 12
+        return String(format: "%d:%02d %@", displayHour, minute, hour < 12 ? "ص" : "م")
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            if let prayer = entry.prayer, let target = entry.target {
-                Text(entry.isIqama ? "الإقامة · \(prayer.name)" : "الصلاة القادمة · \(prayer.name)")
-                    .font(.caption).lineLimit(1)
-                HStack {
-                    Text(target, style: .time).font(.caption2)
-                    Spacer(minLength: 2)
-                    Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
-                        .monospacedDigit().font(.caption2)
+        if let prayer = entry.prayer, let target = entry.target {
+            HStack(spacing: 6) {
+                Image(systemName: symbol(for: prayer.name))
+                    .font(.system(size: 23))
+                    .frame(width: 30)
+                    .accessibilityHidden(true)
+                Rectangle().fill(.primary.opacity(0.25)).frame(width: 1)
+                VStack(alignment: .trailing, spacing: 1) {
+                    Text(prayer.name).font(.headline).lineLimit(1)
+                    Text("أذان " + prayerTime(prayer.adhan))
+                        .font(.caption2).lineLimit(1)
+                    HStack(spacing: 3) {
+                        Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
+                            .monospacedDigit()
+                            .environment(\.layoutDirection, .leftToRight)
+                        Text(entry.isIqama ? "للإقامة" : "متبقّي")
+                    }
+                    .font(.caption2).lineLimit(1).minimumScaleFactor(0.75)
                 }
-            } else {
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            .environment(\.layoutDirection, .leftToRight)
+        } else {
+            VStack(alignment: .trailing, spacing: 2) {
                 Text("مواقيت الصلاة").font(.caption)
                 Text("افتح التطبيق لتحديث المواقيت").font(.caption2)
             }
-        }.environment(\.layoutDirection, .rightToLeft)
+            .environment(\.layoutDirection, .rightToLeft)
+        }
     }
 }
 
