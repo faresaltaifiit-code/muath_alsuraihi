@@ -4,7 +4,7 @@ import UserNotifications
 import WidgetKit
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private let pendingPrayerNotificationKey = "pending_prayer_notification_payload"
   private var prayerNotificationsChannel: FlutterMethodChannel?
 
@@ -15,10 +15,16 @@ import WidgetKit
     // Required by flutter_local_notifications on iOS so notification taps are
     // delivered to the app delegate (and can open the complete prayer audio).
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
-    if let controller = window?.rootViewController as? FlutterViewController {
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    let messenger = engineBridge.applicationRegistrar.messenger()
+    do {
       let widgetChannel = FlutterMethodChannel(
         name: "com.faresaltaifi.muath_alsuraihi/prayer_widget",
-        binaryMessenger: controller.binaryMessenger
+        binaryMessenger: messenger
       )
       widgetChannel.setMethodCallHandler { call, result in
         guard call.method == "savePrayerSnapshot", let snapshot = call.arguments,
@@ -36,7 +42,7 @@ import WidgetKit
       }
       let downloadsChannel = FlutterMethodChannel(
         name: "com.faresaltaifi.muath_alsuraihi/downloads",
-        binaryMessenger: controller.binaryMessenger
+        binaryMessenger: messenger
       )
       downloadsChannel.setMethodCallHandler { call, result in
         if call.method == "availableStorage" {
@@ -78,7 +84,7 @@ import WidgetKit
 
       let prayerNotificationsChannel = FlutterMethodChannel(
         name: "com.faresaltaifi.muath_alsuraihi/prayer_notifications",
-        binaryMessenger: controller.binaryMessenger
+        binaryMessenger: messenger
       )
       prayerNotificationsChannel.setMethodCallHandler { [weak self] call, result in
         guard call.method == "takePendingNotificationPayload" else {
@@ -94,8 +100,6 @@ import WidgetKit
       self.prayerNotificationsChannel = prayerNotificationsChannel
     }
 
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   override func userNotificationCenter(
