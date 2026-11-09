@@ -5,6 +5,7 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'prayer_times_service.dart';
+import 'adhan_messages.dart';
 
 enum PrayerNotificationAction { openAdhan, openIqama }
 
@@ -250,8 +251,8 @@ class PrayerNotificationsService {
         if (adhan.isAfter(now)) {
           await _schedule(
             id: id++,
-            title: 'حان الآن موعد صلاة ${prayer.arabicName}',
-            body: 'تقبل الله طاعتكم.',
+            title: 'حان وقت صلاة ${prayer.arabicName}',
+            body: adhanMessageFor(prayer, adhan),
             time: adhan,
             details: adhanDetails,
             payload: 'open_adhan',
