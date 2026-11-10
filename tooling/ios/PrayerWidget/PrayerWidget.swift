@@ -20,6 +20,15 @@ private struct PrayerEntry: TimelineEntry {
     let isIqama: Bool
 }
 
+private func arabicPrayerTime(_ date: Date) -> String {
+    let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+    let hour = components.hour ?? 0
+    let minute = components.minute ?? 0
+    let displayHour = hour % 12 == 0 ? 12 : hour % 12
+    let digits = String(format: "%d:%02d", locale: Locale(identifier: "en_US_POSIX"), displayHour, minute)
+    return "\u{2066}\(digits)\u{2069} \(hour < 12 ? "ص" : "م")"
+}
+
 private struct PrayerProvider: TimelineProvider {
     func placeholder(in context: Context) -> PrayerEntry {
         PrayerEntry(date: .now, prayer: nil, target: nil, isIqama: false)
@@ -74,15 +83,6 @@ private struct PrayerWidgetView: View {
         }
     }
 
-    private func prayerTime(_ timestamp: Double) -> String {
-        let date = Date(timeIntervalSince1970: timestamp)
-        let components = Calendar.current.dateComponents([.hour, .minute], from: date)
-        let hour = components.hour ?? 0
-        let minute = components.minute ?? 0
-        let displayHour = hour % 12 == 0 ? 12 : hour % 12
-        return String(format: "%d:%02d %@", displayHour, minute, hour < 12 ? "ص" : "م")
-    }
-
     var body: some View {
         if let prayer = entry.prayer, let target = entry.target {
             HStack(spacing: 6) {
@@ -93,8 +93,8 @@ private struct PrayerWidgetView: View {
                 Rectangle().fill(.primary.opacity(0.25)).frame(width: 1)
                 VStack(alignment: .trailing, spacing: 1) {
                     Text(prayer.name).font(.headline).lineLimit(1)
-                    Text((entry.isIqama ? "إقامة " : "أذان ") + prayerTime(entry.isIqama ? prayer.iqama : prayer.adhan))
-                        .font(.caption2).lineLimit(1)
+                    Text((entry.isIqama ? "إقامة " : "أذان ") + arabicPrayerTime(Date(timeIntervalSince1970: entry.isIqama ? prayer.iqama : prayer.adhan)))
+                        .font(.caption2).lineLimit(1).environment(\.layoutDirection, .rightToLeft)
                     HStack(spacing: 3) {
                         Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
                             .monospacedDigit()
@@ -131,12 +131,14 @@ private struct PrayerCountdownView: View {
                 }
             } else {
                 VStack(spacing: 1) {
-                    Text("\(entry.isIqama ? "إقامة" : "أذان") \(prayer.name)")
+                    Text("\u{2067}\(entry.isIqama ? "إقامة" : "أذان") \(prayer.name)\u{2069}")
                         .font(.system(size: 13, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
+                        .environment(\.layoutDirection, .rightToLeft)
                     Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
                         .monospacedDigit().font(.system(size: 24, weight: .bold)).lineLimit(1).minimumScaleFactor(0.55)
                         .environment(\.layoutDirection, .leftToRight)
-                    Text(target, style: .time).font(.system(size: 11)).lineLimit(1)
+                    Text(arabicPrayerTime(target)).font(.system(size: 11)).lineLimit(1)
+                        .environment(\.layoutDirection, .rightToLeft)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
@@ -281,3 +283,4 @@ struct DuaWidget: Widget {
 @main struct PrayerWidgets: WidgetBundle {
     var body: some Widget { PrayerWidget(); HijriWidget(); PrayerCountdownWidget(); DuaWidget() }
 }
+
