@@ -93,7 +93,7 @@ private struct PrayerWidgetView: View {
                 Rectangle().fill(.primary.opacity(0.25)).frame(width: 1)
                 VStack(alignment: .trailing, spacing: 1) {
                     Text(prayer.name).font(.headline).lineLimit(1)
-                    Text("أذان " + prayerTime(prayer.adhan))
+                    Text((entry.isIqama ? "إقامة " : "أذان ") + prayerTime(entry.isIqama ? prayer.iqama : prayer.adhan))
                         .font(.caption2).lineLimit(1)
                     HStack(spacing: 3) {
                         Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
@@ -113,6 +113,77 @@ private struct PrayerWidgetView: View {
             }
             .environment(\.layoutDirection, .rightToLeft)
         }
+    }
+}
+
+private struct PrayerCountdownView: View {
+    let entry: PrayerEntry
+    @Environment(\.widgetFamily) private var family
+
+    var body: some View {
+        if let prayer = entry.prayer, let target = entry.target, target > entry.date {
+            if family == .accessoryCircular {
+                VStack(spacing: 1) {
+                    Text(entry.isIqama ? "إقامة" : "أذان").font(.caption2)
+                    Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
+                        .monospacedDigit().font(.caption2).lineLimit(1).minimumScaleFactor(0.5)
+                    Text(prayer.name).font(.caption2).lineLimit(1)
+                }
+            } else {
+                VStack(spacing: 1) {
+                    Text("\(entry.isIqama ? "إقامة" : "أذان") \(prayer.name)")
+                        .font(.caption).lineLimit(1)
+                    Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
+                        .monospacedDigit().font(.title3.bold()).lineLimit(1).minimumScaleFactor(0.55)
+                        .environment(\.layoutDirection, .leftToRight)
+                    Text(target, style: .time).font(.caption2).lineLimit(1)
+                }
+            }
+        } else {
+            Text("افتح التطبيق لتحديث المواقيت").font(.caption2)
+        }
+    }
+}
+
+private struct DuaEntry: TimelineEntry {
+    let date: Date
+    let text: String
+    let source: String
+}
+
+private struct DuaProvider: TimelineProvider {
+    // Quranic excerpts, verified against quran.ksu.edu.sa.
+    private let duas = [
+        ("رَبِّ زِدْنِي عِلْمًا", "طه: ١١٤"),
+        ("رَبِّ اشْرَحْ لِي صَدْرِي", "طه: ٢٥"),
+        ("رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ", "نوح: ٢٨"),
+        ("رَبَّنَا تَقَبَّلْ مِنَّا", "البقرة: ١٢٧"),
+    ]
+    private func makeEntry(_ date: Date) -> DuaEntry {
+        let hour = Int(date.timeIntervalSince1970 / 3600)
+        let index = ((hour % duas.count) + duas.count) % duas.count
+        return DuaEntry(date: date, text: duas[index].0, source: duas[index].1)
+    }
+    func placeholder(in context: Context) -> DuaEntry { makeEntry(.now) }
+    func getSnapshot(in context: Context, completion: @escaping (DuaEntry) -> Void) {
+        completion(makeEntry(.now))
+    }
+    func getTimeline(in context: Context, completion: @escaping (Timeline<DuaEntry>) -> Void) {
+        let now = Date()
+        let nextHour = Date(timeIntervalSince1970: (floor(now.timeIntervalSince1970 / 3600) + 1) * 3600)
+        let entries = [makeEntry(now)] + (0..<24).map { makeEntry(nextHour.addingTimeInterval(Double($0) * 3600)) }
+        completion(Timeline(entries: entries, policy: .atEnd))
+    }
+}
+
+private struct DuaWidgetView: View {
+    let entry: DuaEntry
+    var body: some View {
+        VStack(alignment: .center, spacing: 2) {
+            Text(entry.text).font(.headline).lineLimit(2).minimumScaleFactor(0.65)
+            Text(entry.source).font(.caption2).lineLimit(1)
+        }
+        .environment(\.layoutDirection, .rightToLeft)
     }
 }
 
@@ -176,6 +247,31 @@ struct HijriWidget: Widget {
     }
 }
 
+struct PrayerCountdownWidget: Widget {
+    let kind = "PrayerCountdownWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PrayerProvider()) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                PrayerCountdownView(entry: entry).containerBackground(.fill.tertiary, for: .widget)
+            } else { PrayerCountdownView(entry: entry).padding() }
+        }.configurationDisplayName("الصلاة القادمة - الوقت الكبير")
+            .description("الوقت المتبقي للأذان أو الإقامة")
+            .supportedFamilies([.accessoryRectangular, .accessoryCircular])
+    }
+}
+
+struct DuaWidget: Widget {
+    let kind = "DuaWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: DuaProvider()) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                DuaWidgetView(entry: entry).containerBackground(.fill.tertiary, for: .widget)
+            } else { DuaWidgetView(entry: entry).padding() }
+        }.configurationDisplayName("دعاء متجدد").description("أدعية قصيرة من القرآن الكريم")
+            .supportedFamilies([.accessoryRectangular])
+    }
+}
+
 @main struct PrayerWidgets: WidgetBundle {
-    var body: some Widget { PrayerWidget(); HijriWidget() }
+    var body: some Widget { PrayerWidget(); HijriWidget(); PrayerCountdownWidget(); DuaWidget() }
 }

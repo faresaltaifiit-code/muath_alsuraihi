@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -323,7 +323,7 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                 const SizedBox(height: 14),
                 Card(
                   child: Column(children: [
-                    SwitchListTile(
+                    if (prayers.isLoaded) SwitchListTile(
                       secondary:
                           const Icon(Icons.notifications_active_outlined),
                       title: const Text('تنبيهات الأذان والإقامة'),
@@ -332,6 +332,10 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                           : 'فعّلها لتصلك تنبيهات الصلاة.'),
                       value: prayers.alertsEnabled,
                       onChanged: prayers.setAlertsEnabled,
+                    ) else const ListTile(
+                      leading: Icon(Icons.notifications_active_outlined),
+                      title: Text('تنبيهات الأذان والإقامة'),
+                      subtitle: Text('جارٍ تحميل إعدادات التنبيهات...'),
                     ),
                     const Divider(height: 1),
                     ListTile(
