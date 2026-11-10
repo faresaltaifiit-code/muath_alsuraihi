@@ -132,12 +132,13 @@ private struct PrayerCountdownView: View {
             } else {
                 VStack(spacing: 1) {
                     Text("\(entry.isIqama ? "إقامة" : "أذان") \(prayer.name)")
-                        .font(.caption).lineLimit(1)
+                        .font(.system(size: 13, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
                     Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
-                        .monospacedDigit().font(.title3.bold()).lineLimit(1).minimumScaleFactor(0.55)
+                        .monospacedDigit().font(.system(size: 24, weight: .bold)).lineLimit(1).minimumScaleFactor(0.55)
                         .environment(\.layoutDirection, .leftToRight)
-                    Text(target, style: .time).font(.caption2).lineLimit(1)
+                    Text(target, style: .time).font(.system(size: 11)).lineLimit(1)
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
             }
         } else {
             Text("افتح التطبيق لتحديث المواقيت").font(.caption2)
@@ -158,6 +159,10 @@ private struct DuaProvider: TimelineProvider {
         ("رَبِّ اشْرَحْ لِي صَدْرِي", "طه: ٢٥"),
         ("رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ", "نوح: ٢٨"),
         ("رَبَّنَا تَقَبَّلْ مِنَّا", "البقرة: ١٢٧"),
+        ("رَبِّ اغْفِرْ وَارْحَمْ", "المؤمنون: ١١٨"),
+        ("رَبَّنَا لَا تُزِغْ قُلُوبَنَا", "آل عمران: ٨"),
+        ("رَبِّ لَا تَذَرْنِي فَرْدًا", "الأنبياء: ٨٩"),
+        ("وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا", "الفرقان: ٧٤"),
     ]
     private func makeEntry(_ date: Date) -> DuaEntry {
         let hour = Int(date.timeIntervalSince1970 / 3600)
@@ -180,7 +185,8 @@ private struct DuaWidgetView: View {
     let entry: DuaEntry
     var body: some View {
         VStack(alignment: .center, spacing: 2) {
-            Text(entry.text).font(.headline).lineLimit(2).minimumScaleFactor(0.65)
+            Text(entry.text).font(.system(size: 16, weight: .semibold))
+                .multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.65)
             Text(entry.source).font(.caption2).lineLimit(1)
         }
         .environment(\.layoutDirection, .rightToLeft)
