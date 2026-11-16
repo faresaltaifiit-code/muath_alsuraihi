@@ -18,6 +18,7 @@ private struct PrayerEntry: TimelineEntry {
     let prayer: Prayer?
     let target: Date?
     let isIqama: Bool
+    var previous: Prayer? = nil
 }
 
 private func arabicPrayerTime(_ date: Date) -> String {
@@ -62,7 +63,7 @@ private struct PrayerProvider: TimelineProvider {
         for prayer in prayers {
             let adhan = Date(timeIntervalSince1970: prayer.adhan)
             let iqama = Date(timeIntervalSince1970: prayer.iqama)
-            if date < adhan { return PrayerEntry(date: date, prayer: prayer, target: adhan, isIqama: false) }
+            if date < adhan { return PrayerEntry(date: date, prayer: prayer, target: adhan, isIqama: false, previous: prayers.last { $0.adhan < date.timeIntervalSince1970 }) }
             if date < iqama { return PrayerEntry(date: date, prayer: prayer, target: iqama, isIqama: true) }
         }
         return PrayerEntry(date: date, prayer: nil, target: nil, isIqama: false)
@@ -280,7 +281,187 @@ struct DuaWidget: Widget {
     }
 }
 
-@main struct PrayerWidgets: WidgetBundle {
-    var body: some Widget { PrayerWidget(); HijriWidget(); PrayerCountdownWidget(); DuaWidget() }
+// The complete wording is kept in each entry, including longer selections.
+private enum RotatingContent {
+    case supplications, remembrance, verses
+
+    var items: [(String, String)] {
+        switch self {
+        case .supplications:
+            return [
+                ("اللهم اغفر لي، وارحمني، واهدني، وعافني، وارزقني", "صحيح مسلم"),
+                ("اللهم إني أسألك الهدى، والتقى، والعفاف، والغنى", "صحيح مسلم"),
+                ("يا مقلب القلوب، ثبت قلبي على دينك", "الترمذي"),
+                ("اللهم إنك عفو تحب العفو، فاعف عني", "الترمذي"),
+                ("اللهم أعني على ذكرك، وشكرك، وحسن عبادتك", "أبو داود والنسائي"),
+                ("اللهم إني أسألك العفو والعافية في الدنيا والآخرة", "أبو داود وابن ماجه • جزء من دعاء"),
+                ("اللهم إني أعوذ بك من الهم والحزن، والعجز والكسل، والجبن والبخل، وضَلَع الدَّين وغَلَبة الرجال", "صحيح البخاري")
+            ]
+        case .remembrance:
+            return [
+                ("سبحان الله وبحمده", "متفق عليه"),
+                ("سبحان الله العظيم", "متفق عليه"),
+                ("لا حول ولا قوة إلا بالله", "متفق عليه"),
+                ("أستغفر الله وأتوب إليه", "صحيح البخاري"),
+                ("اللهم صلِّ على محمد", "الصلاة على النبي ﷺ")
+            ]
+        case .verses:
+            return [
+                ("إِنَّ مَعَ الْعُسْرِ يُسْرًا", "الشرح: ٦"),
+                ("وَاللَّهُ خَيْرُ الرَّازِقِينَ", "الجمعة: ١١ • مقتطف"),
+                ("وَهُوَ مَعَكُمْ أَيْنَ مَا كُنْتُمْ", "الحديد: ٤ • مقتطف"),
+                ("وَكَانَ اللَّهُ غَفُورًا رَحِيمًا", "النساء: ٩٦ • مقتطف")
+            ]
+        }
+    }
 }
 
+private struct SelectedContentProvider: TimelineProvider {
+    let content: RotatingContent
+    private func entry(_ date: Date) -> DuaEntry {
+        let items = content.items
+        let hour = Int(date.timeIntervalSince1970 / 3600)
+        let item = items[((hour % items.count) + items.count) % items.count]
+        return DuaEntry(date: date, text: item.0, source: item.1)
+    }
+    func placeholder(in context: Context) -> DuaEntry { entry(.now) }
+    func getSnapshot(in context: Context, completion: @escaping (DuaEntry) -> Void) {
+        completion(entry(.now))
+    }
+    func getTimeline(in context: Context, completion: @escaping (Timeline<DuaEntry>) -> Void) {
+        let now = Date()
+        let nextHour = Date(timeIntervalSince1970: (floor(now.timeIntervalSince1970 / 3600) + 1) * 3600)
+        let entries = [entry(now)] + (0..<24).map { entry(nextHour.addingTimeInterval(Double($0) * 3600)) }
+        completion(Timeline(entries: entries, policy: .atEnd))
+    }
+}
+
+private struct SelectedContentView: View {
+    let entry: DuaEntry
+    var body: some View {
+        VStack(spacing: 1) {
+            Text(entry.text)
+                .font(.system(size: entry.text.count > 55 ? 11 : 15, weight: .semibold))
+                .multilineTextAlignment(.center).lineLimit(4).minimumScaleFactor(0.55)
+            Text(entry.source).font(.system(size: 9)).lineLimit(1).minimumScaleFactor(0.7)
+        }.environment(\.layoutDirection, .rightToLeft)
+    }
+}
+
+struct SelectedDuaWidget: Widget {
+    let kind = "SelectedDuaWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: SelectedContentProvider(content: .supplications)) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                SelectedContentView(entry: entry).containerBackground(.fill.tertiary, for: .widget)
+            } else { SelectedContentView(entry: entry).padding() }
+        }.configurationDisplayName("أدعية مختارة").description("أدعية نبوية متجددة")
+            .supportedFamilies([.accessoryRectangular])
+    }
+}
+
+struct DhikrWidget: Widget {
+    let kind = "DhikrWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: SelectedContentProvider(content: .remembrance)) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                SelectedContentView(entry: entry).containerBackground(.fill.tertiary, for: .widget)
+            } else { SelectedContentView(entry: entry).padding() }
+        }.configurationDisplayName("أذكار قصيرة").description("أذكار مختارة متجددة")
+            .supportedFamilies([.accessoryRectangular])
+    }
+}
+
+struct VerseWidget: Widget {
+    let kind = "VerseWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: SelectedContentProvider(content: .verses)) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                SelectedContentView(entry: entry).containerBackground(.fill.tertiary, for: .widget)
+            } else { SelectedContentView(entry: entry).padding() }
+        }.configurationDisplayName("آيات قرآنية").description("آيات ومقتطفات قرآنية مختارة")
+            .supportedFamilies([.accessoryRectangular])
+    }
+}
+
+private struct PrayerProgressView: View {
+    let entry: PrayerEntry
+    var body: some View {
+        if let prayer = entry.prayer, let target = entry.target, target > entry.date {
+            VStack(spacing: 1) {
+                if entry.isIqama {
+                    Text("إقامة \(prayer.name)").font(.caption).lineLimit(1)
+                    ProgressView(timerInterval: Date(timeIntervalSince1970: prayer.adhan)...target, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
+                    Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
+                        .monospacedDigit().font(.system(size: 19, weight: .bold))
+                } else {
+                    HStack {
+                        Text(entry.previous?.name ?? "السابقة")
+                        Spacer()
+                        Text(prayer.name)
+                    }.font(.caption).lineLimit(1)
+                    if let previous = entry.previous, previous.adhan < target.timeIntervalSince1970 {
+                        ProgressView(timerInterval: Date(timeIntervalSince1970: previous.adhan)...target, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
+                    }
+                    Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
+                        .monospacedDigit().font(.system(size: 19, weight: .bold))
+                }
+            }.environment(\.layoutDirection, .rightToLeft)
+        } else { Text("افتح التطبيق لتحديث المواقيت").font(.caption2) }
+    }
+}
+
+struct PrayerProgressWidget: Widget {
+    let kind = "PrayerProgressWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PrayerProvider()) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                PrayerProgressView(entry: entry).containerBackground(.fill.tertiary, for: .widget)
+            } else { PrayerProgressView(entry: entry).padding() }
+        }.configurationDisplayName("الصلاة السابقة والقادمة").description("شريط للوقت المتبقي والأذان والإقامة")
+            .supportedFamilies([.accessoryRectangular])
+    }
+}
+
+private struct PrayerTimesView: View {
+    let entry: PrayerEntry
+    var body: some View {
+        if let prayer = entry.prayer {
+            VStack(spacing: 1) {
+                Text(prayer.name).font(.caption).lineLimit(1)
+                HStack {
+                    VStack {
+                        Text("الأذان").font(.system(size: 10))
+                        Text(arabicPrayerTime(Date(timeIntervalSince1970: prayer.adhan)))
+                            .font(.system(size: 16, weight: .bold)).lineLimit(1).minimumScaleFactor(0.6)
+                    }
+                    Spacer(minLength: 2)
+                    VStack {
+                        Text("الإقامة").font(.system(size: 10))
+                        Text(arabicPrayerTime(Date(timeIntervalSince1970: prayer.iqama)))
+                            .font(.system(size: 16, weight: .bold)).lineLimit(1).minimumScaleFactor(0.6)
+                    }
+                }
+            }.environment(\.layoutDirection, .rightToLeft)
+        } else { Text("افتح التطبيق لتحديث المواقيت").font(.caption2) }
+    }
+}
+
+struct PrayerTimesWidget: Widget {
+    let kind = "PrayerTimesWidget"
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PrayerProvider()) { entry in
+            if #available(iOSApplicationExtension 17.0, *) {
+                PrayerTimesView(entry: entry).containerBackground(.fill.tertiary, for: .widget)
+            } else { PrayerTimesView(entry: entry).padding() }
+        }.configurationDisplayName("الأذان والإقامة").description("وقت الأذان والإقامة التقريبي")
+            .supportedFamilies([.accessoryRectangular])
+    }
+}
+
+@main struct PrayerWidgets: WidgetBundle {
+    var body: some Widget {
+        PrayerWidget(); HijriWidget(); PrayerCountdownWidget(); DuaWidget()
+        SelectedDuaWidget(); DhikrWidget(); VerseWidget(); PrayerProgressWidget(); PrayerTimesWidget()
+    }
+}
