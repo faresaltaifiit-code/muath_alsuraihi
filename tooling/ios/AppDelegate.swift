@@ -37,6 +37,7 @@ import WidgetKit
           let data = try JSONSerialization.data(withJSONObject: snapshot)
           defaults.set(data, forKey: "prayer_widget_snapshot")
           WidgetCenter.shared.reloadTimelines(ofKind: "PrayerWidget")
+          WidgetCenter.shared.reloadTimelines(ofKind: "PrayerCountdownWidget")
           result(nil)
         } catch { result(FlutterError(code: "widget_snapshot_invalid", message: error.localizedDescription, details: nil)) }
       }
