@@ -27,7 +27,8 @@ class MuathAlsuraihiApp extends StatefulWidget {
   State<MuathAlsuraihiApp> createState() => _MuathAlsuraihiAppState();
 }
 
-class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
+class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp>
+    with WidgetsBindingObserver {
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _prayerNotifications = prayerNotificationsService;
   StreamSubscription<PrayerNotificationAction>? _notificationSubscription;
@@ -37,6 +38,7 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _notificationSubscription = PrayerNotificationEvents.actions.listen(
       _queuePrayerNotification,
     );
@@ -44,9 +46,28 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
     unawaited(_prayerNotifications.initialize());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_requestStartupPermissions());
+      unawaited(_refreshPrayersOnOpen());
     });
     final launchAction = PrayerNotificationEvents.takePendingAction();
     if (launchAction != null) _queuePrayerNotification(launchAction);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_refreshPrayersOnOpen());
+    }
+  }
+
+  Future<void> _refreshPrayersOnOpen() async {
+    final context = _navigatorKey.currentContext;
+    if (!mounted || context == null) return;
+    final prayers = context.read<PrayerTimesProvider>();
+    while (mounted && !prayers.isLoaded) {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+    if (!mounted || prayers.isRefreshing) return;
+    await prayers.refreshPrayerTimes();
   }
 
   Future<void> _requestStartupPermissions() async {
@@ -148,6 +169,7 @@ class _MuathAlsuraihiAppState extends State<MuathAlsuraihiApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _notificationSubscription?.cancel();
     super.dispose();
   }
