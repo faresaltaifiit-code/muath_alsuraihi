@@ -389,22 +389,30 @@ private struct PrayerProgressView: View {
     var body: some View {
         if let prayer = entry.prayer, let target = entry.target, target > entry.date {
             VStack(spacing: 1) {
-                if entry.isIqama {
-                    Text("إقامة \(prayer.name)").font(.caption).lineLimit(1)
-                    ProgressView(timerInterval: Date(timeIntervalSince1970: prayer.adhan)...target, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
+                HStack(spacing: 3) {
+                    Text(prayer.name).font(.system(size: 16, weight: .bold)).lineLimit(1)
+                    Spacer(minLength: 2)
                     Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
                         .monospacedDigit().font(.system(size: 19, weight: .bold))
+                        .lineLimit(1).minimumScaleFactor(0.65)
+                        .environment(\.layoutDirection, .leftToRight)
+                }
+                if entry.isIqama {
+                    ProgressView(timerInterval: Date(timeIntervalSince1970: prayer.adhan)...target, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
+                    Text("المتبقي للإقامة • \(arabicPrayerTime(target))")
+                        .font(.system(size: 10)).lineLimit(1).minimumScaleFactor(0.65)
                 } else {
-                    HStack {
-                        Text(entry.previous?.name ?? "السابقة")
-                        Spacer()
-                        Text(prayer.name)
-                    }.font(.caption).lineLimit(1)
                     if let previous = entry.previous, previous.adhan < target.timeIntervalSince1970 {
                         ProgressView(timerInterval: Date(timeIntervalSince1970: previous.adhan)...target, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
                     }
-                    Text(timerInterval: entry.date...target, countsDown: true, showsHours: true)
-                        .monospacedDigit().font(.system(size: 19, weight: .bold))
+                    Text("المتبقي للأذان").font(.system(size: 9)).lineLimit(1)
+                    HStack(spacing: 3) {
+                        if let previous = entry.previous {
+                            Text("\(previous.name) السابقة: \(arabicPrayerTime(Date(timeIntervalSince1970: previous.adhan)))")
+                        }
+                        Spacer(minLength: 2)
+                        Text("\(prayer.name): \(arabicPrayerTime(target))")
+                    }.font(.system(size: 9)).lineLimit(1).minimumScaleFactor(0.55)
                 }
             }.environment(\.layoutDirection, .rightToLeft)
         } else { Text("افتح التطبيق لتحديث المواقيت").font(.caption2) }
