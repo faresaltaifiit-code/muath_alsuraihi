@@ -38,6 +38,8 @@ import WidgetKit
           defaults.set(data, forKey: "prayer_widget_snapshot")
           WidgetCenter.shared.reloadTimelines(ofKind: "PrayerWidget")
           WidgetCenter.shared.reloadTimelines(ofKind: "PrayerCountdownWidget")
+          WidgetCenter.shared.reloadTimelines(ofKind: "PrayerProgressWidget")
+          WidgetCenter.shared.reloadTimelines(ofKind: "PrayerTimesWidget")
           result(nil)
         } catch { result(FlutterError(code: "widget_snapshot_invalid", message: error.localizedDescription, details: nil)) }
       }
