@@ -89,6 +89,9 @@ class PrayerTimesProvider extends ChangeNotifier {
         latitude: _latitude,
         longitude: _longitude,
       );
+      // Publish today's fresh times even if tomorrow's request later fails.
+      _tomorrow = null;
+      await _updatePrayerWidget();
       _tomorrow = await _prayerTimesService.fetchDay(
         date: DateTime.now().add(const Duration(days: 1)),
         latitude: _latitude,
