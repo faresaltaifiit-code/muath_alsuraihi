@@ -185,26 +185,6 @@ class MoreScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Wrap(
-                      spacing: 10,
-                      runSpacing: 8,
-                      alignment: WrapAlignment.center,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: () => _openSocial(context, 'https://youtube.com/@moadhalsurayhi'),
-                          icon: const Icon(Icons.ondemand_video_rounded),
-                          label: const Text('يوتيوب'),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => _openSocial(context, 'https://www.tiktok.com/@moadhalsurayhi'),
-                          icon: const Icon(Icons.music_note_rounded),
-                          label: const Text('تيك توك'),
-                        ),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 8),
                   Text(
                     'التطبيق بدون إعلانات وبدون تتبع.',
@@ -213,6 +193,27 @@ class MoreScreen extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const SizedBox(height: 16),
+          Center(
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => _openSocial(context, 'https://youtube.com/@moadhalsurayhi'),
+                  icon: const Icon(Icons.ondemand_video_rounded),
+                  label: const Text('يوتيوب'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _openSocial(context, 'https://www.tiktok.com/@moadhalsurayhi'),
+                  icon: const Icon(Icons.music_note_rounded),
+                  label: const Text('تيك توك'),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 22),
