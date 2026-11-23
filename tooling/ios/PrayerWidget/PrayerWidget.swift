@@ -406,13 +406,8 @@ private struct PrayerProgressView: View {
                         ProgressView(timerInterval: Date(timeIntervalSince1970: previous.adhan)...target, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
                     }
                     Text("المتبقي للأذان").font(.system(size: 9)).lineLimit(1)
-                    HStack(spacing: 3) {
-                        if let previous = entry.previous {
-                            Text("\(previous.name) السابقة: \(arabicPrayerTime(Date(timeIntervalSince1970: previous.adhan)))")
-                        }
-                        Spacer(minLength: 2)
-                        Text("\(prayer.name): \(arabicPrayerTime(target))")
-                    }.font(.system(size: 9)).lineLimit(1).minimumScaleFactor(0.55)
+                    Text("\(prayer.name): \(arabicPrayerTime(target))")
+                        .font(.system(size: 10)).lineLimit(1).minimumScaleFactor(0.7)
                 }
             }.environment(\.layoutDirection, .rightToLeft)
         } else { Text("افتح التطبيق لتحديث المواقيت").font(.caption2) }
