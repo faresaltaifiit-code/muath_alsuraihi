@@ -198,27 +198,36 @@ class MoreScreen extends StatelessWidget {
           const SizedBox(height: 22),
           Center(
             child: Text(
-              'تابع تلاوات القارئ على',
+              'تابع تلاوات القارئ معاذ السريحي',
               style: Theme.of(context).textTheme.titleSmall,
               textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(height: 12),
-          Center(
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
               children: [
-                OutlinedButton.icon(
-                  onPressed: () => _openSocial(context, 'https://youtube.com/@moadhalsurayhi'),
-                  icon: const Icon(Icons.ondemand_video_rounded),
-                  label: const Text('يوتيوب'),
+                ListTile(
+                  leading: const Icon(Icons.ondemand_video_rounded),
+                  title: const Text('تلاواته على يوتيوب'),
+                  subtitle: const Text('قناة تنشر تلاوات القارئ'),
+                  trailing: const Icon(Icons.chevron_left_rounded),
+                  onTap: () => _openSocial(
+                    context,
+                    'https://youtube.com/@moadhalsurayhi',
+                  ),
                 ),
-                OutlinedButton.icon(
-                  onPressed: () => _openSocial(context, 'https://www.tiktok.com/@moadhalsurayhi'),
-                  icon: const Icon(Icons.music_note_rounded),
-                  label: const Text('تيك توك'),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.music_note_rounded),
+                  title: const Text('مقاطعه على تيك توك'),
+                  subtitle: const Text('حساب ينشر تلاوات القارئ'),
+                  trailing: const Icon(Icons.chevron_left_rounded),
+                  onTap: () => _openSocial(
+                    context,
+                    'https://www.tiktok.com/@moadhalsurayhi',
+                  ),
                 ),
               ],
             ),
