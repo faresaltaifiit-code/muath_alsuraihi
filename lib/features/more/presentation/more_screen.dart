@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
@@ -183,6 +184,26 @@ class MoreScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () => _openSocial(context, 'https://youtube.com/@moadhalsurayhi'),
+                          icon: const Icon(Icons.ondemand_video_rounded),
+                          label: const Text('يوتيوب'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => _openSocial(context, 'https://www.tiktok.com/@moadhalsurayhi'),
+                          icon: const Icon(Icons.music_note_rounded),
+                          label: const Text('تيك توك'),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     'التطبيق بدون إعلانات وبدون تتبع.',
@@ -210,6 +231,15 @@ class MoreScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _openSocial(BuildContext context, String url) async {
+    final opened = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر فتح الرابط الآن.')),
+      );
+    }
   }
 
   static String _formatBytes(int bytes) {
