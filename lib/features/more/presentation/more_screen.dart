@@ -198,7 +198,7 @@ class MoreScreen extends StatelessWidget {
           const SizedBox(height: 22),
           Center(
             child: Text(
-              'حسابات القارئ على مواقع التواصل',
+              'تابع تلاوات القارئ على',
               style: Theme.of(context).textTheme.titleSmall,
               textAlign: TextAlign.center,
             ),
