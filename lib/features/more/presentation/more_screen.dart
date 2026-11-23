@@ -9,6 +9,7 @@ import '../../../providers/settings_provider.dart';
 import '../../../providers/downloads_provider.dart';
 import '../../../providers/recitations_provider.dart';
 import 'about_privacy_screen.dart';
+import 'feedback_screen.dart';
 import 'unified_search_screen.dart';
 
 class MoreScreen extends StatelessWidget {
@@ -215,6 +216,14 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 22),
+          ListTile(
+            leading: const Icon(Icons.feedback_outlined),
+            title: const Text('الملاحظات والاقتراحات'),
+            trailing: const Icon(Icons.chevron_left_rounded),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const FeedbackScreen()),
+            ),
+          ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
             title: const Text('عن التطبيق والخصوصية'),
